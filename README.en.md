@@ -30,6 +30,7 @@ To adapt the project, replace the wallet integration, transaction construction, 
 
 - Implemented: wallet connection and disconnection, account change handling, read-only Devnet balances, responsive layout, theme and language preferences, unsigned transaction construction, and simulation with `sigVerify=false`.
 - Not implemented: transaction signing and submission (Sprint 2.2), and on-chain history retrieval (Stage 3). The current home feed is explicitly labeled sample data.
+- Next: [Sprint 3.1](docs/SPRINT-3.1.md), the transaction parser and paginated history reader. Feed and personal-history UI integration will follow review. This work is specified but not implemented yet; the engineering work order is currently in Chinese.
 - Limitations: Devnet may reset. Public RPC services impose rate limits and do not guarantee long-term access to history. Published content cannot be retracted through the app; the frontend can only choose whether to display it. Unsigned simulation does not verify signatures or publish anything.
 
 ## Development
