@@ -333,3 +333,11 @@ Codex独立typecheck/66项测试/build/diff均通过，但审查不通过：R1 M
 - 自动检查：typecheck 退出0；npm test 6文件107项通过（history34）；build 退出0，67 modules，JS312.93/gzip98.67，CSS13.66/gzip3.67；git diff --check 退出0。
 - 修复后真实 Devnet 板级 pageSize=2 探针：2条有效留言、2作者、同文不同签名、费用80000 lamports；scanned2/filtered0/unavailable[]。
 - 未签名/发送，未提交/推送/部署；3.2 与 2.2 继续关闭。详见 [REVIEW-3.1.md](REVIEW-3.1.md)。
+
+## 2026-10-31：Sprint 2.2工单准备（仅文档）
+
+- 前置状态：3.2已复审通过并上传6b084d9；132项测试及既有浏览器证据是上轮结果，本次不重复声明为新执行。
+- 核对当前wallet/message/simulation/history接口、安装的Kit 8.6.0导出/类型与官方Wallet Standard及Solana发送/确认资料，形成[SPRINT-2.2.md](SPRINT-2.2.md)。接口存在性与文档核对不构成签名、发送或真机兼容证据。
+- 分A核心与注入测试、B页面与持有者Devnet验收；两段均未实施。当前未调用钱包签名、未广播交易、未部署或启动新公网入口，未修改产品源码或依赖。
+- 文档检查：本轮10个新增/修改文档及规则文件的40个相对链接均可解析，含未跟踪新工单的EOF/行尾空白扫描无问题，git diff --check退出0；差异仅文档。纯文档变更未重跑产品测试，最终暂存差异同样执行空白检查。
+- 真实钱包个人历史/切账户、真实429恢复、真机键盘/安全区等既有未验证项保留；不得据此工单把它们标为通过。
