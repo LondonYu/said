@@ -1,5 +1,26 @@
 # 验证记录
 
+## 2026-10-31：Sprint3.1最终独立复审通过
+
+- typecheck退出0；6文件107项测试通过；build输出/tmp/said-review-3.1-final-dist，67 modules，JS312.93 kB/gzip98.67、CSS13.66 kB/gzip3.67；git diff --check通过。
+- 额外8组独立断言覆盖上轮剩余genesis/列表迟到拒绝、两个入口genesis取消零后续派发、header范围/标记角色、原始尾游标/无进展/去重和作者查询参数，全部通过；R1/R2/R3关闭。
+- 独立公网：正式history模块新进程无缓存，两页(pageSize=2)读回2+1条、2作者，filtered=0、unavailable=[]，实际费用均80000 lamports。记录时刻2026-10-31T11:46:27.266Z，见[evidence/review-3.1-devnet.json](evidence/review-3.1-devnet.json)。未签名或广播。
+- 个人历史公网查询结果沿用Cline交付，本轮Codex另用注入RPC断言作者地址/游标/页大小/commitment，不冒称重跑所有作者历史或真机验收。
+- 本轮Codex改复审/工单/说明文档；提交前仅机械清理history.test.ts及REVIEW-3.1.md末尾空行，不改产品源码或测试逻辑。最终暂存区diff检查覆盖未跟踪文件；3.2工单已准备但未实现，2.2签名/发送继续关闭。
+
+## 2026-10-31：Sprint3.1 R1/R2/R3修复后二审
+
+- 独立typecheck、6文件100项测试、build（/tmp/said-review-3.1-r123-dist）及diff检查通过；已确认详情取消/单笔timeout隔离、畸形解析封装和多数严格校验、超量/坏候选保护生效。
+- 仍复现：genesis或列表单RPC超时后迟到成功被接受，genesis中取消后仍派发列表；header只读计数999或将标记设为只读仍被解析；原始页[A,B,A]返回去重尾B，before=A时绕过无进展检查。
+- 结论暂不通过，只收尾这三处。REVIEW-3.1-RESULT末尾二审节与CLINE-NEXT为当前修复入口；不重写已通过部分。Codex未改源码/测试，未提交推送，真实RPC结果仍为Cline交付证据。
+
+## 2026-10-31：Sprint3.1独立复审暂不通过
+
+- Codex实际重跑typecheck、6文件88项测试、build（/tmp/said-review-3.1-dist）、git diff --check全部通过；构建67 modules，JS312.93 kB/gzip98.67、CSS13.66 kB/gzip3.67。
+- 独立定向复现：caller已取消/整操作超时后详情仍返回成功；单笔详情timeout导致整页失败；非法base58解析异常使正常同页消息一并丢失；畸形header/索引/ALT、负bigint及孤立代理项被误收；before无进展未报错；pageSize=1的超量RPC响应发起21次详情；坏签名列表静默变成无法前进的结果。
+- 结论暂不通过，限定修复R1/R2/R3，见[REVIEW-3.1-RESULT.md](REVIEW-3.1-RESULT.md)；3.2与2.2继续关闭。Codex只改复审/交接文档，未改产品源码和测试、未提交推送部署。
+- 真实Devnet读取沿用Cline交付证据，未冒称本轮独立重跑；本轮定向复现使用公开交易夹具与注入RPC，不是真机验收。
+
 ## 2026-10-31：Sprint3.1工单准备的只读前检
 
 - 新进程直接调用官方Devnet RPC，genesis正确；查询标记地址候选10条上限，实际返回3条，逐笔查询3条；共5次RPC，无签名、发送或主网。
@@ -259,3 +280,22 @@ Codex独立typecheck/66项测试/build/diff均通过，但审查不通过：R1 M
 - 本轮执行：npm run typecheck 退出0；npm test 5文件73项通过；npm run build 退出0（67 modules，JS 312.93 kB / gzip 98.67 kB，CSS 13.66 kB / gzip 3.67 kB）；git diff --check 退出0。
 - 对50个待版本管理文件进行常见凭据格式扫描，无命中；node_modules、dist、环境文件和日志由 .gitignore 排除。格式扫描不等于全面安全审计。
 - 未执行真实钱包、签名/发送或新的真机验证；既有未验证项保留。GitHub 创建/推送结果以实际远端核验及 Obsidian 执行日志为准。
+
+## 2026-10-31：Sprint 3.1 历史解析与分页核心
+
+- 新增 `src/history.ts`（严格解析、公共/作者分页、显式重试、有界并发与超时）与 `src/history.test.ts`；公开真实夹具 `src/fixtures/real-wallet-transaction.json`。未接 UI，未改钱包/网络/模拟/依赖。
+- 自动检查：typecheck 退出0；npm test 6文件88项通过（wallet18/network11/message11/simulation13/history15/App20）；build 退出0，67 modules，JS312.93 kB/gzip98.67，CSS13.66 kB/gzip3.67；git diff --check 退出0。
+- 真实 Devnet 只读核验：板级 pageSize=2 两页共 3 条、2 作者；同文不同签名不合并；两位作者独立查询成功（Aq7g…1条、Hs1N…1条并保留4条429不可得）；实际费用80000 lamports。
+- 未验证：UI 接入、真机/浏览器、3.2 跨页合并与状态隔离、限流恢复等；未签名/发送，未提交/推送/部署。详见 [REVIEW-3.1.md](REVIEW-3.1.md)。
+
+## 2026-10-31：Sprint 3.1 R1/R2/R3复审修复
+
+- R1 取消/整操作超时贯穿详情池，预取消零RPC，详情中取消/超时终止且不接收迟到成功；单笔详情超时按unavailable保留，其他有效消息正常返回。
+- R1 二审剩余：genesis/list 单RPC超时后迟到成功拒绝；genesis/list阶段间取消检查；genesis中取消不派发列表/详情。
+- R2 解析入口对unknown稳定返回，不再抛异常；补header/索引/ALT/负bigint/孤立代理项校验；畸形条目不拖垮同页有效消息。
+- R2 二审剩余：header计数上限与静态账户数核对；零转账标记账户必须处于可写非签名区域。
+- R3 候选列表超limit在详情前失败；无效候选行显式报错；before==nextCursor报无进展；空页才sourceExhausted。
+- R3 二审剩余：nextCursor取原始页尾签名，去重只影响详情请求与消息输出。
+- 自动检查：typecheck 退出0；npm test 6文件107项通过（history34）；build 退出0，67 modules，JS312.93/gzip98.67，CSS13.66/gzip3.67；git diff --check 退出0。
+- 修复后真实 Devnet 板级 pageSize=2 探针：2条有效留言、2作者、同文不同签名、费用80000 lamports；scanned2/filtered0/unavailable[]。
+- 未签名/发送，未提交/推送/部署；3.2 与 2.2 继续关闭。详见 [REVIEW-3.1.md](REVIEW-3.1.md)。

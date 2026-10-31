@@ -1,6 +1,6 @@
 项目名Said，旧目录/包名保留。已公开在LondonYu/said，MIT。
-先阅读AGENTS.md、docs/CLINE-NEXT.md、docs/SPRINT-3.1.md、DECISIONS和VALIDATION。
-本轮只实现Sprint3.1 Devnet历史解析及分页读取核心；3.2界面接入另行拆单，2.2签名/发送继续关闭。
-保留2.1未签名构造/模拟与现有界面，不新增签名/发送、主网、后台、数据库或部署。
+先阅读AGENTS.md、docs/CLINE-NEXT.md、docs/SPRINT-3.2.md、docs/DECISIONS.md和docs/VALIDATION.md。
+3.1已复审通过；下一步按Sprint3.2接真实公共流/个人历史/详情与分页刷新重试，工单已准备尚未实现。2.2签名/发送继续关闭。
+保留已审查读取核心、2.1模拟和已确认视觉，不新增签名/发送、主网、后台、数据库或部署。
 先检查git状态，单执行者，保留已有修改；执行针对性验证及真实只读核验，未验证项如实记录。
-交付REVIEW-3.1并停在工作区等Codex复审，不自行提交推送或进入下一阶段。
+交付REVIEW-3.2并停在工作区等Codex复审，不自行提交推送或进入下一阶段。
