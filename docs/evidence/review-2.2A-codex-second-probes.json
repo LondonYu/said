@@ -1,0 +1,109 @@
+{
+  "reviewedAt": "2026-10-31T15:22:49.641433+00:00",
+  "scope": "Uncommitted 2.2A R1-R5 fixes; independent Node injection, no real wallet or broadcasting",
+  "verification": {
+    "typecheck": 0,
+    "projectTests": {
+      "files": 8,
+      "passed": 239
+    },
+    "build": {
+      "exit": 0,
+      "outDir": "/tmp/said-review-2.2A-r1r5-dist",
+      "modules": 70,
+      "js": "index-BrnMhRVn.js",
+      "jsKB": 345.92,
+      "gzipKB": 108.09
+    },
+    "diffCheck": 0
+  },
+  "priorNineProbes": {
+    "passed": 9,
+    "failed": 0,
+    "observations": {
+      "parallelSignWalletCalls": 1,
+      "sendTimeout": {
+        "settledAtDeadline": true,
+        "result": "uncertain"
+      },
+      "lateGenesis": {
+        "result": "rejected",
+        "walletCalls": 0
+      },
+      "lateStatus": "pending",
+      "confirmDeadline": {
+        "elapsed": 35,
+        "rounds": 1,
+        "budget": 35
+      },
+      "receiptSettlement": {
+        "check": "confirmed",
+        "stored": "confirmed"
+      },
+      "illFormedText": {
+        "result": "rejected",
+        "simulationCalls": 0
+      },
+      "featuresOnly": {
+        "available": false,
+        "sameSession": false
+      },
+      "unsupportedVersion": {
+        "available": false
+      }
+    }
+  },
+  "composedProbes": {
+    "passed": 0,
+    "failed": 4,
+    "cases": [
+      {
+        "title": "R3: processed错误不应结算成可靠终态",
+        "status": "failed"
+      },
+      {
+        "title": "R3: confirmed缺失err字段不能伪造成功",
+        "status": "failed"
+      },
+      {
+        "title": "R4: 已发features事件后再次静默替换能力仍须失效",
+        "status": "failed"
+      },
+      {
+        "title": "R4: 待签期间同账户撤销features并发accounts事件须失效",
+        "status": "failed"
+      }
+    ],
+    "observations": {
+      "processedError": {
+        "kind": "failed",
+        "persistence": "persisted",
+        "stored": [
+          "failed"
+        ]
+      },
+      "missingErr": {
+        "kind": "confirmed",
+        "persistence": "persisted"
+      },
+      "silentReplacementAfterEvent": {
+        "before": true,
+        "after": true,
+        "sameSession": true
+      },
+      "inPlaceAccountFeatureRevocation": {
+        "before": true,
+        "after": true,
+        "sameSession": true
+      }
+    }
+  },
+  "verdict": "R1/R2/R5 closed; R3/R4 remaining boundaries require fixes",
+  "qualification": "The in-place account mutation probe is a defensive extra observation, not a separate requested feature or independent blocking finding. Live feature replacement after a prior event violates the claimed lazy revalidation contract; handle inconsistent provider/event state conservatively.",
+  "unverified": [
+    "Real wallet signing",
+    "Real broadcast and network fault recovery",
+    "Browser Ed25519",
+    "Mobile device UX"
+  ]
+}

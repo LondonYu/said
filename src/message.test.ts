@@ -26,6 +26,19 @@ describe('留言正文校验', () => {
     expect(result).toEqual({ ok: true, count: 4, bytes: 11 });
   });
 
+  it('孤立高/低代理项被拒绝，合法代理对与 ZWJ 序列通过', () => {
+    expect(validateMessageText(String.fromCharCode(0xd800))).toEqual({
+      ok: false,
+      reason: 'not_well_formed',
+    });
+    expect(validateMessageText(`abc${String.fromCharCode(0xdc00)}`)).toEqual({
+      ok: false,
+      reason: 'not_well_formed',
+    });
+    expect(validateMessageText('👋')).toMatchObject({ ok: true, count: 1, bytes: 4 });
+    expect(validateMessageText('👨‍👩‍👧‍👦')).toMatchObject({ ok: true, count: 1 });
+  });
+
   it('140个grapheme恰好通过，超过则失败', () => {
     const boundary = '你'.repeat(TEXT_GRAPHEME_LIMIT);
     expect(validateMessageText(boundary).ok).toBe(true);
@@ -93,6 +106,13 @@ describe('未签名交易构造', () => {
     expect(unsigned.wireTransactionBase64.length).toBeGreaterThan(0);
     expect(unsigned.messageBase64.length).toBeGreaterThan(0);
     expect(unsigned.sizeBytes).toBe(unsigned.transaction.messageBytes.length + 65);
+  });
+
+  it('构造入口拒绝孤立代理项且不改写正文', () => {
+    const text = String.fromCharCode(0xd800);
+    expect(() =>
+      buildUnsignedGuestbookTransaction({ feePayer: FEE_PAYER, text, lifetime: LIFETIME }),
+    ).toThrow(/Unicode|代理项/);
   });
 
   it('构造入口拒绝空白、141 grapheme与超560字节正文', () => {

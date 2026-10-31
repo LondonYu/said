@@ -1,22 +1,21 @@
-# Cline交接：Sprint 2.2工单已准备，尚未执行
+# Cline交接：Sprint 2.2A复审通过，B未开始
 
-3.2已通过Codex独立复审，R1/R2关闭；132项测试/typecheck/build通过，额外hook断言与实际构建公共流/详情/末页浏览器检查通过。详见[最新复审](REVIEW-3.2-RESULT.md)。Codex按已授权流程保存GitHub检查点；2.2签名/发送继续关闭。
-
-下一阶段工单已准备：[SPRINT-2.2.md](SPRINT-2.2.md)。分为A发布核心/会话与交易校验/回执恢复测试，以及A复审后另行接入的B页面与持有者真实Devnet验收。本轮只完成规划，A/B均未开始，当前无新的Cline实现任务；产品签名/发送继续关闭，不因读到工单就自行执行。
+2026-11-01：Codex独立复审通过，R1–R5全部关闭。252项项目测试、16项额外独立断言、类型检查、构建及diff检查通过。详见[最终复审](REVIEW-2.2A-RESULT.md)和[机器证据](evidence/review-2.2A-codex-final-probes.json)。
 
 ## 当前停点
 
-- 3.2实现与修复已复审通过，Cline保持停点，不自行部署或进入2.2；Git提交推送由Codex完成。
-- 修复后typecheck、7文件132项测试、build（`index-DqHusx3n.js`）与diff通过；修复后全新headless Chrome只读Devnet证据见REVIEW-3.2/VALIDATION。
-- 不重写已通过复审的`history.ts`读取核心，不把示例数据作为真实读取失败兜底；编辑模拟保留。
-- 真实钱包切账户/断开历史、真实429/不可得重试、真机键盘/安全区仍未验证，继续如实保留。
-- 不扩大为签名/发送、主网、后台、数据库或部署；保留未验证项与已确认视觉。
-- 下一次明确执行2.2A时，先按新工单读取接口和检查Git，只交A；不接发布UI，不调用真实钱包签名或真实sendTransaction，使用注入测试验证边界。B不自动随A启动。
+- A已实现会话绑定、待签字节、真实Ed25519验签、单次提交/最小回执/有界确认恢复；真实RPC写入和钱包签名均未实际执行，只有注入测试。
+- 页面没有实例化publisher，编辑预览仍未上链，产品签名/发送继续关闭。
+- Cline保持停点，不自行提交推送或进入B；Codex按既定流程保存本次GitHub检查点。
+- 保留已审查的设计、协议、读取核心和依赖；真实钱包个人历史、浏览器验签、真实网络异常及真机项继续如实列为未验证。
 
-## 复审入口
+## 下一阶段
 
-- 交付与取舍：[REVIEW-3.2.md](REVIEW-3.2.md)
-- 当前复审与限定修复：[REVIEW-3.2-RESULT.md](REVIEW-3.2-RESULT.md)
-- 工单：[SPRINT-3.2.md](SPRINT-3.2.md)
-- 验证记录：[VALIDATION.md](VALIDATION.md)
-- 当前入口与规则：AGENTS.md、.clinerules
+下一步是[SPRINT-2.2.md](SPRINT-2.2.md)的B页面接入：审阅、显式签名发送、结果/回执恢复、确认后刷新公共流与原作者历史。只有后续明确执行B时才开始，真实Devnet测试由持有者点击并在钱包确认，Codex/Cline不代点；不使用主网或真实资金。当前无新的Cline实现任务，不自动部署或新开公网入口。
+
+## 参考
+
+- [A交付与限制](REVIEW-2.2A.md)
+- [最终复审及各轮历史](REVIEW-2.2A-RESULT.md)
+- [验证记录](VALIDATION.md)
+- 当前规则：AGENTS.md、.clinerules

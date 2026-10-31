@@ -1,0 +1,122 @@
+{
+  "reviewDate": "2026-11-01",
+  "timezone": "Asia/Shanghai",
+  "capturedAt": "2026-10-31T16:13:57.471718+00:00",
+  "baseline": "a13956e35dd3484a557437adbc71effd74900748",
+  "scope": "Independent review of complete uncommitted 2.2A and R1-R5 fixes; Node injection only; no real wallet signatures or broadcasts",
+  "checks": {
+    "typecheck": 0,
+    "projectTests": {
+      "files": 8,
+      "passed": 252
+    },
+    "build": {
+      "exit": 0,
+      "outDir": "/tmp/said-review-2.2A-final-dist",
+      "modules": 70,
+      "js": "index-Byps-RCq.js",
+      "jsKB": 346.16,
+      "jsGzipKB": 108.13,
+      "cssKB": 15.68,
+      "cssGzipKB": 4.04
+    },
+    "diffCheck": 0
+  },
+  "independentProbes": [
+    {
+      "passed": 9,
+      "failed": 0,
+      "observations": {
+        "parallelSignWalletCalls": 1,
+        "sendTimeout": {
+          "settledAtDeadline": true,
+          "result": "uncertain"
+        },
+        "lateGenesis": {
+          "result": "rejected",
+          "walletCalls": 0
+        },
+        "lateStatus": "pending",
+        "confirmDeadline": {
+          "elapsed": 35,
+          "rounds": 1,
+          "budget": 35
+        },
+        "receiptSettlement": {
+          "check": "confirmed",
+          "stored": "confirmed"
+        },
+        "illFormedText": {
+          "result": "rejected",
+          "simulationCalls": 0
+        },
+        "featuresOnly": {
+          "available": false,
+          "sameSession": false
+        },
+        "unsupportedVersion": {
+          "available": false
+        }
+      }
+    },
+    {
+      "passed": 4,
+      "failed": 0,
+      "observations": {
+        "processedError": {
+          "kind": "pending",
+          "persistence": "not_terminal",
+          "stored": []
+        },
+        "missingErr": {
+          "kind": "pending",
+          "persistence": "not_terminal"
+        },
+        "silentReplacementAfterEvent": {
+          "before": true,
+          "after": false,
+          "sameSession": false
+        },
+        "inPlaceAccountFeatureRevocation": {
+          "before": true,
+          "after": false,
+          "sameSession": false
+        }
+      }
+    },
+    {
+      "passed": 3,
+      "failed": 0,
+      "observations": {
+        "processedThenConfirmed": {
+          "rounds": 2,
+          "kind": "confirmed",
+          "persistence": "persisted",
+          "stored": [
+            "confirmed"
+          ]
+        },
+        "consistentEvent": {
+          "signed": true,
+          "sendCalls": 0
+        },
+        "elevenPublications": {
+          "stored": 10,
+          "allConfirmed": true,
+          "firstEvicted": true,
+          "sendCalls": 11
+        }
+      }
+    }
+  ],
+  "totalIndependentProbesPassed": 16,
+  "verdict": "Sprint 2.2A passed; R1/R2/R3/R4/R5 closed; 2.2B not started; UI signing/submission remain disabled",
+  "unverified": [
+    "Real-wallet signing compatibility",
+    "Real broadcasts and confirmation/readback",
+    "Browser/mobile Ed25519 support",
+    "Live 429/timeouts/response loss",
+    "Mobile keyboard and safe areas",
+    "Multi-tab behavior"
+  ]
+}

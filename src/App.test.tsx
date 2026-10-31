@@ -771,6 +771,9 @@ describe('2.1 交易检查', () => {
       simulationLogs: [],
       simulationUnitsConsumed: null,
       blockhashExpired: false,
+      // 2.1 只检查展示；待签字节由 2.2A publisher 测试覆盖。
+      wireTransactionBase64: '',
+      messageBase64: '',
       ...overrides,
     };
   }

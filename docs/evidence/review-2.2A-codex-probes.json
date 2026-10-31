@@ -1,0 +1,107 @@
+{
+  "reviewedAt": "2026-10-31T14:20:13.336212+00:00",
+  "baseline": "a13956e35dd3484a557437adbc71effd74900748",
+  "scope": "Uncommitted Sprint 2.2A delivery; injected wallets/RPC only, Node Ed25519, no real signing or broadcasting",
+  "verification": {
+    "typecheck": "exit 0",
+    "projectTests": {
+      "files": 8,
+      "passed": 205
+    },
+    "build": {
+      "exit": 0,
+      "outDir": "/tmp/said-review-2.2A-dist",
+      "modules": 70,
+      "js": "index-tJ58LKdO.js",
+      "jsKB": 344.44,
+      "gzipKB": 107.59,
+      "cssKB": 15.68
+    },
+    "diffCheck": "exit 0",
+    "initialBuildNote": "Default dist build blocked by filesystem sandbox; succeeded with same npm build command using /tmp output, not a product build error"
+  },
+  "probeMethod": "Reused the delivery publisher.test.ts injected fixture helpers in a temporary copy, adding independent assertions. Only the copy exposes a features-change event emitter. Product source/tests were not edited. No real wallet or network write requests.",
+  "independentProbes": {
+    "passed": 0,
+    "failed": 9,
+    "cases": [
+      {
+        "title": "R1: 两次sign同帧开始时也只能调用钱包一次",
+        "status": "failed"
+      },
+      {
+        "title": "R2: send响应不返回时默认超时必须结束为uncertain",
+        "status": "failed"
+      },
+      {
+        "title": "R2: RPC忽略abort并迟到成功不能继续签名",
+        "status": "failed"
+      },
+      {
+        "title": "R2: check不能接受超时后到达的confirmed",
+        "status": "failed"
+      },
+      {
+        "title": "R2: confirm的总体截止时间包含RPC与轮询间隔",
+        "status": "failed"
+      },
+      {
+        "title": "R3: confirmed终态必须保存，否则第11条仍被未解决容量阻塞",
+        "status": "failed"
+      },
+      {
+        "title": "R5: 准备入口必须拒绝读取器不接受的孤立代理项",
+        "status": "failed"
+      },
+      {
+        "title": "R4: 钱包features-only change必须立即使旧会话失效",
+        "status": "failed"
+      },
+      {
+        "title": "R4: 首版不能为未知签名特性版本生成可用会话",
+        "status": "failed"
+      }
+    ]
+  },
+  "observations": {
+    "parallelSignWalletCalls": 2,
+    "sendTimeout": {
+      "settledAtDeadline": false,
+      "result": "accepted"
+    },
+    "lateGenesis": {
+      "result": "signed",
+      "walletCalls": 1
+    },
+    "lateStatus": "confirmed",
+    "confirmDeadline": {
+      "elapsed": 70,
+      "rounds": 2,
+      "budget": 35
+    },
+    "receiptSettlement": {
+      "check": "confirmed",
+      "stored": "submitting"
+    },
+    "illFormedText": {
+      "result": "prepared",
+      "simulationCalls": 1
+    },
+    "featuresOnly": {
+      "available": true,
+      "sameSession": true
+    },
+    "unsupportedVersion": {
+      "available": true,
+      "version": "2.0.0"
+    }
+  },
+  "unverified": [
+    "Real-wallet signTransaction compatibility",
+    "Real sendTransaction and live network-failure recovery",
+    "Browser or mobile WebCrypto Ed25519",
+    "Mobile keyboard/safe area",
+    "Multi-tab behavior"
+  ],
+  "verdict": "changes_required_R1_R2_R3_R4_R5"
+}

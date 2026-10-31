@@ -53,6 +53,9 @@ export type SimulationCheckResult = {
   readonly simulationLogs: readonly string[];
   readonly simulationUnitsConsumed: bigint | null;
   readonly blockhashExpired: boolean;
+  // 与本次估费/模拟完全同一笔未签名交易，供 2.2 准备阶段逐字节锁定。
+  readonly wireTransactionBase64: string;
+  readonly messageBase64: string;
 };
 
 export type SimulationClient = {
@@ -188,6 +191,8 @@ export function createSimulationClient(
       simulationLogs: simulated.value.logs ?? [],
       simulationUnitsConsumed,
       blockhashExpired,
+      wireTransactionBase64: unsigned.wireTransactionBase64,
+      messageBase64: unsigned.messageBase64,
     };
   }
 

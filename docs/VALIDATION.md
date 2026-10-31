@@ -1,5 +1,23 @@
 # 验证记录
 
+## 2026-10-31：Sprint 2.2A 二审剩余 R3/R4 修复
+
+- R3可靠终态：先把 `confirmationStatus` 规范化为已知级别；只有 `confirmed`/`finalized` 可结算成功或失败，成功必须显式 `err === null`，只有对象形态的明确错误才写 `failed`。`processed`、null/未知级别、缺失或畸形 `err` 均返回 `pending`/`not_terminal`，保留原签名与观察到的错误，不写盘、不释放容量；确认轮询遇到 processed 错误仍继续到后续 confirmed 或上限。
+- R4实时能力：删除 `walletFeaturesFromEvent`/`walletChainsFromEvent` 永久信任标记；`getSigningSession()` 每次同时核对事件期望值、钱包实时 `chains`/`features`、账户 `chains`/`features`、地址/公钥、特性 `1.0.0` 与 v0 交易版本。事件与实时 getter 不一致或账户对象原地撤销时保守失效但保留只读连接；事件与 getter 一致时正常提供可调用签名会话。未改连接 generation、未回退 `signAndSend`。
+- 新增13项回归：processed+错误与未知级别+错误不结算、processed→confirmed继续轮询、confirmed/finalized缺err、confirmed畸形err、confirmed/finalized明确err结算；features事件一致后静默删除/替换、chains事件一致后静默撤销Devnet、事件/getter不一致、同账户原地撤销特性+accounts事件，以及签名等待期静默撤销和账户撤销组合零广播。现有R1/R2/R5回归保持通过。
+- 实际自动检查：`npm run typecheck` 退出0；`npm test` 8文件252项通过（publisher 98、wallet 38、message 13、simulation 13、network 11、history 34、App 27、historyFeed 18）；`npm run build` 退出0（70 modules，`dist/assets/index-Byps-RCq.js` 346.16 kB/gzip 108.13 kB，CSS 15.68 kB/gzip 4.04 kB）；`git diff --check` 退出0。
+- 本轮只改 `src/publisher.ts`、`src/wallet.ts` 及对应测试与交接/验证/复审文档；未接B/UI，未调用真实钱包签名或 `sendTransaction`，未新增依赖、后台、数据库、主网或部署，未提交/推送。真实钱包、真实广播/确认、浏览器WebCrypto Ed25519、真实429/响应丢失与真机项仍未验证；工作区停交Codex复审。
+
+## 2026-10-31：Sprint 2.2A R1–R5限定修复与回归
+
+- R1签名锁：`sign`在首次`await`前同步占有对象token；前置复核失败只释放本次token；页面取消但底层钱包Promise未结束时保留锁，旧请求`finally`不释放后来者。新增同帧连点、前置失败后重试、取消后底层仍pending、迟到结果与旧finally隔离回归。
+- R2截止/取消：`prepare`/`sign`/`submit`/`check`/`confirm`/`recover`/`readBack`接入可组合caller signal与总/单RPC截止；RPC实际race且await后复查，迟到成功/失败被丢弃；确认轮询包含在途RPC和轮间等待；监听器、计时器和睡眠均清理。发送已派发后超时/取消返回`uncertain`并保留原签名，不标未发送、不重签重发。新增预取消零RPC、genesis/高度/费用/余额逐阶段取消、状态/确认/恢复/读回取消、无响应send、迟到状态、轮间等待截止等回归。
+- R3终态结算：`check`/`confirm`/`recover`把confirmed/finalized/可靠失败写回同一原签名回执；`persistence`显式区分persisted/failed/not_terminal，写盘失败仍返回链上结果。新增confirmed/failed结算、写盘失败、recover结算、确认终态及实际浏览器回执存储连续11次成功发布/确认回归；第11笔会淘汰最旧confirmed，保留10条，不再耗尽容量。
+- R4钱包能力：处理`standard:events`的chains/features独立事件并重算会话；`getSigningSession()`每次核验实时能力与版本，静默替换也失效；仅接受签名特性1.0.0、v0、Devnet。新增未知版本拒绝、features-only撤销、chains-only移除Devnet、特性替换/恢复/交易版本变化、静默变更失效回归。
+- R5 Unicode：`message`新增well-formed Unicode检查，孤立高/低代理项返回`not_well_formed`；`prepare`在模拟前拒绝，`validatePrepared`对伪造准备对象同样拒绝；合法代理对、emoji与ZWJ保留原文通过。新增准备零模拟、伪造对象零钱包、合法序列通过回归。
+- 实际自动检查：`npm run typecheck`退出0；`npm test` 8文件239项通过（publisher89、wallet34、message13、simulation13、network11、history34、App27、historyFeed18）；`npm run build`退出0（70 modules，JS 345.92 kB/gzip 108.09 kB，CSS 15.68 kB/gzip 4.04 kB）；`git diff --check`退出0。
+- 本轮未接B页面/发布UI，未调用真实钱包签名或`sendTransaction`，未新增依赖、后台、数据库、主网或部署，未提交/推送。真实钱包、真实广播/确认、浏览器WebCrypto Ed25519、真实429/响应丢失与真机项仍未验证；注入钱包和Node验签不能替代B验收。工作区停交Codex复审。
+
 ## 2026-10-31：Sprint3.2 R1/R2最终独立复审通过
 
 - Codex独立typecheck、7文件132项测试、临时目录build、diff检查均通过；构建70 modules，JS341.90 kB/gzip106.85、CSS15.68 kB/gzip4.04，与Cline产物一致。
@@ -334,6 +352,14 @@ Codex独立typecheck/66项测试/build/diff均通过，但审查不通过：R1 M
 - 修复后真实 Devnet 板级 pageSize=2 探针：2条有效留言、2作者、同文不同签名、费用80000 lamports；scanned2/filtered0/unavailable[]。
 - 未签名/发送，未提交/推送/部署；3.2 与 2.2 继续关闭。详见 [REVIEW-3.1.md](REVIEW-3.1.md)。
 
+## 2026-10-31：Sprint 2.2A 发布核心交付
+
+- 新增 `src/publisher.ts`/`publisher.test.ts`；`src/wallet.ts` 增加 `getSigningSession()` 与可失效 revision；`src/simulation.ts` 返回同一笔待签 wire/message。页面未接入 publisher，未改发布 UI。
+- 实际自动检查：`npx tsc -b --pretty false` 退出0；`npm run typecheck` 退出0；`npx vitest run` 8文件205项通过（publisher 62、wallet 29、message 11、simulation 13、network 11、history 34、App 27、historyFeed 18）；`npm run build` 退出0（70 modules，JS 344.44 kB/gzip 107.59 kB，CSS 15.68 kB/gzip 4.04 kB）；`git diff --check` 退出0。
+- 针对性覆盖：待签字节篡改/伪造拒绝；单输出/真实 Ed25519/换私钥/全零/尾随字节/超长/非 Uint8Array/零或两条输出；genesis/费用/高度/会话前后失效；连点与取消；回执先落盘、写入失败零广播、并发同签名只广播一次、响应丢失/不一致保留原签名；processed 不升级、429/空状态/过期待确认、恢复零钱包零广播、读回作者核对；回执10条上限与逐字段校验，损坏回执在 check/confirm/readBack 前被拒。
+- 真实只读核验：Devnet `getGenesisHash` 返回固定值；历史签名 `4kozshro…McDXE` 的 `getSignatureStatuses(searchTransactionHistory=true)` 为 finalized/err=null；confirmed 高度读取成功。未签名、未发送、未部署、未提交。
+- 未验证如实保留：真实 Phantom/Bitget/OKX `signTransaction`、真实 `sendTransaction`/确认/读回、浏览器 WebCrypto Ed25519、真实429/超时/响应丢失、2.2B UI、真机键盘/安全区。A 通过不代表 B 或整个 2.2 验收。详见 [REVIEW-2.2A.md](REVIEW-2.2A.md)。
+
 ## 2026-10-31：Sprint 2.2工单准备（仅文档）
 
 - 前置状态：3.2已复审通过并上传6b084d9；132项测试及既有浏览器证据是上轮结果，本次不重复声明为新执行。
@@ -341,3 +367,18 @@ Codex独立typecheck/66项测试/build/diff均通过，但审查不通过：R1 M
 - 分A核心与注入测试、B页面与持有者Devnet验收；两段均未实施。当前未调用钱包签名、未广播交易、未部署或启动新公网入口，未修改产品源码或依赖。
 - 文档检查：本轮10个新增/修改文档及规则文件的40个相对链接均可解析，含未跟踪新工单的EOF/行尾空白扫描无问题，git diff --check退出0；差异仅文档。纯文档变更未重跑产品测试，最终暂存差异同样执行空白检查。
 - 真实钱包个人历史/切账户、真实429恢复、真机键盘/安全区等既有未验证项保留；不得据此工单把它们标为通过。
+
+## 2026-10-31：Codex独立复审2.2A，暂不通过
+
+- 独立typecheck退出0、8文件205项既有测试通过；build指定/tmp/said-review-2.2A-dist后退出0，70 modules、index-tJ58LKdO.js344.44 kB/gzip107.59，CSS15.68 kB/gzip4.04；diff检查退出0。首次默认dist受沙箱权限阻止，非产品编译错误。
+- 临时复用注入夹具新增9项独立契约断言，9项失败，复现R1–R5：同帧签名两次钱包调用；send未按期限结束、迟到genesis仍签名、迟到状态变confirmed、35ms确认预算实际70ms；确认成功回执仍submitting；features-only撤销能力无效、未知2.0.0版本可签；孤立代理项可prepare。
+- 原205项测试通过与独立9项失败分开记录，未改产品实现/既有测试，没有真实钱包签名或广播。机器证据见[evidence/review-2.2A-codex-probes.json](evidence/review-2.2A-codex-probes.json)，限定修复见[REVIEW-2.2A-RESULT.md](REVIEW-2.2A-RESULT.md)。
+- 2.2A未关闭，B仍关闭。真实浏览器Ed25519、真实钱包/真实网络故障和真机项未验证；不提交推送未通过的交付。构建缓存tsconfig.tsbuildinfo不应作为源码提交。
+
+## 2026-10-31：2.2A独立二审
+
+独立typecheck/239项项目测试/临时目录build/diff通过，构建index-BrnMhRVn.js345.92 kB/gzip108.09；上轮原样9项独立断言全部通过。R1/R2/R5关闭。新组合探针发现：processed+err被failed落盘、confirmed缺err被成功落盘；发过features事件后再静默替换实时表仍沿用旧会话。另记录同对象账户能力原地撤销的防御观察，不单独扩展范围。证据见[evidence/review-2.2A-codex-second-probes.json](evidence/review-2.2A-codex-second-probes.json)。仅修[二审剩余R3/R4](REVIEW-2.2A-RESULT.md)，A暂不通过、B关闭。全部是Node注入，无真实签名/发送或浏览器/真机验收，Codex未改产品实现或既有测试，未提交推送。
+
+## 2026-11-01：2.2A最终独立复审通过
+
+独立typecheck退出0，8文件252项测试通过；build输出/tmp/said-review-2.2A-final-dist成功，70 modules、index-Byps-RCq.js346.16 kB/gzip108.13、CSS15.68 kB/gzip4.04；diff检查退出0。前两轮原样9+4项断言全通过，另3项组合（processed错误→confirmed、能力事件一致→准备签名零广播、真实store11笔注入成功后的容量）通过，共16项。证据：[review-2.2A-codex-final-probes.json](evidence/review-2.2A-codex-final-probes.json)。R1–R5全部关闭，未改产品/既有测试逻辑。只涉及Node注入，不冒充真实钱包/浏览器验签/真机验收，B未开始，产品签名/发送仍关闭。

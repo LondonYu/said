@@ -31,7 +31,14 @@ export const MAX_TRANSACTION_BYTES = 1232;
 
 export type MessageTextValidation =
   | { readonly ok: true; readonly count: number; readonly bytes: number }
-  | { readonly ok: false; readonly reason: 'empty' | 'too_many_graphemes' | 'too_many_bytes' };
+  | {
+      readonly ok: false;
+      readonly reason:
+        | 'empty'
+        | 'not_well_formed'
+        | 'too_many_graphemes'
+        | 'too_many_bytes';
+    };
 
 export type BlockhashLifetime = {
   readonly blockhash: string;
@@ -49,7 +56,25 @@ export type UnsignedGuestbookTransaction = {
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 const base64Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
+function isWellFormedMessageText(text: string): boolean {
+  const native = (text as string & { isWellFormed?: () => boolean }).isWellFormed;
+  if (typeof native === 'function') return native.call(text);
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = text.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return false;
+      index += 1;
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function validateMessageText(text: string): MessageTextValidation {
+  // 孤立代理项在 UTF-8 编码时会变成 U+FFFD，不能在发布前静默改写正文。
+  if (!isWellFormedMessageText(text)) return { ok: false, reason: 'not_well_formed' };
   if (text.trim().length === 0) return { ok: false, reason: 'empty' };
   const count = [...segmenter.segment(text)].length;
   if (count > TEXT_GRAPHEME_LIMIT) return { ok: false, reason: 'too_many_graphemes' };
@@ -58,8 +83,11 @@ export function validateMessageText(text: string): MessageTextValidation {
   return { ok: true, count, bytes };
 }
 
-export function describeMessageTextError(reason: 'empty' | 'too_many_graphemes' | 'too_many_bytes'): string {
+export function describeMessageTextError(
+  reason: 'empty' | 'not_well_formed' | 'too_many_graphemes' | 'too_many_bytes',
+): string {
   if (reason === 'empty') return '留言正文不能为空白。';
+  if (reason === 'not_well_formed') return '留言正文包含无效的 Unicode 代理项。';
   if (reason === 'too_many_graphemes') return `留言正文超过 ${TEXT_GRAPHEME_LIMIT} 个字符。`;
   return `留言正文超过 ${TEXT_BYTES_LIMIT} UTF-8 字节。`;
 }

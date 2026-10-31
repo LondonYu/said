@@ -1,9 +1,48 @@
 import { getWallets } from '@wallet-standard/app';
 import type { Wallet, WalletAccount } from '@wallet-standard/base';
+import { getBase58Decoder, type ReadonlyUint8Array } from '@solana/kit';
 
 export const DEVNET_CHAIN = 'solana:devnet' as const;
+export const SIGN_TRANSACTION_FEATURE = 'solana:signTransaction' as const;
 
 export type WalletStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+
+export const SIGNING_TRANSACTION_VERSION = 0 as const;
+
+/** 本仓库只消费单笔 v0 交易的 Wallet Standard 签名契约。 */
+export type SignTransactionFeature = {
+  readonly version: string;
+  readonly supportedTransactionVersions: readonly (0 | 'legacy')[];
+  signTransaction(
+    ...inputs: readonly {
+      account: WalletAccount;
+      transaction: Uint8Array;
+      chain: string;
+    }[]
+  ): Promise<readonly { signedTransaction: Uint8Array }[]>;
+};
+
+/**
+ * 只有在钱包、账户和能力同时满足条件时才存在。
+ * 每次连接/账户/能力/注册表变化都会递增 revision；旧会话不得再用于签名。
+ */
+export type WalletSigningSession = {
+  readonly wallet: Wallet;
+  readonly account: WalletAccount;
+  readonly accountAddress: string;
+  readonly publicKey: ReadonlyUint8Array;
+  readonly chain: typeof DEVNET_CHAIN;
+  readonly featureVersion: string;
+  readonly supportedTransactionVersions: readonly (0 | 'legacy')[];
+  readonly feature: SignTransactionFeature;
+  readonly revision: number;
+};
+
+export type SigningSnapshot = {
+  readonly available: boolean;
+  readonly reason: string | null;
+  readonly revision: number;
+};
 
 export type WalletSnapshot = {
   readonly wallets: readonly Wallet[];
@@ -17,10 +56,14 @@ export type WalletSnapshot = {
    * 本地取消不能让钱包请求真正停止，因此保留此列表以避免同一钱包并发弹窗。
    */
   readonly pendingWalletNames: readonly string[];
+  /** 签名能力只描述当前已连接账户；与钱包“当前网络”无关。 */
+  readonly signing: SigningSnapshot;
 };
 
 export type WalletController = {
   getSnapshot(): WalletSnapshot;
+  /** 返回当前唯一签名会话；断开、账户变化或能力变化后旧值立即失效。 */
+  getSigningSession(): WalletSigningSession | null;
   subscribe(listener: () => void): () => void;
   connect(wallet: Wallet): Promise<void>;
   /**
@@ -48,11 +91,13 @@ type StandardConnectFeature = {
 type StandardDisconnectFeature = {
   disconnect(): Promise<void>;
 };
+type WalletChangeProperties = {
+  readonly accounts?: readonly WalletAccount[];
+  readonly chains?: Wallet['chains'];
+  readonly features?: Wallet['features'];
+};
 type StandardEventsFeature = {
-  on(
-    event: 'change',
-    listener: (properties: { accounts?: readonly WalletAccount[] }) => void,
-  ): () => void;
+  on(event: 'change', listener: (properties: WalletChangeProperties) => void): () => void;
 };
 
 function supportsSolana(wallet: Wallet): boolean {
@@ -77,6 +122,82 @@ function readFeature<TFeature>(wallet: Wallet, name: `${string}:${string}`): TFe
   return feature === undefined ? undefined : (feature as TFeature);
 }
 
+function accountMatchesAddress(account: WalletAccount): boolean {
+  if (account.publicKey.length !== 32) return false;
+  try {
+    return getBase58Decoder().decode(account.publicKey) === account.address;
+  } catch {
+    return false;
+  }
+}
+
+function sameStringList(
+  left: readonly string[],
+  right: readonly string[],
+): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function sameTransactionVersions(
+  left: readonly (0 | 'legacy')[],
+  right: readonly (0 | 'legacy')[],
+): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function evaluateSigningSession(
+  wallet: Wallet,
+  account: WalletAccount,
+  revision: number,
+  walletChains: readonly string[],
+  walletFeatures: Wallet['features'],
+): { session: WalletSigningSession | null; reason: string | null } {
+  if (!walletChains.includes(DEVNET_CHAIN)) {
+    return { session: null, reason: '钱包未声明支持 Solana Devnet，无法准备签名。' };
+  }
+  const feature = walletFeatures[SIGN_TRANSACTION_FEATURE] as
+    | SignTransactionFeature
+    | undefined;
+  if (feature === undefined || typeof feature.signTransaction !== 'function') {
+    return { session: null, reason: '钱包没有 standard:signTransaction 签名能力。' };
+  }
+  if (feature.version !== '1.0.0') {
+    return { session: null, reason: '钱包签名能力版本不是 1.0.0，无法安全签名。' };
+  }
+  if (!Array.isArray(feature.supportedTransactionVersions)) {
+    return { session: null, reason: '钱包没有声明可签名的交易版本。' };
+  }
+  if (!feature.supportedTransactionVersions.includes(SIGNING_TRANSACTION_VERSION)) {
+    return { session: null, reason: '钱包不支持 v0 交易版本。' };
+  }
+  if (!account.chains.includes(DEVNET_CHAIN)) {
+    return { session: null, reason: '所选账户未声明 solana:devnet 支持。' };
+  }
+  if (!account.features.includes(SIGN_TRANSACTION_FEATURE)) {
+    return { session: null, reason: '所选账户未声明签名能力。' };
+  }
+  if (account.publicKey.length !== 32) {
+    return { session: null, reason: '账户公钥不是 32 字节，无法安全绑定签名身份。' };
+  }
+  if (!accountMatchesAddress(account)) {
+    return { session: null, reason: '账户地址与公钥不一致，无法安全绑定签名身份。' };
+  }
+  return {
+    session: {
+      wallet,
+      account,
+      accountAddress: account.address,
+      publicKey: account.publicKey,
+      chain: DEVNET_CHAIN,
+      featureVersion: feature.version,
+      supportedTransactionVersions: [...feature.supportedTransactionVersions],
+      feature,
+      revision,
+    },
+    reason: null,
+  };
+}
+
 function isWalletError(error: unknown): error is { code?: number; message?: string } {
   return typeof error === 'object' && error !== null && 'code' in error;
 }
@@ -98,6 +219,14 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
   let disposed = false;
   let generation = 0;
   let accountUnsubscribe: (() => void) | null = null;
+  // 以对象身份而非钱包名绑定：两个同名扩展不能互相断开或复用会话。
+  let activeWallet: Wallet | null = null;
+  let activeAccount: WalletAccount | null = null;
+  // change 事件提供的 chains/features 期望值；每次仍须与钱包实时 getter 一致。
+  let activeWalletChains: readonly string[] | null = null;
+  let activeWalletFeatures: Wallet['features'] | null = null;
+  let activeSigningSession: WalletSigningSession | null = null;
+  let signingRevision = 0;
   // 底层钱包请求无法被页面真正取消，按钱包名记录仍在等待的请求，避免同一钱包并发弹窗。
   const pendingConnectWallets = new Set<string>();
   let snapshot: WalletSnapshot = {
@@ -108,8 +237,99 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
     error: null,
     notice: null,
     pendingWalletNames: [],
+    signing: { available: false, reason: null, revision: 0 },
   };
   const listeners = new Set<() => void>();
+
+  function nextSigning(wallet: Wallet | null, account: WalletAccount | null): SigningSnapshot {
+    signingRevision += 1;
+    if (wallet === null || account === null) {
+      activeSigningSession = null;
+      activeWalletChains = null;
+      activeWalletFeatures = null;
+      return { available: false, reason: null, revision: signingRevision };
+    }
+    const evaluated = evaluateSigningSession(
+      wallet,
+      account,
+      signingRevision,
+      activeWalletChains ?? wallet.chains,
+      activeWalletFeatures ?? wallet.features,
+    );
+    activeSigningSession = evaluated.session;
+    if (activeSigningSession !== null && !isSessionStillCurrent(activeSigningSession)) {
+      // 事件与实时 getter 不一致时不能保留签名授权；只读连接仍保留。
+      activeSigningSession = null;
+      return {
+        available: false,
+        reason: '签名能力事件与钱包实时状态不一致，请重新连接。',
+        revision: signingRevision,
+      };
+    }
+    return {
+      available: evaluated.session !== null,
+      reason: evaluated.reason,
+      revision: signingRevision,
+    };
+  }
+
+  function recomputeSigning(wallet: Wallet | null, account: WalletAccount | null) {
+    update({ signing: nextSigning(wallet, account) });
+  }
+
+  /**
+   * 每次获取/使用会话都要同时核对事件期望值、钱包实时值、账户授权与不可变快照。
+   * 发过事件不代表可以永久信任旧值；任何来源不一致都保守失效。
+   */
+  function isSessionStillCurrent(session: WalletSigningSession): boolean {
+    if (activeWallet !== session.wallet || activeAccount !== session.account) return false;
+    const liveChains = session.wallet.chains;
+    const effectiveChains = activeWalletChains ?? liveChains;
+    if (!sameStringList(liveChains, effectiveChains)) return false;
+    if (!effectiveChains.includes(DEVNET_CHAIN)) return false;
+
+    const liveFeatures = session.wallet.features;
+    const effectiveFeatures = activeWalletFeatures ?? liveFeatures;
+    const effectiveFeature = effectiveFeatures[SIGN_TRANSACTION_FEATURE] as
+      | SignTransactionFeature
+      | undefined;
+    if (liveFeatures[SIGN_TRANSACTION_FEATURE] !== effectiveFeature) return false;
+    if (effectiveFeature !== session.feature) return false;
+    if (effectiveFeature.version !== '1.0.0' || effectiveFeature.version !== session.featureVersion) {
+      return false;
+    }
+    if (
+      !sameTransactionVersions(
+        effectiveFeature.supportedTransactionVersions,
+        session.supportedTransactionVersions,
+      )
+    ) {
+      return false;
+    }
+
+    // 账户对象可能被原地修改；不能只比较引用。
+    if (session.accountAddress !== session.account.address) return false;
+    if (!session.account.chains.includes(DEVNET_CHAIN)) return false;
+    if (!session.account.features.includes(SIGN_TRANSACTION_FEATURE)) return false;
+    return accountMatchesAddress(session.account);
+  }
+
+  function sameAccountIdentity(left: WalletAccount | null, right: WalletAccount): boolean {
+    if (left === null) return false;
+    if (left === right) return true;
+    if (left.address !== right.address || left.publicKey.length !== right.publicKey.length) return false;
+    if (left.publicKey.some((byte, index) => byte !== right.publicKey[index])) return false;
+    if (
+      left.chains.length !== right.chains.length ||
+      !left.chains.every((chain, index) => chain === right.chains[index])
+    ) {
+      return false;
+    }
+    return (
+      left.features.length === right.features.length &&
+      left.features.every((feature, index) => feature === right.features[index])
+    );
+  }
 
   function pendingWalletNames(): readonly string[] {
     return [...pendingConnectWallets];
@@ -132,10 +352,16 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
   function resetToDisconnected(notice: string | null) {
     generation += 1;
     clearAccountListener();
+    activeWallet = null;
+    activeAccount = null;
+    recomputeSigning(null, null);
     update({ status: 'disconnected', walletName: null, accountAddress: null, error: null, notice });
   }
 
-  function handleAccountsChanged(accounts: readonly WalletAccount[]) {
+  function handleAccountsChanged(
+    accounts: readonly WalletAccount[],
+    forceRecompute = false,
+  ) {
     if (disposed || snapshot.status !== 'connected') return;
     if (accounts.length === 0) {
       resetToDisconnected('钱包已断开连接或没有可用账户，页面已清理连接状态。');
@@ -146,9 +372,27 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
       resetToDisconnected('钱包已没有支持 solana:devnet 的账户，页面已清理连接状态。');
       return;
     }
-    if (account.address !== snapshot.accountAddress) {
-      update({ status: 'connected', accountAddress: account.address, error: null, notice: null });
+    if (sameAccountIdentity(activeAccount, account)) {
+      if (forceRecompute && activeWallet !== null) {
+        activeAccount = account;
+        update({ signing: nextSigning(activeWallet, account) });
+      }
+      return;
     }
+    const previousAccount = activeAccount;
+    activeAccount = account;
+    const signing = nextSigning(activeWallet, activeAccount);
+    if (previousAccount === null || account.address !== previousAccount.address) {
+      update({
+        status: 'connected',
+        accountAddress: account.address,
+        error: null,
+        notice: null,
+        signing,
+      });
+      return;
+    }
+    update({ signing });
   }
 
   function subscribeToAccountChanges(wallet: Wallet, requestId: number) {
@@ -157,16 +401,34 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
     if (events === undefined) return;
     accountUnsubscribe = events.on('change', (properties) => {
       if (disposed || requestId !== generation) return;
-      if (properties.accounts === undefined) return;
-      handleAccountsChanged(properties.accounts);
+      const capabilitiesChanged =
+        properties.chains !== undefined || properties.features !== undefined;
+      if (properties.chains !== undefined) {
+        activeWalletChains = [...properties.chains];
+      }
+      if (properties.features !== undefined) {
+        activeWalletFeatures = { ...properties.features };
+      }
+      if (properties.accounts !== undefined) {
+        handleAccountsChanged(properties.accounts, capabilitiesChanged);
+        return;
+      }
+      if (!capabilitiesChanged) return;
+      if (
+        snapshot.status !== 'connected' ||
+        activeWallet === null ||
+        activeAccount === null
+      ) {
+        return;
+      }
+      recomputeSigning(activeWallet, activeAccount);
     });
   }
 
   function handleRegistryChange() {
     if (disposed) return;
     const wallets = listSolanaWallets(registry);
-    const activeWalletStillRegistered =
-      snapshot.walletName === null || wallets.some((wallet) => wallet.name === snapshot.walletName);
+    const activeWalletStillRegistered = activeWallet === null || wallets.includes(activeWallet);
     if (!activeWalletStillRegistered) {
       resetToDisconnected('钱包已从浏览器中移除或不可用，页面已清理连接状态。');
     }
@@ -188,6 +450,9 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
     const requestId = generation + 1;
     generation = requestId;
     clearAccountListener();
+    activeWallet = null;
+    activeAccount = null;
+    recomputeSigning(null, null);
     pendingConnectWallets.add(wallet.name);
     update({
       status: 'connecting',
@@ -225,6 +490,11 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
       }
 
       subscribeToAccountChanges(wallet, requestId);
+      activeWallet = wallet;
+      activeAccount = account;
+      activeWalletChains = [...wallet.chains];
+      activeWalletFeatures = { ...wallet.features };
+      recomputeSigning(activeWallet, activeAccount);
       update({ status: 'connected', accountAddress: account.address, error: null, notice: null });
     } finally {
       // 这里只更新底层等待列表：旧请求无论成功、失败还是 finally，
@@ -240,6 +510,9 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
     const walletName = snapshot.walletName;
     generation += 1;
     clearAccountListener();
+    activeWallet = null;
+    activeAccount = null;
+    recomputeSigning(null, null);
     update({
       status: 'disconnected',
       walletName: null,
@@ -255,18 +528,20 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
   async function disconnect(): Promise<void> {
     if (disposed) return;
 
-    const previousWalletName = snapshot.walletName;
-    const shouldDisconnectWallet = snapshot.status === 'connected';
+    const walletToDisconnect = activeWallet;
+    const shouldDisconnectWallet = snapshot.status === 'connected' && walletToDisconnect !== null;
     const requestId = generation + 1;
     generation = requestId;
     clearAccountListener();
+    activeWallet = null;
+    activeAccount = null;
+    recomputeSigning(null, null);
     update({ status: 'disconnected', walletName: null, accountAddress: null, error: null, notice: null });
 
     // 从未连接成功时只清理本地状态，不向钱包发起多余的断开请求。
-    if (!shouldDisconnectWallet || previousWalletName === null) return;
+    if (!shouldDisconnectWallet || walletToDisconnect === null) return;
 
-    const wallet = listSolanaWallets(registry).find((registered) => registered.name === previousWalletName);
-    if (wallet === undefined) return;
+    const wallet = walletToDisconnect;
 
     const feature = readFeature<StandardDisconnectFeature>(wallet, 'standard:disconnect');
     if (feature === undefined) {
@@ -288,6 +563,10 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
     disposed = true;
     generation += 1;
     clearAccountListener();
+    activeWallet = null;
+    activeAccount = null;
+    activeSigningSession = null;
+    signingRevision += 1;
     pendingConnectWallets.clear();
     for (const unsubscribe of unsubscribers) unsubscribe();
     unsubscribers.length = 0;
@@ -301,6 +580,23 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
 
   return {
     getSnapshot: () => snapshot,
+    getSigningSession() {
+      if (disposed || activeSigningSession === null) return null;
+      if (!isSessionStillCurrent(activeSigningSession)) {
+        activeSigningSession = null;
+        signingRevision += 1;
+        snapshot = {
+          ...snapshot,
+          signing: {
+            available: false,
+            reason: '签名能力已变化，请重新连接。',
+            revision: signingRevision,
+          },
+        };
+        return null;
+      }
+      return activeSigningSession;
+    },
     subscribe(listener) {
       if (disposed) return () => {};
       listeners.add(listener);
