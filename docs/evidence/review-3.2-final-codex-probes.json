@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-31T12:57:37.949Z",
+  "source": "Independent Codex Node+jsdom process, actual useHistoryFeed with injected clients; not live RPC",
+  "cases": [
+    {
+      "case": "refresh_recover_then_page",
+      "slots": [
+        "120",
+        "110",
+        "70"
+      ],
+      "passed": true
+    },
+    {
+      "case": "unmount_refresh",
+      "aborted": true,
+      "passed": true
+    },
+    {
+      "case": "unmount_loadMore",
+      "aborted": true,
+      "passed": true
+    },
+    {
+      "case": "unmount_retryUnavailable",
+      "aborted": true,
+      "passed": true
+    },
+    {
+      "case": "verified_signature_reconciles_queue",
+      "pending": [
+        "still-pending"
+      ],
+      "passed": true
+    }
+  ]
+}

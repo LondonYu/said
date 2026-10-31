@@ -8,7 +8,10 @@ import { usePreferences, type Theme } from './usePreferences';
 import { Logo, Wordmark } from './Brand';
 import { Icon } from './Icons';
 import { Modal } from './Modal';
-import { PreviewDetail, PreviewEditor, PreviewFeed, PreviewSearch, type SamplePost } from './Preview';
+import { PreviewEditor } from './Preview';
+import { createHistoryClient, type GuestbookMessage } from './history';
+import { useHistoryFeed } from './historyFeed';
+import { HistoryDetail, HistoryFeedView, HistorySearch } from './HistoryViews';
 
 type NetworkState =
   | { status: 'checking' }
@@ -169,8 +172,12 @@ export default function App() {
   const [tab, setTab] = useState<'home' | 'mine'>('home');
   // 编辑预览的草稿只保存在本次页面内存中；关闭弹层不丢失，刷新后不保留。
   const [draft, setDraft] = useState('');
-  const [selectedPost, setSelectedPost] = useState<SamplePost | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<GuestbookMessage | null>(null);
+  const [selectedMessageAccount, setSelectedMessageAccount] = useState<string | null>(null);
   const [detailReturn, setDetailReturn] = useState<'home' | 'search'>('home');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchScopeTab, setSearchScopeTab] = useState<'home' | 'mine'>('home');
+  const [searchAccount, setSearchAccount] = useState<string | null>(null);
 
   useEffect(() => {
     const sync = () => {
@@ -208,6 +215,27 @@ export default function App() {
   const selectedWalletPending =
     selectedWallet !== null && pendingWalletNames.includes(selectedWallet.name);
   const busy = activeAction !== null;
+  const historyClient = useMemo(() => createHistoryClient(), []);
+  const boardFeed = useHistoryFeed({ client: historyClient, scope: { kind: 'board' } });
+  const accountAddressRef = useRef(accountAddress);
+  // 钱包在页面打开期间切换/断开时，旧账户的详情与搜索上下文立即失效。
+  useEffect(() => {
+    if (accountAddressRef.current === accountAddress) return;
+    accountAddressRef.current = accountAddress;
+    setSelectedMessage(null);
+    setSelectedMessageAccount(null);
+    setDetailReturn('home');
+    setSearchQuery('');
+    setSearchScopeTab('home');
+    setSearchAccount(null);
+    setModal((previous) => (previous === 'detail' || previous === 'search' ? null : previous));
+  }, [accountAddress]);
+  const mineScope = useMemo(
+    () => (accountAddress === null ? { kind: 'board' as const } : { kind: 'author' as const, author: accountAddress }),
+    [accountAddress],
+  );
+  // 我的留言只在已连接且进入该页时独立查询，绝不复用公共首页结果。
+  const mineFeed = useHistoryFeed({ client: historyClient, scope: mineScope, enabled: tab === 'mine' && accountAddress !== null });
 
   const networkReadyForAccount = network.status === 'ready' && network.address === accountAddress;
   const networkErrorForAccount = network.status === 'error' && network.address === accountAddress;
@@ -338,9 +366,24 @@ export default function App() {
 
   const shortAddress = accountAddress === null ? null : `${accountAddress.slice(0, 5)}…${accountAddress.slice(-4)}`;
   const openWallet = () => setModal('wallet');
+  const openSearch = () => {
+    // 未连接的“我的”没有作者范围可搜；此时退回公共已加载范围，避免显示空账户范围。
+    const nextTab = tab === 'mine' && accountAddress !== null ? 'mine' : 'home';
+    setSearchScopeTab(nextTab);
+    setSearchAccount(accountAddress);
+    setModal('search');
+  };
+  const searchContextCurrent = searchAccount === accountAddress;
+  const visibleSearchScopeTab = searchContextCurrent ? searchScopeTab : 'home';
+  const detailContextCurrent = selectedMessage === null || selectedMessageAccount === accountAddress;
+  const visibleModal =
+    (modal === 'search' && !searchContextCurrent) || (modal === 'detail' && !detailContextCurrent)
+      ? null
+      : modal;
+  const searchFeed = visibleSearchScopeTab === 'home' ? boardFeed : mineFeed;
   const nav = [
     { name: labels.home, icon: 'home', active: tab === 'home', click: () => setTab('home') },
-    { name: labels.search, icon: 'search', active: false, click: () => setModal('search') },
+    { name: labels.search, icon: 'search', active: false, click: openSearch },
     { name: labels.write, icon: 'plus', active: false, click: () => setModal('write') },
     { name: labels.mine, icon: 'user', active: tab === 'mine', click: () => setTab('mine') },
   ] as const;
@@ -378,7 +421,7 @@ export default function App() {
             <span className="mobile-context">{labels.readOnly}</span>
           </button>
           <h1>{tab === 'home' ? labels.home : labels.mine}</h1>
-          <button className="icon-button mobile-search" type="button" aria-label={labels.search} onClick={() => setModal('search')}><Icon name="search" /></button>
+          <button className="icon-button mobile-search" type="button" aria-label={labels.search} onClick={openSearch}><Icon name="search" /></button>
           <button className="button header-account" type="button" onClick={openWallet}>{shortAddress ?? labels.login}</button>
         </header>
         <div className="view-context">{labels.readOnly}</div>
@@ -392,30 +435,41 @@ export default function App() {
             <button className="button secondary desktop-post" type="button" onClick={() => setModal('write')}>{labels.write}</button>
           </div>
           {tab === 'home' ? (
-            <div className="preview-feed">
-              <p className="preview-banner">{labels.sampleLabel}</p>
-              <p className="hint preview-feed-note">{labels.sampleFeedNote}</p>
-              <PreviewFeed
-                labels={labels}
-                onDetail={(post) => {
-                  setSelectedPost(post);
-                  setDetailReturn('home');
-                  setModal('detail');
-                }}
-              />
-            </div>
+            <HistoryFeedView
+              feed={boardFeed}
+              labels={labels}
+              note={labels.historyBoardNote}
+              onDetail={(message) => {
+                setSelectedMessage(message);
+                setSelectedMessageAccount(accountAddress);
+                setDetailReturn('home');
+                setModal('detail');
+              }}
+            />
+          ) : connected ? (
+            <HistoryFeedView
+              feed={mineFeed}
+              labels={labels}
+              note={labels.historyMineNote}
+              onDetail={(message) => {
+                setSelectedMessage(message);
+                setSelectedMessageAccount(accountAddress);
+                setDetailReturn('home');
+                setModal('detail');
+              }}
+            />
           ) : (
             <div className="empty-state">
               <Logo className="empty-logo" />
-              <h2>{labels.feedUnavailable}</h2>
-              <p>{labels.mineNote}</p>
-              <button className="button secondary" type="button" onClick={openWallet}>{connected ? labels.account : labels.login}</button>
+              <h2>{labels.mineConnectTitle}</h2>
+              <p>{labels.mineConnectNote}</p>
+              <button className="button secondary" type="button" onClick={openWallet}>{labels.connectWallet}</button>
             </div>
           )}
         </section>
       </main>
 
-      {modal !== null && <Modal title={modalTitle} closeLabel={labels.close} onClose={() => setModal(null)}>
+      {visibleModal !== null && <Modal title={modalTitle} closeLabel={labels.close} onClose={() => setModal(null)}>
         {modal === 'settings' && <>
           <section className="settings-group" aria-labelledby="appearance-heading">
             <h3 id="appearance-heading">{labels.appearance}</h3>
@@ -495,10 +549,18 @@ export default function App() {
           <button className="button secondary" type="button" onClick={openWallet}>{labels.back}</button>
         </>}
         {modal === 'search' && (
-          <PreviewSearch
+          <HistorySearch
             labels={labels}
-            onDetail={(post) => {
-              setSelectedPost(post);
+            messages={searchFeed.messages}
+            query={searchQuery}
+            onQuery={(value) => {
+              setSearchAccount(accountAddress);
+              setSearchQuery(value);
+            }}
+            scopeLabel={visibleSearchScopeTab === 'home' ? labels.searchBoardScope : labels.searchMineScope}
+            onDetail={(message) => {
+              setSelectedMessage(message);
+              setSelectedMessageAccount(accountAddress);
               setDetailReturn('search');
               setModal('detail');
             }}
@@ -515,14 +577,18 @@ export default function App() {
             checkSummary={checkSummary}
           />
         )}
-        {modal === 'detail' && selectedPost !== null && (
+        {modal === 'detail' && selectedMessage !== null && detailContextCurrent && (
           <>
-            <PreviewDetail labels={labels} post={selectedPost} />
+            <HistoryDetail labels={labels} language={preferences.lang} message={selectedMessage} />
             <div className="preview-actions">
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => setModal(detailReturn === 'search' ? 'search' : null)}
+                onClick={() => {
+                  setSelectedMessage(null);
+                  setSelectedMessageAccount(null);
+                  setModal(detailReturn === 'search' ? 'search' : null);
+                }}
               >
                 {labels.back}
               </button>

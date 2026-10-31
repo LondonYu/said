@@ -1,0 +1,223 @@
+{
+  "checkedAt": "2026-10-31T12:38:22.826Z",
+  "source": "fresh headless Chrome profile, no wallet or injected fixture, final Vite page after R1/R2 fix; CDP Runtime + DOM",
+  "network": "Devnet read-only via the app's normal history client",
+  "build": "dist/assets/index-DqHusx3n.js 341.90 kB/gzip 106.85; CSS index-DEn8a_P7.css 15.68 kB/gzip 4.04",
+  "initial": {
+    "banner": "链上留言 · Devnet 只读",
+    "posts": [
+      {
+        "author": "Aq7gd87cm9rwjuDeV17R1dwyP8DnvMbG3RkzM9T14yG2",
+        "text": "阶段0验证：你好，Solana 🚀"
+      },
+      {
+        "author": "Hs1NxWYZdXE6opzTY1wR9XCbq2QtNwrGdkWgSMeWk31S",
+        "text": "阶段0验证：你好，Solana 🚀"
+      },
+      {
+        "author": "Hs1NxWYZdXE6opzTY1wR9XCbq2QtNwrGdkWgSMeWk31S",
+        "text": "阶段0验证：你好，Solana 🚀"
+      }
+    ],
+    "sampleLabels": false,
+    "error": null,
+    "scanned": "本次扫描候选 3 条；不是全链留言总数。",
+    "moreVisible": true
+  },
+  "details": [
+    {
+      "heading": "留言详情",
+      "text": "阶段0验证：你好，Solana 🚀",
+      "facts": "时间\n2026年10月30日 11:46\nSlot（非区块高度）\n516644546\n实际网络费\n80000 lamports · 0.00008 SOL · Devnet\n交易签名\nBiMxQjkLFFpMHYuQHyTS2evBoX8Wp2DfwTTXqFch8CFDQiwPDDnWUM62tAGCoiLyJddJjpzszkw8AshkMhyERox",
+      "explorerHref": "https://explorer.solana.com/tx/BiMxQjkLFFpMHYuQHyTS2evBoX8Wp2DfwTTXqFch8CFDQiwPDDnWUM62tAGCoiLyJddJjpzszkw8AshkMhyERox?cluster=devnet",
+      "explorerTarget": "_blank",
+      "explorerRel": "noopener noreferrer"
+    },
+    {
+      "heading": "留言详情",
+      "text": "阶段0验证：你好，Solana 🚀",
+      "facts": "时间\n2026年10月30日 11:24\nSlot（非区块高度）\n516639135\n实际网络费\n80000 lamports · 0.00008 SOL · Devnet\n交易签名\n4kozshroLcj2QyQitZ5N3pQvGFps9FfWbTZsC5gpjTYo3g8WsFSJB3GCFjEsZjCW5AcNHrxYkP986N9hht9McDXE",
+      "explorerHref": "https://explorer.solana.com/tx/4kozshroLcj2QyQitZ5N3pQvGFps9FfWbTZsC5gpjTYo3g8WsFSJB3GCFjEsZjCW5AcNHrxYkP986N9hht9McDXE?cluster=devnet",
+      "explorerTarget": "_blank",
+      "explorerRel": "noopener noreferrer"
+    },
+    {
+      "heading": "留言详情",
+      "text": "阶段0验证：你好，Solana 🚀",
+      "facts": "时间\n2026年10月30日 11:23\nSlot（非区块高度）\n516638664\n实际网络费\n80000 lamports · 0.00008 SOL · Devnet\n交易签名\n5yCsxG2ndgKHLN5tycvw8YCDJZ5YNWNj9QdfzewFBWbZRaVUguEQ5aNy2DrMX4JKzr3ebDkHFzpR6HiK2WJYeTnJ",
+      "explorerHref": "https://explorer.solana.com/tx/5yCsxG2ndgKHLN5tycvw8YCDJZ5YNWNj9QdfzewFBWbZRaVUguEQ5aNy2DrMX4JKzr3ebDkHFzpR6HiK2WJYeTnJ?cluster=devnet",
+      "explorerTarget": "_blank",
+      "explorerRel": "noopener noreferrer"
+    }
+  ],
+  "detailsClosed": true,
+  "refreshBusy": "true",
+  "afterRefresh": {
+    "count": 3,
+    "error": null,
+    "scanned": "本次扫描候选 3 条；不是全链留言总数。"
+  },
+  "loadMore": {
+    "attempted": true,
+    "busy": "true",
+    "after": {
+      "count": 3,
+      "error": null,
+      "actionError": null,
+      "end": "已到达本次可读取范围的末尾。",
+      "moreVisible": false,
+      "scanned": "本次扫描候选 3 条；不是全链留言总数。"
+    }
+  },
+  "viewports": [
+    {
+      "viewport": "320x800",
+      "clientWidth": 305,
+      "scrollWidth": 305,
+      "overflow": false,
+      "detailButtons": [
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ]
+      ],
+      "refresh": [
+        56,
+        44
+      ]
+    },
+    {
+      "viewport": "390x844",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "overflow": false,
+      "detailButtons": [
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ]
+      ],
+      "refresh": [
+        56,
+        44
+      ]
+    },
+    {
+      "viewport": "768x1024",
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "overflow": false,
+      "detailButtons": [
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ]
+      ],
+      "refresh": [
+        56,
+        44
+      ]
+    },
+    {
+      "viewport": "1440x900",
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "overflow": false,
+      "detailButtons": [
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ]
+      ],
+      "refresh": [
+        56,
+        44
+      ]
+    },
+    {
+      "viewport": "844x390",
+      "clientWidth": 829,
+      "scrollWidth": 829,
+      "overflow": false,
+      "detailButtons": [
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ],
+        [
+          44,
+          44
+        ]
+      ],
+      "refresh": [
+        56,
+        44
+      ]
+    }
+  ],
+  "search": {
+    "label": "搜索当前已加载留言",
+    "scope": "当前范围：公共留言",
+    "font": "16px",
+    "overflow": false,
+    "hint": "仅过滤当前范围已加载的 3 条真实记录（正文与作者公钥），不请求额外 RPC，不是全链搜索。"
+  },
+  "languages": {
+    "English": {
+      "lang": "en",
+      "banner": "On-chain posts · Devnet read-only",
+      "count": 3
+    },
+    "繁體中文": {
+      "lang": "zh-TW",
+      "banner": "鏈上留言 · Devnet 唯讀",
+      "count": 3
+    },
+    "简体中文": {
+      "lang": "zh-CN",
+      "banner": "链上留言 · Devnet 只读",
+      "count": 3
+    }
+  },
+  "theme": {
+    "theme": "light",
+    "count": 3
+  },
+  "exceptions": []
+}

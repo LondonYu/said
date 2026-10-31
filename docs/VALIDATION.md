@@ -1,5 +1,39 @@
 # 验证记录
 
+## 2026-10-31：Sprint3.2 R1/R2最终独立复审通过
+
+- Codex独立typecheck、7文件132项测试、临时目录build、diff检查均通过；构建70 modules，JS341.90 kB/gzip106.85、CSS15.68 kB/gzip4.04，与Cline产物一致。
+- 独立5组hook断言通过：三种手动操作卸载信号真正取消；刷新/恢复旧记录/后续分页稳定为[120,110,70]；重叠页验证成功后核销对应不可得项，其他项保留。最终探针与首轮失败证据分别保留，不覆盖历史。
+- 独立实际构建浏览器检查：新localhost origin、无钱包/无注入，公共流3条2作者，首条详情/Devnet href与rel正确，加载更多至源末尾仍3条及扫描数3，无DOM告警或示例标签。临时本地服务/页已撤下，未公网部署。
+- 完整响应式/语言/搜索/刷新浏览器结果为Cline修复后证据；真实钱包个人历史/切账户/断开、真实429/不可得重试、真机键盘安全区继续未验证。见REVIEW-3.2-RESULT最新通过节及公开证据。
+
+## 2026-10-31：Sprint3.2 R1/R2限定修复与修复后真实只读浏览器
+
+- 先补7项针对性回归并实际执行，其中6项复现失败：R1三个手动操作（refresh/loadMore/retryUnavailable）pending时unmount，`signal.aborted`均为false；R2“刷新→恢复旧记录→加载中间页”得到`[120,70,110]`，重叠成功签名仍留在不可得队列，跨页同slot顺序错误。修复前定向测试`6 failed | 11 passed`。修复后另补1项刷新核销边界回归。
+- 修复后`historyFeed.test.tsx` 18/18通过。R1 cleanup取消当前controller并保留范围切换/new-mount隔离；R2统一按slot新到旧稳定合并、同slot保持已显示与页内顺序、按signature去重，并用合并后消息统一核销不可得队列（重试仍移除本批明确无效候选）。
+- `npm run typecheck`退出0；`npm test` 7文件132项全通过（wallet18、message11、simulation13、network11、history34、App27、historyFeed18）；`npm run build`退出0，70 modules，`dist/assets/index-DqHusx3n.js` 341.90 kB/gzip106.85，CSS15.68 kB/gzip4.04；`git diff --check`退出0。
+- 修复后全新headless Chrome、未连接钱包、无注入夹具，经正常history客户端只读Devnet，时刻`2026-10-31T12:38:22.826Z`：首屏3条/2作者，无“示例留言”标签、无读取错误，`本次扫描候选3条`；刷新和加载更多到源末尾后仍3条、扫描数保持3；3条详情字段/Devnet Explorer链接正常；320/390/768/1440/844×390均无横向溢出；三语言、浅色主题切换保留3条；CDP Runtime/Log应用异常为空。证据见[evidence/review-3.2-browser.json](evidence/review-3.2-browser.json)。
+- 本轮只改`src/historyFeed.ts`、`src/historyFeed.test.tsx`及文档/证据；未改已复审读取核心、钱包、网络、消息、模拟、UI/依赖，未签名/发送、未部署/提交/推送，2.2继续关闭。真实钱包个人历史/切账户、真实429/不可得重试与真机键盘/安全区仍未验证。
+
+## 2026-10-31：Sprint3.2 Codex独立复审暂不通过
+
+- 独立typecheck退出0，7文件124项测试通过，build输出/tmp/said-review-3.2-dist（70 modules，JS341.77 kB/gzip106.83、CSS15.68 kB/gzip4.04），diff检查通过；读取核心/钱包/模拟/依赖未改。
+- 独立jsdom探针复现：refresh/loadMore/retryUnavailable未决时unmount，当前请求signal.aborted均为false；刷新保留旧不可得并先恢复slot70后加载slot110，顺序成为[120,70,110]；重叠页已解析成功的签名仍残留不可得队列。
+- 限定修复R1请求清理、R2分页/恢复/队列协调；见[REVIEW-3.2-RESULT.md](REVIEW-3.2-RESULT.md)及[evidence/review-3.2-codex-probes.json](evidence/review-3.2-codex-probes.json)。未改产品源码/测试，未提交推送或部署，2.2继续关闭。
+- 本轮核读Cline真实浏览器JSON但未独立重跑浏览器；上述探针是注入客户端的jsdom行为，不冒称真实钱包、429或真机验收。
+
+## 2026-10-31：Sprint3.2实现与真实浏览器只读验证
+
+- 基线提交`7e2d5d9`，工作区包含本轮3.2修改；`git diff --check`退出0，无空白错误。本轮未提交、推送或部署。
+- `npm run typecheck`退出0；`npm test`为7个文件124项全通过（wallet 18、message 11、simulation 13、network 11、history 34、App 27、historyFeed 10）。3.2新增/扩展覆盖：范围首帧隔离、迟到成功与finally、刷新/翻页连点锁、全过滤页、跨页扫描候选累计且空末页不清零、游标A→B→A停止、刷新成功保留不可得队列、翻页追加去重、重试不改分页边界、失败保留、slot恢复顺序、公共流/我的/搜索/详情/账户切换/首页连接不重查。
+- `npm run build`退出0：70 modules，`dist/assets/index-DhRB2lJY.js` 341.77 kB/gzip106.83，CSS15.68 kB/gzip4.04，HTML0.94 kB/gzip0.52。
+- 最终页面真实浏览器：2026-10-31T12:22:31.943Z，全新headless Chrome用户目录、未连接钱包、无注入夹具，经当前Vite页面和正常history客户端只读Devnet。首页读回3条、2作者（Aq7g…4yG2一条，Hs1N…k31S两条），无“示例留言”标签、无读取错误，`本次扫描候选3条`；刷新后仍3条，加载更多到源末尾后仍3条且扫描数保持3。
+- 逐条打开3条详情：均为真实正文，时间分别为2026-10-30 11:46/11:24/11:23，slot 516644546/516639135/516638664，实际费用均80000 lamports（0.00008 SOL，标注Devnet），签名为BiMx…Rox/4koz…DXE/5yCs…TnJ；Explorer链接均为官方域名、`cluster=devnet`、`target=_blank`、`rel=noopener noreferrer`。返回后3条仍在。
+- 刷新时`aria-busy=true`，完成后仍3条、无错误；点击加载更多时`aria-busy=true`，随后显示“已到达本次可读取范围的末尾”，无翻页错误、无重复。
+- 响应式实测（Chrome设备指标模拟，不是真机）：320×800 client/scroll305/305、390×844 390/390、768×1024 768/768、1440×900 1440/1440、844×390 829/829，均无横向溢出；详情按钮44×44，刷新56×44。搜索弹层无横向溢出，输入字号16px，标注“当前范围：公共留言”和“不请求额外 RPC，不是全链搜索”。
+- 语言/主题：English、繁體中文、简体中文实际切换且3条仍在；浅色主题切换后3条仍在。CDP Runtime/Log应用异常为空；Chrome进程日志仅有macOS CVDisplayLink与Crashpad平台噪声，不是应用异常。完整机器可读证据见[evidence/review-3.2-browser.json](evidence/review-3.2-browser.json)。
+- 未验证：真实钱包连接/切账户/断开下的个人历史（本轮只做未连接公共流真实读取，账户隔离由App假钱包集成测试覆盖）；真实RPC 429/不可得签名重试与游标循环（注入测试覆盖）；真实手机、软键盘、安全区、字体放大；主网/签名/发送。开发服务器、headless Chrome与临时探针已停止/清理。等待Codex复审，2.2继续关闭。
+
 ## 2026-10-31：Sprint3.1最终独立复审通过
 
 - typecheck退出0；6文件107项测试通过；build输出/tmp/said-review-3.1-final-dist，67 modules，JS312.93 kB/gzip98.67、CSS13.66 kB/gzip3.67；git diff --check通过。

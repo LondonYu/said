@@ -1,0 +1,48 @@
+{
+  "source": "Independent Codex Node + jsdom process using actual useHistoryFeed; injected clients, not live RPC or browser",
+  "cases": [
+    {
+      "case": "refresh_then_restore_old_then_page",
+      "slots": [
+        "120",
+        "70",
+        "110"
+      ],
+      "signatures": [
+        "new-head",
+        "recovered-old",
+        "middle"
+      ],
+      "expectedSlots": [
+        "120",
+        "110",
+        "70"
+      ]
+    },
+    {
+      "case": "unmount_during_refresh",
+      "activeRequestAborted": false,
+      "expected": true
+    },
+    {
+      "case": "unmount_during_loadMore",
+      "activeRequestAborted": false,
+      "expected": true
+    },
+    {
+      "case": "unmount_during_retryUnavailable",
+      "activeRequestAborted": false,
+      "expected": true
+    },
+    {
+      "case": "overlap_page_resolves_pending",
+      "messages": [
+        "head",
+        "resolved-in-next-page"
+      ],
+      "stillUnavailable": [
+        "resolved-in-next-page"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "source": "Codex independent in-app browser, built production assets at temporary localhost origin, no wallet connected and no injected fixture",
+  "origin": "http://127.0.0.1:5183/",
+  "buildAsset": "index-DqHusx3n.js",
+  "observations": {
+    "messageCount": 3,
+    "authorCount": 2,
+    "sampleLabelPresent": false,
+    "alertTexts": [],
+    "scannedText": "本次扫描候选 3 条；不是全链留言总数。",
+    "sourceEndText": "已到达本次可读取范围的末尾。",
+    "loadMoreVisibleAfterEnd": false
+  },
+  "detailChecked": {
+    "author": "Aq7gd87cm9rwjuDeV17R1dwyP8DnvMbG3RkzM9T14yG2",
+    "text": "阶段0验证：你好，Solana 🚀",
+    "slot": "516644546",
+    "feeLamports": "80000",
+    "feeSol": "0.00008",
+    "signature": "BiMxQjkLFFpMHYuQHyTS2evBoX8Wp2DfwTTXqFch8CFDQiwPDDnWUM62tAGCoiLyJddJjpzszkw8AshkMhyERox",
+    "explorerHref": "https://explorer.solana.com/tx/BiMxQjkLFFpMHYuQHyTS2evBoX8Wp2DfwTTXqFch8CFDQiwPDDnWUM62tAGCoiLyJddJjpzszkw8AshkMhyERox?cluster=devnet",
+    "rel": "noopener noreferrer"
+  },
+  "actions": [
+    "Open fresh localhost origin and wait for normal history reader",
+    "Open first real message detail",
+    "Read Explorer href and rel without navigating away",
+    "Return to public feed",
+    "Load more and observe source end; count and scanned total remain three"
+  ],
+  "limits": [
+    "No real wallet author-history or account-switch test",
+    "No live 429 or unavailable recovery test",
+    "No independent responsive matrix or mobile device test",
+    "DOM alert check only; runtime/log exception checks remain Cline evidence"
+  ],
+  "cleanup": "Agent-created browser tab closed and temporary local server stopped; no public tunnel or deployment"
+}

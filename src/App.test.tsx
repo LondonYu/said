@@ -5,10 +5,12 @@ import type { Wallet, WalletAccount } from '@wallet-standard/base';
 import App from './App';
 import type { WalletRegistry } from './wallet';
 import type { SimulationCheckResult } from './simulation';
+import type { GuestbookMessage, ReadPageResult } from './history';
 
 // 真实格式的 Solana 公钥，只用于展示与断言，不对应任何私钥。
 const ADDRESS_A = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';
 const ADDRESS_B = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM';
+const SIGNATURE_A = '5'.repeat(88);
 const DEVNET_CHAIN = 'solana:devnet' as const;
 
 type ChangeListener = (properties: { accounts?: readonly WalletAccount[] }) => void;
@@ -48,6 +50,48 @@ const simulationMock = vi.hoisted(() => ({
 vi.mock('./simulation', () => ({
   createSimulationClient: () => ({ checkTransaction: simulationMock.checkTransaction }),
 }));
+
+const historyMock = vi.hoisted(() => ({
+  readPage: vi.fn(),
+  retrySignatures: vi.fn(),
+}));
+
+vi.mock('./history', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./history')>();
+  return {
+    ...actual,
+    createHistoryClient: () => ({
+      readPage: historyMock.readPage,
+      retrySignatures: historyMock.retrySignatures,
+    }),
+  };
+});
+
+function historyMessage(overrides: Partial<GuestbookMessage> = {}): GuestbookMessage {
+  return {
+    signature: SIGNATURE_A,
+    author: ADDRESS_A,
+    text: '真实链上留言',
+    slot: 123n,
+    blockTime: null,
+    feeLamports: 5000n,
+    ...overrides,
+  };
+}
+
+function historyPage(overrides: Partial<ReadPageResult> = {}): ReadPageResult {
+  return {
+    scope: 'board',
+    author: null,
+    messages: [],
+    scanned: 0,
+    filtered: 0,
+    unavailable: [],
+    nextCursor: null,
+    sourceExhausted: true,
+    ...overrides,
+  };
+}
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -155,6 +199,8 @@ beforeEach(() => {
   });
   networkMock.verifyDevnet.mockReset().mockResolvedValue(undefined);
   networkMock.readBalance.mockReset().mockResolvedValue(0n);
+  historyMock.readPage.mockReset().mockResolvedValue(historyPage());
+  historyMock.retrySignatures.mockReset().mockResolvedValue(historyPage());
 });
 
 afterEach(() => {
@@ -470,43 +516,200 @@ describe('1.1A.1 页面和真实钱包入口', () => {
   });
 });
 
-describe('1.1A.2 示例流与编辑预览', () => {
-  it('首页显示明确标注的示例流，不伪造链上状态或哈希', () => {
+describe('3.2 链上历史界面', () => {
+  it('首页在未连接钱包时自动读取公共流，显示真实记录而非示例', async () => {
+    historyMock.readPage.mockResolvedValueOnce(historyPage({
+      messages: [historyMessage({ text: '真实公共留言' })],
+      scanned: 12,
+      nextCursor: SIGNATURE_A,
+      sourceExhausted: false,
+    }));
     renderWithWallets([], false);
-    expect(screen.getByText('示例留言 · 未上链')).toBeTruthy();
-    expect(screen.getByText(/以下为明确标注的静态示例/)).toBeTruthy();
-    expect(screen.getByText(/今天开始做第一个小项目/)).toBeTruthy();
-    expect(screen.queryByText(/交易哈希|已上链|签名成功/)).toBeNull();
+
+    expect(await screen.findByText('真实公共留言')).toBeTruthy();
+    expect(screen.getByText('链上留言 · Devnet 只读')).toBeTruthy();
+    expect(screen.getByText('Devnet 链上')).toBeTruthy();
+    expect(screen.queryByText('示例留言 · 未上链')).toBeNull();
+    expect(historyMock.readPage).toHaveBeenCalledWith({ kind: 'board' }, null, expect.any(AbortSignal));
   });
 
-  it('搜索只过滤本地示例，无匹配时显示空结果', () => {
+  it('未连接时我的留言只提示连接，不发起作者查询', async () => {
     renderWithWallets([], false);
-    fireEvent.click(screen.getAllByRole('button', { name: '搜索' })[0]);
-    const dialog = screen.getByRole('dialog');
-    const scoped = within(dialog);
+    await waitFor(() => expect(historyMock.readPage).toHaveBeenCalledTimes(1));
 
-    const input = scoped.getByLabelText('搜索示例留言') as HTMLInputElement;
-    expect(scoped.getByText(/仅搜索本页示例内容和示例账户名称/)).toBeTruthy();
+    fireEvent.click(screen.getAllByRole('button', { name: '我的留言' })[0]);
+    expect(screen.getByRole('heading', { name: '连接钱包查看我的留言' })).toBeTruthy();
+    expect(screen.getByText(/不会请求签名或自动弹出钱包/)).toBeTruthy();
+    expect(historyMock.readPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('连接后进入我的留言，按完整公钥独立查询并显示作者结果', async () => {
+    const wallet = createFakeWallet();
+    historyMock.readPage.mockImplementation((scope: unknown) => Promise.resolve(
+      (scope as { kind: string }).kind === 'author'
+        ? historyPage({ scope: 'author', author: ADDRESS_A, messages: [historyMessage({ text: '作者独立结果' })] })
+        : historyPage({ messages: [historyMessage({ text: '公共结果' })] }),
+    ));
+    renderWithWallets([wallet.wallet]);
+    fireEvent.click(await screen.findByRole('button', { name: 'Phantom' }));
+    fireEvent.click(buttonByName('连接所选钱包'));
+    await screen.findByText(ADDRESS_A);
+    fireEvent.click(screen.getAllByRole('button', { name: '关闭' })[0]);
+
+    fireEvent.click(screen.getAllByRole('button', { name: '我的留言' })[0]);
+    expect(await screen.findByText('作者独立结果')).toBeTruthy();
+    expect(screen.queryByText('公共结果')).toBeNull();
+    expect(historyMock.readPage).toHaveBeenCalledWith(
+      { kind: 'author', author: ADDRESS_A },
+      null,
+      expect.any(AbortSignal),
+    );
+  });
+
+  it('搜索只过滤当前已加载真实记录，不额外请求 RPC', async () => {
+    historyMock.readPage.mockResolvedValueOnce(historyPage({
+      messages: [
+        historyMessage({ text: '关于手机钱包的留言' }),
+        historyMessage({ signature: '6'.repeat(88), text: '另一条真实记录' }),
+      ],
+    }));
+    renderWithWallets([], false);
+    await screen.findByText('关于手机钱包的留言');
+
+    fireEvent.click(screen.getAllByRole('button', { name: '搜索' })[0]);
+    const scoped = within(screen.getByRole('dialog'));
+    const input = scoped.getByLabelText('搜索当前已加载留言') as HTMLInputElement;
+    expect(scoped.getByText(/不请求额外 RPC，不是全链搜索/)).toBeTruthy();
 
     fireEvent.change(input, { target: { value: '手机钱包' } });
-    expect(scoped.getByText(/有人在用手机钱包吗/)).toBeTruthy();
-    expect(scoped.queryByText(/今天开始做第一个小项目/)).toBeNull();
+    expect(scoped.getByText('关于手机钱包的留言')).toBeTruthy();
+    expect(scoped.queryByText('另一条真实记录')).toBeNull();
 
     fireEvent.change(input, { target: { value: '不存在的关键字' } });
-    expect(scoped.getByText('没有匹配的示例留言')).toBeTruthy();
+    expect(scoped.getByText('当前已加载记录中没有匹配项。')).toBeTruthy();
+    expect(historyMock.readPage).toHaveBeenCalledTimes(1);
   });
 
-  it('示例详情标记本地预览，不出现链上哈希', () => {
+  it('详情展示作者、未知时间、slot、实际费用、签名与 Devnet Explorer，正文按纯文本', async () => {
+    historyMock.readPage.mockResolvedValueOnce(historyPage({
+      messages: [historyMessage({ text: '<b>不当作 HTML</b>' })],
+    }));
     renderWithWallets([], false);
-    fireEvent.click(screen.getAllByRole('button', { name: '查看详情' })[0]);
+    await screen.findByText('<b>不当作 HTML</b>');
+
+    fireEvent.click(screen.getByRole('button', { name: '查看详情' }));
     const scoped = within(screen.getByRole('dialog'));
 
     expect(scoped.getByRole('heading', { name: '留言详情' })).toBeTruthy();
-    expect(scoped.getByText('本地预览，未上链')).toBeTruthy();
-    expect(scoped.getByText(/今天开始做第一个小项目/)).toBeTruthy();
-    expect(scoped.getByText('sample.01')).toBeTruthy();
-    expect(scoped.queryByText(/0x[0-9a-fA-F]{20,}/)).toBeNull();
+    expect(scoped.getByText(ADDRESS_A)).toBeTruthy();
+    expect(scoped.getByText('时间未知')).toBeTruthy();
+    expect(scoped.getByText('123')).toBeTruthy();
+    expect(scoped.getByText(/5000 lamports/)).toBeTruthy();
+    expect(scoped.getByText(SIGNATURE_A)).toBeTruthy();
+    expect(scoped.getByText('<b>不当作 HTML</b>').querySelector('b')).toBeNull();
+    const explorer = scoped.getByRole('link', { name: '在 Solana Explorer 查看（Devnet）' });
+    expect(explorer.getAttribute('href')).toBe(`https://explorer.solana.com/tx/${SIGNATURE_A}?cluster=devnet`);
+    expect(explorer.getAttribute('target')).toBe('_blank');
+    expect(explorer.getAttribute('rel')).toBe('noopener noreferrer');
   });
+
+  it('初次读取失败给出错误并可重试成功，不显示空历史', async () => {
+    historyMock.readPage
+      .mockRejectedValueOnce(new Error('RPC 429'))
+      .mockResolvedValueOnce(historyPage({ messages: [historyMessage({ text: '重试后的真实留言' })] }));
+    renderWithWallets([], false);
+
+    expect(await screen.findByText('留言读取失败，请重试。')).toBeTruthy();
+    expect(screen.queryByText(/暂未发现留言/)).toBeNull();
+    expect(screen.getByText('RPC 429')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: '重试' }));
+    expect(await screen.findByText('重试后的真实留言')).toBeTruthy();
+    expect(historyMock.readPage).toHaveBeenCalledTimes(2);
+  });
+
+
+  it('主题与语言变化不重查公共历史', async () => {
+    renderWithWallets([], false);
+    await waitFor(() => expect(historyMock.readPage).toHaveBeenCalledTimes(1));
+
+    openSettings();
+    fireEvent.click(buttonByName('深色'));
+    fireEvent.click(buttonByName('English'));
+    expect(await screen.findByText('On-chain posts · Devnet read-only')).toBeTruthy();
+    expect(historyMock.readPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('首页连接并切换钱包不重查公共历史', async () => {
+    const wallet = createFakeWallet();
+    renderWithWallets([wallet.wallet]);
+    await waitFor(() => expect(historyMock.readPage).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Phantom' }));
+    fireEvent.click(buttonByName('连接所选钱包'));
+    await screen.findByText(ADDRESS_A);
+    fireEvent.click(screen.getAllByRole('button', { name: '关闭' })[0]);
+
+    act(() => wallet.emitChange([account(ADDRESS_B)]));
+    fireEvent.click(screen.getAllByRole('button', { name: '我的钱包' })[0]);
+    expect(await screen.findByText(ADDRESS_B)).toBeTruthy();
+    expect(historyMock.readPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('钱包切换账户时关闭旧个人详情并加载新账户历史', async () => {
+    const wallet = createFakeWallet();
+    historyMock.readPage.mockImplementation((scope: unknown) => {
+      const author = (scope as { kind: string; author?: string }).author;
+      if (author === ADDRESS_A) {
+        return Promise.resolve(historyPage({ scope: 'author', author, messages: [historyMessage({ text: 'A 账户留言' })] }));
+      }
+      if (author === ADDRESS_B) {
+        return Promise.resolve(historyPage({ scope: 'author', author, messages: [historyMessage({ author: ADDRESS_B, text: 'B 账户留言' })] }));
+      }
+      return Promise.resolve(historyPage());
+    });
+    renderWithWallets([wallet.wallet]);
+    fireEvent.click(await screen.findByRole('button', { name: 'Phantom' }));
+    fireEvent.click(buttonByName('连接所选钱包'));
+    await screen.findByText(ADDRESS_A);
+    fireEvent.click(screen.getAllByRole('button', { name: '关闭' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: '我的留言' })[0]);
+    await screen.findByText('A 账户留言');
+
+    fireEvent.click(screen.getByRole('button', { name: '查看详情' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
+    act(() => wallet.emitChange([account(ADDRESS_B)]));
+    expect(await screen.findByText('B 账户留言')).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByText('A 账户留言')).toBeNull();
+    expect(historyMock.readPage).toHaveBeenLastCalledWith(
+      { kind: 'author', author: ADDRESS_B },
+      null,
+      expect.any(AbortSignal),
+    );
+  });
+
+  it('钱包切换账户时关闭搜索并清空旧查询', async () => {
+    const wallet = createFakeWallet();
+    historyMock.readPage.mockResolvedValue(historyPage({ messages: [historyMessage({ text: '可搜索留言' })] }));
+    renderWithWallets([wallet.wallet]);
+    fireEvent.click(await screen.findByRole('button', { name: 'Phantom' }));
+    fireEvent.click(buttonByName('连接所选钱包'));
+    await screen.findByText(ADDRESS_A);
+    fireEvent.click(screen.getAllByRole('button', { name: '关闭' })[0]);
+
+    fireEvent.click(screen.getAllByRole('button', { name: '搜索' })[0]);
+    fireEvent.change(screen.getByLabelText('搜索当前已加载留言'), { target: { value: '可搜索' } });
+    expect((screen.getByLabelText('搜索当前已加载留言') as HTMLInputElement).value).toBe('可搜索');
+
+    act(() => wallet.emitChange([account(ADDRESS_B)]));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    fireEvent.click(screen.getAllByRole('button', { name: '搜索' })[0]);
+    expect((screen.getByLabelText('搜索当前已加载留言') as HTMLInputElement).value).toBe('');
+  });
+
 
   it('编辑预览校验空白、140字符与560字节限制，预览可返回，关闭弹层草稿保留', () => {
     renderWithWallets([], false);
@@ -540,10 +743,11 @@ describe('1.1A.2 示例流与编辑预览', () => {
     expect((screen.getByLabelText('留言内容') as HTMLTextAreaElement).value).toBe('你好 👋');
   });
 
-  it('示例流与编辑预览随语言切换', () => {
+  it('链上流与编辑预览随语言切换', async () => {
     localStorage.setItem('said-preferences', JSON.stringify({ theme: 'dark', lang: 'en' }));
     renderWithWallets([], false);
-    expect(screen.getByText('Sample posts · Not on chain')).toBeTruthy();
+    expect(screen.getByText('On-chain posts · Devnet read-only')).toBeTruthy();
+    expect(screen.getByText('Reading on-chain posts…')).toBeTruthy();
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Post' })[0]);
     expect(screen.getByRole('heading', { name: 'Editor preview' })).toBeTruthy();
