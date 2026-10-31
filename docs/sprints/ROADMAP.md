@@ -1,3 +1,5 @@
+> 历史归档：2026-11-01迁入。原日期、级别与复审结论仅作历史记录，不是当前发布闸门；当前以[STATUS](../../STATUS.md)、[DECISIONS](../../DECISIONS.md)及根目录规则为准。
+
 # Said：开发阶段与适配安排
 
 当前定位为开源学习作品，已公开到https://github.com/LondonYu/said（MIT），现有视觉经用户确认。下面按日期保留历史阶段与取舍；最新执行入口为docs/CLINE-NEXT.md，不把旧稿当作新需求。

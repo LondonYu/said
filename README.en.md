@@ -26,13 +26,9 @@ The current implementation is Solana-specific; it does not support multiple chai
 
 To adapt the project, replace the wallet integration, transaction construction, message storage mechanism, and history discovery API. Relevant modules include `src/wallet.ts`, `src/network.ts`, `src/message.ts`, `src/simulation.ts`, and `src/history.ts`. The interface and chain-independent text validation can be reused with suitable changes. The reader must verify authorship and message validity using the target chain's transaction model.
 
-## Current status
+## Current goal and status
 
-- Implemented: wallet connection and disconnection, account change handling, read-only Devnet balances, responsive layout, theme and language preferences, unsigned transaction construction, simulation with `sigVerify=false`, the independently reviewed Stage 3.1 parser, board/author pagination, and explicit retry client, plus the Stage 3.2 interface for the real public feed, current-account history, in-scope search, details, pagination, refresh, and explicit retry of unreadable records. The Stage 2.2A publishing core (signing session, prepared bytes, Ed25519 verification, single submission, receipts, confirmation/recovery) passed independent review on 2026-11-01; R1–R5 are closed, and the core is not yet connected to the interface.
-- No page integration yet: Stage 2.2B interface work and real-wallet signing/submission have not been executed. The editor remains labeled as a local preview and has no publish button; it does not sign or send anything.
-- Next: Stage 2.2A passed [final independent review](docs/REVIEW-2.2A-RESULT.md), with 252 project tests and 16 additional independent assertions passing. Part B interface work and holder-operated Devnet acceptance have not started; interface signing/submission remain disabled. See [the current handoff](docs/CLINE-NEXT.md).
-- Validation this round: typecheck and build exit 0, and 252 tests across 8 files pass (publisher 98, wallet 38). The injected wallet, Node-side Ed25519 checks, and real read-only RPC probes are not acceptance evidence for real wallet signing or submission. Existing Stage 3.2 review/browser evidence remains; real-wallet personal history/account switching, live 429 recovery, mobile-device checks, and Stage 2.2B remain unverified.
-- Limitations: Devnet may reset. Public RPC services impose rate limits and do not guarantee long-term access to history. Published content cannot be retracted through the app; the frontend can only choose whether to display it. Search filters only the currently loaded scope, not the whole chain.
+v0.1 has three acceptance criteria: a publicly accessible URL, three real on-chain messages visible without a wallet connection, and the connected wallet’s own address displayed. Signing and submission are outside v0.1. [STATUS](STATUS.md) holds the current evidence and requires the user’s final confirmation. The 2.2A core is retained; 2.2B is deferred. Test counts do not establish release acceptance. See [DECISIONS](DECISIONS.md) and the [historical archive](docs/sprints/).
 
 ## Development
 

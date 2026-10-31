@@ -1,3 +1,5 @@
+> 历史归档：2026-11-01迁入。原日期、级别与复审结论仅作历史记录，不是当前发布闸门；当前以[STATUS](../../STATUS.md)、[DECISIONS](../../DECISIONS.md)及根目录规则为准。
+
 # Sprint 2.2A：Codex独立复审与限定修复
 
 **最新结论（2026-11-01）：2.2A复审通过，R1–R5全部关闭。** 252项项目测试、16项独立断言、类型/构建/diff通过。历史问题与各轮证据保留；最终通过证据见末尾。B未开始，产品页面签名/发送继续关闭。
@@ -17,7 +19,7 @@
 
 ## R1 [P1] 签名锁在异步复核后才设置，可并发弹窗
 
-位置：[publisher.ts:696](../src/publisher.ts#L696)–704。
+位置：[publisher.ts:696](../../src/publisher.ts#L696)–704。
 
 sign先检查signingInFlight，再await四段RPC复核，最后才设置锁。同一帧两次调用都能读到false并进入复核，随后各调用一次钱包。现有测试等待第一次钱包调用后再发第二次，遗漏了这个窗口。
 
@@ -27,7 +29,7 @@ sign先检查signingInFlight，再await四段RPC复核，最后才设置锁。�
 
 ## R2 [P1] 超时只是发送abort，缺少真正截止与贯穿取消
 
-位置：[publisher.ts:289](../src/publisher.ts#L289)–340、621–642、838–850、882–965、967–1052；Publisher类型183–208。
+位置：[publisher.ts:289](../../src/publisher.ts#L289)–340、621–642、838–850、882–965、967–1052；Publisher类型183–208。
 
 - readWithTimeout仅设置controller，直接await provider；不race也不在await后查signal。provider忽略abort时迟到成功仍继续下一段。独立设timeout=10ms、genesis在25ms返回，sign仍成功且调用钱包1次。
 - send只race调用者signal，没有本身的10秒超时；默认调用无外部abort时可永久pending。独立timeout=10ms，40ms后submit仍未结束，释放迟到响应后返回accepted，而不是在期限内保留回执返回uncertain。
@@ -39,7 +41,7 @@ sign先检查signingInFlight，再await四段RPC复核，最后才设置锁。�
 
 ## R3 [P2] 链上确认没有结算本地回执，正常使用会耗尽容量
 
-位置：[publisher.ts:882](../src/publisher.ts#L882)–1017；存储终态清理433–450。
+位置：[publisher.ts:882](../../src/publisher.ts#L882)–1017；存储终态清理433–450。
 
 submit保存submitting，但check/confirm/recover只返回查询结果，从不把confirmed/finalized/可靠失败结算到存储。独立完整执行prepare→sign→submit→confirm，查询结果为confirmed，localStorage仍为submitting。10笔正常成功交易后都是“未解决”，第11笔无法落盘，因此零广播被阻止；现有容量测试手工塞终态，掩盖了正常流程无法产生终态的问题。
 
@@ -49,7 +51,7 @@ submit保存submitting，但check/confirm/recover只返回查询结果，从不�
 
 ## R4 [P1] 钱包级能力事件被忽略，签名特性版本未校验
 
-位置：[wallet.ts:135](../src/wallet.ts#L135)–179、248附近同账户判断、309–317、471附近getSigningSession。
+位置：[wallet.ts:135](../../src/wallet.ts#L135)–179、248附近同账户判断、309–317、471附近getSigningSession。
 
 签名会话只在accounts事件变化时重建；standard:events允许单独发chains/features，当前回调发现没有accounts就直接返回。能力撤销、替换或版本变化后仍返回旧会话及旧feature。evaluateSigningSession也没要求feature.version为首版支持的1.0.0。
 
@@ -61,7 +63,7 @@ submit保存submitting，但check/confirm/recover只返回查询结果，从不�
 
 ## R5 [P2] 准备阶段仍接受历史读取器拒绝的Unicode正文
 
-位置：[publisher.ts:628](../src/publisher.ts#L628)–639、478–509；[history.ts:293](../src/history.ts#L293)。
+位置：[publisher.ts:628](../../src/publisher.ts#L628)–639、478–509；[history.ts:293](../../src/history.ts#L293)。
 
 prepare只检查trim空白；validatePrepared重用的正文规则也未检查well-formed Unicode。独立传String.fromCharCode(0xd800)，结果prepared且已模拟1次。JSON能把孤立代理项编码成转义，Memo模拟不必报错，但本项目history明确返回memo-text-wellformed无效，从而可能付费发布后被自己的公共流过滤。
 
@@ -79,7 +81,7 @@ prepare只检查trim空白；validatePrepared重用的正文规则也未检查we
 
 - 已按R1–R5修复发布核心并补必要回归：同步签名token锁、贯穿取消/截止、终态回执结算、钱包chains/features能力事件与会话惰性核验、well-formed Unicode入口校验。未接B/UI，未调用真实钱包签名或广播，未新增依赖/后台/数据库/主网/部署。
 - 实际`npm run typecheck`退出0；`npm test` 8文件239项通过（publisher89、wallet34）；`npm run build`退出0（70 modules，JS 345.92 kB/gzip 108.09 kB）；`git diff --check`退出0。真实钱包、真实发送/确认、浏览器WebCrypto Ed25519与真机项仍未验证。
-- 修复细节、覆盖范围与停留状态见[VALIDATION.md](VALIDATION.md)和[CLINE-NEXT.md](CLINE-NEXT.md)。本文件原“暂不通过”结论保留；A是否通过以Codex复核为准，B在复审通过前继续关闭。工作区未提交、未推送。
+- 修复细节、覆盖范围与停留状态见[VALIDATION.md](VALIDATION.md)和[CLINE-NEXT.md](../CLINE-NEXT.md)。本文件原“暂不通过”结论保留；A是否通过以Codex复核为准，B在复审通过前继续关闭。工作区未提交、未推送。
 
 ## Codex二审验证与关闭项
 
@@ -92,7 +94,7 @@ prepare只检查trim空白；validatePrepared重用的正文规则也未检查we
 
 ### R3剩余 [P2] 可靠终态必须先满足确认级别，成功必须显式err=null
 
-当前位置：[publisher.ts:1137](../src/publisher.ts#L1137)–1164，结算1075–1085。
+当前位置：[publisher.ts:1137](../../src/publisher.ts#L1137)–1164，结算1075–1085。
 
 checkWithDeadline先处理err，只要非空就failed，不管confirmationStatus是否只有processed或为null；settleCheck随后把failed写为可淘汰终态，confirm也提前结束。独立注入`{confirmationStatus:'processed',err:{InstructionError:...}}`，实际failed/persisted且存储failed。processed仍可能回滚，尚不能作为本项目confirmed目标下的可靠失败。另注入`{confirmationStatus:'confirmed'}`、省略err，实际被当成confirmed/persisted，违背原工单“err=null才成功”的明确约束。
 
@@ -104,7 +106,7 @@ checkWithDeadline先处理err，只要非空就failed，不管confirmationStatus
 
 ### R4剩余 [P2] 发过能力事件后不能永久绕过实时能力复核
 
-当前位置：[wallet.ts:280](../src/wallet.ts#L280)–307、399–405、580–595。
+当前位置：[wallet.ts:280](../../src/wallet.ts#L280)–307、399–405、580–595。
 
 walletFeaturesFromEvent一旦变true，isSessionStillCurrent就不再比较wallet.features实时值；activeWalletFeatures永久优先旧事件表。独立先发正常features事件，再把wallet.features替换成无signTransaction的新表且不再发事件，getSigningSession仍返回同一个有效会话。已有“未发事件的静默变更”测试只覆盖从未发生features事件的情况，所以没有证明所声明的每次惰性核验始终有效。chains路径有同样的永久绕过标记。
 
