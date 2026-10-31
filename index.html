@@ -1,9 +1,19 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>留言板</title>
+    <title>Said</title>
+  <meta name="color-scheme" content="dark light" />
+    <meta name="description" content="Said · Solana Devnet" />
+    <link rel="icon" type="image/svg+xml" href="/said-favicon.svg" />
+    <script>
+      try {
+        const saved = JSON.parse(localStorage.getItem('said-preferences') || '{}');
+        const theme = saved && saved.theme;
+        document.documentElement.dataset.theme = theme === 'light' || (theme === 'system' && !matchMedia('(prefers-color-scheme: dark)').matches) ? 'light' : 'dark';
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
