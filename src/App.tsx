@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Wallet } from '@wallet-standard/base';
-import { readBalance, verifyDevnet } from './network';
+import { createSolanaRpc } from '@solana/kit';
+import { DEVNET_RPC_URL, readBalance, verifyDevnet } from './network';
 import { createWalletController, type WalletController, type WalletSnapshot } from './wallet';
 import { createSimulationClient, type SimulationCheckResult } from './simulation';
 import { translations, type Labels } from './i18n';
@@ -12,6 +13,8 @@ import { PreviewEditor } from './Preview';
 import { createHistoryClient, type GuestbookMessage } from './history';
 import { useHistoryFeed } from './historyFeed';
 import { HistoryDetail, HistoryFeedView, HistorySearch } from './HistoryViews';
+import { createBrowserPublicationReceiptStore, createPublisher, type PublisherRpc } from './publisher';
+import { usePublicationFlow } from './Publication';
 
 type NetworkState =
   | { status: 'checking' }
@@ -236,6 +239,31 @@ export default function App() {
   );
   // 我的留言只在已连接且进入该页时独立查询，绝不复用公共首页结果。
   const mineFeed = useHistoryFeed({ client: historyClient, scope: mineScope, enabled: tab === 'mine' && accountAddress !== null });
+
+  // 发布核心只在用户主动准备/签名后发出 RPC；挂载本身不读取回执或钱包。
+  const publisher = useMemo(
+    () => createPublisher({
+      simulationClient: simulation,
+      rpc: createSolanaRpc(DEVNET_RPC_URL) as unknown as PublisherRpc,
+      receiptStore: createBrowserPublicationReceiptStore(),
+      historyClient,
+      getCurrentSession: () => controller?.getSigningSession() ?? null,
+    }),
+    [simulation, historyClient, controller],
+  );
+  const publication = usePublicationFlow({
+    publisher,
+    getSession: () => controller?.getSigningSession() ?? null,
+    draft,
+    author: accountAddress,
+    connected: accountAddress !== null,
+    signingReason: snapshot?.signing.reason ?? null,
+    onConfirmed: (_message, published) => {
+      boardFeed.refresh();
+      mineFeed.refresh();
+      if (draft === published.text && accountAddress === published.author) setDraft('');
+    },
+  });
 
   const networkReadyForAccount = network.status === 'ready' && network.address === accountAddress;
   const networkErrorForAccount = network.status === 'error' && network.address === accountAddress;
@@ -575,6 +603,10 @@ export default function App() {
             checkDisabled={accountAddress === null}
             checking={checking}
             checkSummary={checkSummary}
+            publication={publication}
+            connected={connected}
+            signingAvailable={snapshot?.signing.available ?? false}
+            signingReason={snapshot?.signing.reason ?? null}
           />
         )}
         {modal === 'detail' && selectedMessage !== null && detailContextCurrent && (

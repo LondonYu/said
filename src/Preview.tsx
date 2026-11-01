@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { Labels } from './i18n';
+import type { PublicationFlow } from './Publication';
+import { PublicationPanel } from './Publication';
 
 // 明确标注的静态示例；不是真实用户，也不属于任何已连接钱包，更不是链上历史。
 export const samplePosts = [
@@ -80,7 +82,19 @@ export function PreviewSearch({ labels, onDetail }: { labels: Labels; onDetail: 
   );
 }
 
-export function PreviewEditor({ labels, draft, onDraft, onCheck, checkDisabled, checking, checkSummary }: {
+export function PreviewEditor({
+  labels,
+  draft,
+  onDraft,
+  onCheck,
+  checkDisabled,
+  checking,
+  checkSummary,
+  publication,
+  connected,
+  signingAvailable,
+  signingReason,
+}: {
   labels: Labels;
   draft: string;
   onDraft: (text: string) => void;
@@ -88,9 +102,14 @@ export function PreviewEditor({ labels, draft, onDraft, onCheck, checkDisabled, 
   checkDisabled?: boolean;
   checking?: boolean;
   checkSummary?: ReactNode;
+  publication?: PublicationFlow;
+  connected?: boolean;
+  signingAvailable?: boolean;
+  signingReason?: string | null;
 }) {
   const [review, setReview] = useState(false);
   const stats = draftStats(draft);
+  const locked = publication?.locked ?? false;
 
   return (
     <>
@@ -101,9 +120,16 @@ export function PreviewEditor({ labels, draft, onDraft, onCheck, checkDisabled, 
         <>
           <p className="preview-post-text draft-review">{draft}</p>
           <div className="preview-actions">
-            <button type="button" className="button secondary" onClick={() => setReview(false)}>{labels.previewBack}</button>
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => setReview(false)}
+              disabled={locked}
+            >
+              {labels.previewBack}
+            </button>
             {onCheck && (
-              <button type="button" className="button" onClick={onCheck} disabled={checkDisabled || checking}>
+              <button type="button" className="button" onClick={onCheck} disabled={checkDisabled || checking || locked}>
                 {checking ? labels.checkingTx : labels.checkTx}
               </button>
             )}
@@ -120,6 +146,7 @@ export function PreviewEditor({ labels, draft, onDraft, onCheck, checkDisabled, 
             value={draft}
             onChange={(event) => onDraft(event.target.value)}
             aria-describedby="draft-count draft-limit"
+            disabled={locked}
           />
           <div className={`draft-count${stats.valid || draft === '' ? '' : ' invalid'}`} id="draft-count" aria-live="polite">
             <span>{stats.count} / 140 {labels.characters}</span>
@@ -130,13 +157,25 @@ export function PreviewEditor({ labels, draft, onDraft, onCheck, checkDisabled, 
             <button
               type="button"
               className="button"
-              disabled={!stats.valid}
+              disabled={!stats.valid || locked}
               onClick={() => { if (stats.valid) setReview(true); }}
             >
               {labels.previewNext}
             </button>
           </div>
         </>
+      )}
+
+      {publication && (
+        <PublicationPanel
+          labels={labels}
+          flow={publication}
+          draft={draft}
+          draftValid={stats.valid}
+          connected={connected ?? false}
+          signingAvailable={signingAvailable ?? false}
+          signingReason={signingReason ?? null}
+        />
       )}
     </>
   );

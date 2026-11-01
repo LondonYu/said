@@ -1,9 +1,9 @@
 import type { GuestbookMessage } from './history';
 import type { HistoryFeedState } from './historyFeed';
 import type { Labels, Language } from './i18n';
+import { devnetExplorerUrl } from './explorer';
 
 const LAMPORTS_PER_SOL = 1_000_000_000n;
-const EXPLORER_BASE = 'https://explorer.solana.com/tx/';
 
 function shortAddress(address: string): string {
   return `${address.slice(0, 5)}…${address.slice(-4)}`;
@@ -285,7 +285,7 @@ export function HistoryDetail({
   language: Language;
 }) {
   const time = formatBlockTime(message.blockTime, language);
-  const explorer = `${EXPLORER_BASE}${encodeURIComponent(message.signature)}?cluster=devnet`;
+  const explorer = devnetExplorerUrl(message.signature);
   return (
     <div className="preview-detail history-detail">
       <p className="preview-banner">{labels.onChainFeed}</p>

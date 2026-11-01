@@ -88,6 +88,17 @@ body:has(dialog[open]) { overflow: hidden; }
 .tx-facts code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
 .tx-body { white-space: pre-wrap; line-height: 1.6; }
 .tx-error-detail { margin: 10px 0 0; font-size: 13px; }
+.publication-panel { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+.publication-panel h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.publish-status { margin: 6px 0 12px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.publish-summary { margin-top: 12px; }
+.publish-warning { margin: 12px 0; padding: 12px 14px; border: 1px solid var(--line); border-left: 2px solid var(--text); border-radius: 10px; font-size: 13px; line-height: 1.7; }
+.publish-signature { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.publish-signature code, .publish-recovery-signature { display: block; margin-bottom: 10px; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.publish-readback { margin-top: 14px; }
+.publish-recovery { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.publish-recovery-entry { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 13px; }
+.publish-recovery-entry p { margin: 0 0 8px; }
 .history-feed { padding: 14px 12px 10px; }
 .history-toolbar { display: flex; align-items: center; gap: 10px; }
 .history-toolbar .preview-banner { flex: 1; min-width: 0; }

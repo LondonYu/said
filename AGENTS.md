@@ -4,7 +4,7 @@
 
 先读正式Obsidian项目档案的「AI交接」、STATUS.md、DECISIONS.md及本文件。先检查git status，同目录只允许一个实现者，不覆盖已有修改、不做破坏性清理。历史docs/sprints/不授予当前执行权限。
 
-当前目标为v0.1只读演示，2.2B签名/发送后置，不是发布前置条件。Codex拆单/复审，VS Code/Cline执行，用户验收。精确当前状态与工单只维护在STATUS.md。
+v0.1只读演示的验收范围不含签名/发送；后续版本按STATUS当前工单执行，不追溯增加v0.1发布条件。Codex拆单/复审，VS Code/Cline执行，用户验收。精确当前状态与工单只维护在STATUS.md。
 
 ## 缺陷分级与发布闸门（2026-11-01用户确认）
 

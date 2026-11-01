@@ -1,0 +1,57 @@
+{
+  "reviewedAt": "2026-11-01T15:36:30+08:00",
+  "mode": "source review + existing checks + isolated mock hook probes; no real wallet, RPC broadcast or deployment",
+  "projectChecks": {
+    "typecheck": 0,
+    "testFiles": 9,
+    "projectTestsPassed": 253,
+    "build": 0,
+    "diffCheck": 0
+  },
+  "isolatedProbes": {
+    "passed": 3,
+    "cases": [
+      "success to confirmed/readback; rapid double click signs/submits once",
+      "uncertain result queries original receipt; no resign/resend",
+      "wallet refusal never submits and preserves prepared text"
+    ],
+    "temporaryFileRemoved": true,
+    "permanentTestCountUnchanged": true
+  },
+  "build": {
+    "js": "index-DaJiXROJ.js",
+    "jsKB": 391.48,
+    "jsGzipKB": 120.09,
+    "css": "index-CgfA0wjz.css",
+    "cssKB": 16.65,
+    "cssGzipKB": 4.2
+  },
+  "sourceSha256": {
+    "src/Publication.tsx": "3005322d1813e164c8e8f3f99f6b6b05a87f3750ad3560d793837704952e8ce0",
+    "src/App.tsx": "0a8832e0219ae00773d71734c7865e32ef6a9fd2be9a224f2208b8bd05742473",
+    "src/Preview.tsx": "28622d5dfbdcb95893b6a8244228191e66080dffe8c8e8ce4c62ff9ebba39fa2",
+    "src/explorer.ts": "321da5d27a827323ce8b8970f07aa2fa8ee398656a0746682451cf09998cd848",
+    "src/HistoryViews.tsx": "00ab61635218e10996b5df207b84760cd76820abc126ac78240b9abf80b259d4",
+    "src/i18n.ts": "207ba858e776e9ef33910f439d7b50c3f1528626fc0eedb06322aa18e8fd9ffb",
+    "src/styles.css": "11beae8860b18dd8cb14efec5a97020542c9bfb43d005c5ebddfc6cdd0e4b149",
+    "src/Publication.test.tsx": "1224a708ba1690e964c94b16595a5d3d98ee5d50cf80e8c694cecf7a50c07efc"
+  },
+  "findings": {
+    "blocking": [],
+    "P2": [
+      {
+        "id": "B05",
+        "file": "src/i18n.ts",
+        "description": "English header says Devnet · Testnet; these are distinct network labels. App endpoint is unchanged Devnet. Wording only, deferred."
+      }
+    ]
+  },
+  "deploymentStagingCheck": {
+    "gitDiffCachedCheckExit": 2,
+    "findings": [
+      "capture.mjs: trailing empty line at EOF",
+      "src/Publication.tsx: trailing empty line at EOF"
+    ],
+    "classification": "P2 formatting only, left unchanged; earlier unstaged diff --check did not include then-untracked files"
+  }
+}
