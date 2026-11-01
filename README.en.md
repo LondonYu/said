@@ -39,7 +39,7 @@ Two production builds:
 
 ```sh
 npm run build                                  # Devnet
-VITE_SOLANA_NETWORK=mainnet npm run build      # Solana Mainnet candidate
+VITE_SOLANA_NETWORK=mainnet npm run build      # Solana Mainnet
 ```
 
 Existing checks:
@@ -78,9 +78,9 @@ The React interface, themes, language settings, and some text validation can be 
 
 The user completed a real Devnet publication in Chrome with Phantom and confirmed that the message remained visible after refreshing. The [Devnet verification transaction](https://explorer.solana.com/tx/3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz?cluster=devnet) reached finalized. See [STATUS](STATUS.md) for the evidence.
 
-- The mainnet code, build configuration, and read-only network evidence are complete, but real wallet signing, mainnet broadcast, on-chain confirmation, and refresh read-back still need user acceptance. The candidate is not a completed mainnet release; M01-M03 are user-verified.
-- Real mainnet signing has not been verified. An initially empty mainnet public feed is expected. Old Devnet posts remain on Devnet and are not described as migrated or deleted.
-- The mainnet candidate uses `https://solana-rpc.publicnode.com`. Node read-only requests passed genesis, executable Memo program, and empty board checks. Browser CORS and the real wallet path remain unverified.
+- The mainnet build is deployed on GitHub Pages. Browser checks passed for the public mainnet empty state, Phantom mainnet connection, and real balance retrieval. Real mainnet signing, broadcast, confirmation, and refresh read-back still require an account with enough SOL; M03 is not accepted.
+- An initially empty mainnet public feed is expected. Old Devnet posts remain on Devnet and are not described as migrated or deleted.
+- Mainnet uses `https://solana-rpc.publicnode.com`. Node read-only requests passed genesis, executable Memo program, and empty board checks; the public browser successfully read the mainnet empty board and connected Phantom.
 - Public RPC services may throttle requests or lack historical data. Permanent storage and complete availability are not guaranteed. The mainnet basic fee is whatever the RPC estimates for that transaction.
 - Other wallets, mobile signing, and all failure scenarios have not been verified. An initial timeout followed by a successful Devnet retry is recorded; its cause is unknown.
 - Sponsored fees, platform charges, likes, replies, and private messages are outside this implementation.

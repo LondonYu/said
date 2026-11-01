@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-11-01T23:56:15+08:00",
+  "url": "https://londonyu.github.io/said/",
+  "deployedCommit": "9be4bade341e2b6722910257ecee03e4747c9710",
+  "deploymentRun": "https://github.com/LondonYu/said/actions/runs/41323014881",
+  "unconnected": {
+    "visibleNetwork": "Solana 主网 · 真实 SOL",
+    "feedLabel": "链上留言 · Solana 主网只读",
+    "result": "真实空状态",
+    "scannedCandidates": 0
+  },
+  "wallet": {
+    "wallet": "Phantom",
+    "applicationNetwork": "Solana 主网",
+    "account": "Hs1NxWYZdXE6opzTY1wR9XCbq2QtNwrGdkWgSMeWk31S",
+    "balanceSol": "0",
+    "connectionShown": true
+  },
+  "limits": [
+    "No transaction was prepared, signed, broadcast, or confirmed.",
+    "The connected account has zero mainnet SOL, so it cannot pay a mainnet network fee.",
+    "The Devnet test transaction remains Devnet evidence and is not used as mainnet evidence."
+  ]
+}

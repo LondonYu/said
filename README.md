@@ -39,7 +39,7 @@ npm run dev
 
 ```sh
 npm run build                                  # 默认 Devnet
-VITE_SOLANA_NETWORK=mainnet npm run build      # Solana 主网候选
+VITE_SOLANA_NETWORK=mainnet npm run build      # Solana 主网
 ```
 
 已有检查与构建命令：
@@ -78,9 +78,9 @@ React 界面、主题、语言设置和部分正文校验可以复用；只更�
 
 用户已在 Chrome + Phantom 完成真实 Devnet 签名发布，并确认刷新后可读。[本次 Devnet 验证交易](https://explorer.solana.com/tx/3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz?cluster=devnet)达到 finalized；完整证据见 [STATUS](STATUS.md)。
 
-- 主网代码、构建配置和只读网络证据已完成，但真实钱包签名、主网广播、链上确认和刷新读回尚未由用户验收，不能把候选构建当作已完成的主网发布。M01-M03 由用户最终确认。
-- 主网真实签名尚未验收；主网公共流初始为空是正常状态。旧 Devnet 留言仍在 Devnet，不称为迁移或删除。
-- 主网候选使用 `https://solana-rpc.publicnode.com`。Node 只读请求已通过 genesis、Memo 可执行和空 board 检查；浏览器 CORS 与真实钱包路径仍未验收。
+- 主网版本已部署到 GitHub Pages；公网页面、主网只读空状态、Phantom 主网连接及真实余额读取已通过浏览器核验。真实主网签名、广播、链上确认和刷新读回仍待有余额账户完成，M03 尚未验收。
+- 主网公共流初始为空是正常状态。旧 Devnet 留言仍在 Devnet，不称为迁移或删除。
+- 主网使用 `https://solana-rpc.publicnode.com`。Node 只读请求已通过 genesis、Memo 可执行和空 board 检查；公网浏览器已成功读取主网空板并连接 Phantom。
 - 公共 RPC 可能限流或缺少历史，不承诺永久存储或始终完整可读。主网基础费以当次 RPC 估费为准。
 - 全钱包、手机签名和全部异常场景尚未验证。首次超时、重试成功的 Devnet 反馈已记录，根因未知。
 - 功能不含代付、平台收费、点赞、回复或私信。

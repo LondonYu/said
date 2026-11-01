@@ -1,0 +1,29 @@
+{
+  "url": "https://londonyu.github.io/said/",
+  "status": 200,
+  "time": "2026-11-01T23:50:01+08:00",
+  "deployedCommit": "9be4bade341e2b6722910257ecee03e4747c9710",
+  "assets": [
+    {
+      "url": "https://londonyu.github.io/said/said-favicon.svg",
+      "status": 200,
+      "bytes": 522,
+      "sha256": "8c19ed56849372680707a2337c02b48f888c45e242e1d686fc6f824a34911f58",
+      "matchesReviewedBuild": true
+    },
+    {
+      "url": "https://londonyu.github.io/said/assets/index-CNefGxtp.js",
+      "status": 200,
+      "bytes": 399348,
+      "sha256": "b4e4de09ba6fe60bbb101ac713f30e6df1be67e7b98bf2aeaf76a8756b1b6f16",
+      "matchesReviewedBuild": true
+    },
+    {
+      "url": "https://londonyu.github.io/said/assets/index-Cdoq2_5D.css",
+      "status": 200,
+      "bytes": 16663,
+      "sha256": "d284798a81e40c847de48776b6a69770846226eef1ed0e8c731f73b96aa844a1",
+      "matchesReviewedBuild": true
+    }
+  ]
+}
