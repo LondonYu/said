@@ -27,7 +27,7 @@
 - 活跃治理面仅三处：根目录STATUS.md管当前状态/验收/待办/backlog/当前工单；根目录DECISIONS.md管决策和被否方案；docs/sprints/管历史归档。AGENTS/.clinerules只管规则，README/README.en只管项目介绍与入口，不维护第二份待办。
 - 将原docs/ROADMAP.md、docs/VALIDATION.md、docs/DECISIONS.md及产品/旅程/各轮工单复审等共28份Markdown移入docs/sprints/，加历史提示并修正Markdown相对链接；8份机器证据移入docs/sprints/evidence/，内容字节不变。没有删除失败证据，也没有修改产品源码。
 - 原历史决策全文保留于[历史DECISIONS](docs/sprints/DECISIONS.md)。以下迁移表标明每个旧路径，便于追溯；历史中的纯文本原路径/命令保留其当时语境，不作为当前入口。
-- docs/CLINE-NEXT.md仅保留一个指向STATUS的传话入口，SPRINT-4.0结束后删除，不再扩写平行工单。被否：继续叠加ROADMAP/VALIDATION/REVIEW/CLINE等活跃治理文件，理由是容易出现多个“当前状态”。
+- SPRINT-4.0已结束，过渡docs/CLINE-NEXT.md按约定删除；当前交接只读STATUS，不维护平行工单。被否：继续叠加ROADMAP/VALIDATION/REVIEW/CLINE等活跃治理文件，理由是容易出现多个“当前状态”。
 
 | 原路径 | 历史归档路径 |
 | --- | --- |
@@ -88,3 +88,7 @@
 - Pages已在用户要求继续SPRINT-4.0后启用并部署成功，工作流只允许手动main发布；不创建账号、不付费或改DNS。当前运行版本与三条实际验收证据只维护于STATUS，若未来受限须报告具体错误，不回退临时隧道。
 - 原制度其余部分不变：P2不阻断、证据变级、复审上限、三条用户最终确认、不增测试。
 - 官方依据：[Vite base](https://vite.dev/config/shared-options.html#base)、[Vite Pages部署](https://vite.dev/guide/static-deploy.html#github-pages)、[GitHub Pages工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
+
+## D06：v0.1用户最终验收与阶段关闭（2026-11-01）
+
+用户针对电脑断网＋手机移动数据刷新以及页面/3条留言核对，回复“确认完成正常”；连同此前钱包地址一致确认，V01/V02/V03全部通过。SPRINT-4.0结束，删除过渡CLINE-NEXT，工单与原始证据归档；详细时间戳和唯一当前状态见STATUS。2.2B及兼容扩展仍后置，不自动开始；无需新增测试、功能或部署来证明已获用户确认的三条。

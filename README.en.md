@@ -30,6 +30,8 @@ To adapt the project, replace the wallet integration, transaction construction, 
 
 ## Current goal and status
 
+The user has accepted the v0.1 read-only demo against all three criteria.
+
 v0.1 has three acceptance criteria: a GitHub Pages URL that remains accessible after the user’s computer is shut down and local processes stop, three real on-chain messages visible without a wallet connection, and the connected wallet’s own address displayed. Temporary tunnels are for debugging and do not count as URL acceptance evidence. Signing and submission are outside v0.1. [STATUS](STATUS.md) holds the current evidence and requires the user’s final confirmation. The 2.2A core is retained; 2.2B is deferred. Test counts do not establish release acceptance. See [DECISIONS](DECISIONS.md) and the [historical archive](docs/sprints/).
 
 ## Development

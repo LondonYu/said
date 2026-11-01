@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-11-01T05:54:56.766708+00:00",
+  "recordedAtAsiaShanghai": "2026-11-01T13:54:56.766708+08:00",
+  "url": "https://londonyu.github.io/said/",
+  "deployedCommit": "ea2f60e46d851b38806009dcee81d2c9afb3c5bb",
+  "source": "Direct user reply to the immediately preceding V01/V02 confirmation instructions",
+  "previousInstructions": [
+    "电脑彻底断网",
+    "手机关闭Wi-Fi，使用移动数据",
+    "刷新Said，确认页面和3条留言正常加载"
+  ],
+  "answer": "确认完成正常",
+  "criteria": {
+    "V01": "user confirmed independent mobile-data access with computer disconnected",
+    "V02": "user confirmed page and three messages load normally",
+    "V03": "previously user confirmed 显示了，地址一致"
+  },
+  "result": "v0.1 accepted by user; Sprint 4.0 closed",
+  "limits": "User attestation plus existing public URL/HTTP/browser evidence; agent did not independently observe the user device/network or wallet. Timestamp records receipt, not exact operation time."
+}
