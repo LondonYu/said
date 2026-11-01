@@ -1,11 +1,11 @@
 # Said STATUS
 
-更新：2026-11-01，Asia/Shanghai。**v0.1只读演示已通过用户最终验收，SPRINT-4.0结束。** 当前工单为SPRINT-2.2B R1：真实钱包截图显示签名能力校验阻断准备发布，登记P1；修复轮1/1和确认轮1/1已完成，代码确认通过，正在更新候选；真实Phantom重试待用户。候选8c59407仍在线，未完成写入验收。已验收v0.1不重新开闸。
+更新：2026-11-01，Asia/Shanghai。**v0.1只读演示已通过用户最终验收，SPRINT-4.0结束。** SPRINT-2.2B R1修复1/1和确认1/1已完成，修复候选841a419已上线；等待用户Chrome Phantom重连与W01-W03真实验收。已验收v0.1不重新开闸。
 
 ## 当前发布
 
 - 正式地址：[https://londonyu.github.io/said/](https://londonyu.github.io/said/)，GitHub Pages托管，无本地服务器/隧道依赖。
-- 线上候选提交：`8c594079865f1c37264ddabb399c676e1b91a222`；[部署运行41305328834](https://github.com/LondonYu/said/actions/runs/41305328834)成功，2026-11-01T20:12:34+08:00。后续仅记录证据的文档提交不重新部署。
+- 线上候选提交：`841a419f8e7d33a272cd3b92124f99f0f20ee50e`；[修复部署运行41306880398](https://github.com/LondonYu/said/actions/runs/41306880398)成功，完成时间2026-11-01T12:31:54Z（UTC）。本次仅钱包能力兼容修复；后续证据文档提交不再次部署。
 - 已验收v0.1回退点：`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`，[运行41273238142](https://github.com/LondonYu/said/actions/runs/41273238142)。
 - 既有v0.1基线：252项项目测试、16项独立注入断言；v0.1验收范围未变。SPRINT-2.2B的当前检查与3项回归测试见下节。
 - 唯一治理入口：本文件管当前状态/待办/backlog；[DECISIONS](DECISIONS.md)管决策；[docs/sprints/](docs/sprints/)管历史。
@@ -25,18 +25,18 @@
 - [x] Pages公网演示和三条证据已交付，V01/V02/V03均由用户最终确认。
 - [x] SPRINT-4.0结束，按约定删除过渡docs/CLINE-NEXT.md并修正活跃入口。
 - [x] [完整SPRINT-4.0工单与执行记录](docs/sprints/SPRINT-4.0/SPRINT-4.0.md)归档，证据保留。
-- 当前工单：[SPRINT-2.2B](docs/sprints/SPRINT-2.2B.md)。页面接入已通过Codex初审；受审检查点8c59407已提交、推送并部署至现有Pages；真实交易验收仍待执行。R1修复在未提交工作区，待Codex确认。
+- 当前工单：[SPRINT-2.2B R1](docs/sprints/SPRINT-2.2B/R1-wallet-capability.md)。修复已确认、提交和部署为841a419；等待用户在更新页面重连Phantom后完成真实交易验收。R1修复在未提交工作区，待Codex确认。
 - [x] Cline按工单接入既有发布核心，交可复现截图与现有检查结果，停在工作区供Codex复审。
 - [x] Codex页面初审曾通过；随后用户真实截图触发P1/R1；修复轮1/1、确认轮1/1完成，代码修复通过；Phantom真实重试待用户。详见[复审记录](docs/sprints/SPRINT-2.2B/REVIEW.md)。
 - [x] 保存受审检查点8c59407、推送并完成候选部署；未运行真实钱包签名或交易。
 - [ ] 用户在钱包内置浏览器刷新正式URL，完成一笔Devnet签名、确认与刷新读回，逐项反馈W01-W03。
 - [ ] 下一版本逐条记录真实证据及用户确认；版本名暂定v0.2，不代表已发布。
 
-## 当前P1与限定修复
+## R1代码修复及真实钱包重试
 
 - R1：用户真实截图显示Devnet模拟通过、余额0.00609测试SOL，但“签名能力事件与钱包实时状态不一致”导致发布禁用。记录：[真实截图观察与隔离探针](docs/sprints/SPRINT-2.2B/evidence/wallet-capability-blocker.json)。这不是已登记P2升级，是新发生的真实主路径P1；v0.1验收不重开。
 - 当前执行：[R1-wallet-capability](docs/sprints/SPRINT-2.2B/R1-wallet-capability.md)。仅修钱包能力getter的包装对象引用误判，保留真实能力撤销和方法变化的失效校验。用户确认钱包为电脑Chrome Phantom，扩展版本仍待补，不冒充已定位其具体实现。
-- 修复1/1、确认1/1完成。Codex确认通过，保存修复并更新候选；真实Phantom准备/签名仍待用户重试，不继续追加其他边界修复。
+- 修复1/1、确认1/1完成，修复候选841a419已部署。真实Phantom准备/签名仍待用户重试，不继续追加其他边界修复。
 
 ### R1修复记录（代码确认通过，真实Phantom待重试）
 
@@ -65,6 +65,12 @@
 - 公网HTTP检查：2026-11-01T20:12:53.378152+08:00，首页/JS/CSS/favicon均200，资源字节摘要与受审本地构建一致；见[pages-http.json](docs/sprints/SPRINT-2.2B/evidence/pages-http.json)。
 - 公网浏览器观察记录时间：2026-11-01T20:13:50+08:00，无钱包/无注入夹具，公共流显示3条既有真实留言；发布入口显示Devnet面板，未连接时准备按钮禁用。[首页截图](docs/sprints/SPRINT-2.2B/evidence/public-home.png)、[编辑入口截图](docs/sprints/SPRINT-2.2B/evidence/public-editor.png)、[观察记录](docs/sprints/SPRINT-2.2B/evidence/pages-browser.json)。未代用户连接或签名。
 
+### R1修复候选部署
+
+- 代码提交`841a419f8e7d33a272cd3b92124f99f0f20ee50e`已推送并通过手动Pages运行41306880398。[运行证据](docs/sprints/SPRINT-2.2B/evidence/r1-pages-run.json)。
+- 2026-11-01T12:32:12.011729+00:00（UTC）核验首页、JS/CSS/favicon均200，资源摘要与修复构建一致；[HTTP证据](docs/sprints/SPRINT-2.2B/evidence/r1-pages-http.json)。部署与HTTP不代替真实Phantom验收。
+- 下一步用户刷新正式URL并重新连接Phantom，再准备并主动签名一条Devnet留言。若仍受阻，保留同一R1证据并重写不清契约，不追加第三轮补丁；若出现不同问题，先留实际证据并分级，不凭推测扩展修复。
+
 ### 下一版本的最小验收（全部待验证）
 
 | ID | 可观察结果 | 证据与当前状态 |
@@ -75,7 +81,7 @@
 
 ## backlog（不阻断已验收v0.1）
 
-当前有P1/R1，见上方当前工单；以下为后置功能或未验证项，不冒充已复现缺陷。新P2一律在本节登记，不阻断；升降级按AGENTS的证据制度执行。
+R1代码修复已部署、真实Phantom待重试，见上方当前工单；以下为后置功能或未验证项，不冒充已复现缺陷。新P2一律在本节登记，不阻断；升降级按AGENTS的证据制度执行。
 
 | ID | 类型 | 后置内容与理由 |
 | --- | --- | --- |
