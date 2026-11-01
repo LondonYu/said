@@ -1,6 +1,6 @@
 # Said STATUS
 
-更新：2026-11-01，Asia/Shanghai。当前唯一目标：**v0.1只读演示**。本轮修订V01/Pages工单并新增授权的Vite构建配置；完成本地构建/资源路径核验，未运行产品测试、交易或部署。尚无Pages演示产物，不宣称v0.1完成。
+更新：2026-11-01，Asia/Shanghai。当前唯一目标：**v0.1只读演示**。SPRINT-4.0最小Pages工作流已准备，部署待Codex审查后启用并手动执行；V01/V02/V03仍未确认，不宣称v0.1完成。
 
 ## 当前状态
 
@@ -51,12 +51,12 @@ P2发现后**一律在本节登记，不阻断、不追加到本轮修复**。�
 
 ## 当前工单：SPRINT-4.0 — v0.1只读公网演示
 
-状态：**已修订，Pages部署尚未执行**。本轮额外授权的vite.config.ts已完成，并有本地构建核验；不等于本工单公网部署或三条验收已完成。执行者VS Code/Cline，Codex审查，用户验收。工单/修复轮次从此单重新记录：修复0/1、确认0/1；不沿用旧2.2A的无限修复方式。
+状态：**工作流已准备，Pages部署待Codex执行**。最小工作流为`.github/workflows/pages.yml`；尚未提交、推送、启用Pages或触发运行，V01/V02/V03仍未确认。执行者VS Code/Cline，Codex审查，用户验收。工单/修复轮次从此单重新记录：修复0/1、确认0/1；不沿用旧2.2A的无限修复方式。
 
 ### 目标与操作
 
 1. 读取STATUS、DECISIONS、AGENTS/.clinerules并检查工作区。使用本轮vite.config.ts（base='./'），用现有npm run build重新生成dist；**不得复用本次配置前的旧dist**。不新增测试或提高测试数，不把构建或测试当V01–V03证据。
-2. 仅使用现有LondonYu/said仓库与账号的GitHub Pages；发布源选GitHub Actions，后续执行时新增最小Pages工作流：使用.nvmrc/锁文件安装既有依赖并构建，配置Pages、仅上传dist、部署Pages；部署任务按官方要求使用pages:write、id-token:write及github-pages环境。无需新账号、付费服务、自定义域名或DNS修改。本轮未新增/推送部署工作流，未启用Pages，不触发部署。
+2. 仅使用现有LondonYu/said仓库与账号的GitHub Pages；最小工作流已准备为`.github/workflows/pages.yml`：只允许`workflow_dispatch`手动触发，仅当`github.ref == 'refs/heads/main'`时构建和部署；Node版本读取`.nvmrc`，执行`npm ci`和`npm run build`，仅上传`./dist`；使用官方`actions/checkout@v7`、`actions/setup-node@v7`、`actions/configure-pages@v6`、`actions/upload-pages-artifact@v5`、`actions/deploy-pages@v5`，权限为`contents: read`、`pages: write`、`id-token: write`，并发组`pages`，部署环境`github-pages`。Codex审查后由Codex启用Pages（发布源选GitHub Actions）并手动运行；Cline不触发。无需新账号、付费服务、自定义域名或DNS修改。
 3. 记录Actions部署运行、实际输出page_url和对应提交；从该URL检查首页与JS/CSS/favicon资源。停用本次本地预览/隧道后，用另一设备访问；用户安排电脑关机后再次访问同一URL留证，才提交V01确认。临时Quick Tunnel只可调试，不得回退成V01产物。
 4. 在同一Pages版本的新会话、不连接钱包，记录3条真实Devnet留言的V02证据。不得写交易、播种新留言或注入假数据补数；若不足3条/RPC不可用，如实记录缺口与证据，交用户决定，不悄悄放宽标准。
 5. 用户在一个实际可用的浏览器＋钱包组合中主动连接，核对页面完整地址与钱包公钥，保存V03证据；只连接，不请求signMessage/signTransaction/sendTransaction。是否弹窗取决于既有授权状态，不能把自动复连冒充新弹框。
@@ -83,8 +83,15 @@ Devnet此刻是否仍能读回3条也未重验。以上未知只按V01–V03留�
 - 为什么：原默认base='/'会让项目Pages下的资源指向域名根`/assets/...`；相对base使构建首页使用`./assets/...`及`./said-favicon.svg`，在`/said/`解析，无须把仓库名硬编码进配置。当前页面是状态切换，没有新增历史路由或深层路径需求。
 - 如何回滚：本轮新增前无该文件，删除vite.config.ts并重新构建即可恢复默认base='/'；若已提交，撤销该配置变更或恢复改动前版本后重建。该默认构建不能直接覆盖已发布的/said/站点；已部署场景应恢复上一个已验证的Pages版本，避免重新引入资源404。当前未部署，未执行回滚。
 - 实际核验：`npm run build -- --outDir /tmp/said-pages-base-check/said`退出0，70 modules；JS346.16 kB/gzip108.13，CSS15.68 kB/gzip4.04。在仅本机127.0.0.1短时静态挂载/said/后，首页、`./said-favicon.svg`、`./assets/index-Byps-RCq.js`、`./assets/index-DEn8a_P7.css`均HTTP 200，均解析到/said/内；服务已停止。这只是构建路径核验，**不是Pages或V01验收**，没有新增测试用例或重跑既有测试。
+- 2026-11-01T11:35+08:00复验（Cline，HEAD `63d9d75`）：`npm run build`退出0（70 modules；JS `index-Byps-RCq.js` 346.16 kB/gzip108.13，CSS `index-DEn8a_P7.css` 15.68 kB/gzip4.04）；`npm run typecheck`退出0。`dist/index.html`实际含`src="./assets/index-Byps-RCq.js"`、`href="./assets/index-DEn8a_P7.css"`、`href="./said-favicon.svg"`；仅本机`127.0.0.1:5189`将`dist`挂载为`/said/`后，`/said/`、JS、CSS、favicon四个URL均HTTP 200，随后服务已停止。该复验只证明构建路径，**不是Pages或V01证据**；未改源码/依赖，未新增测试，未部署或提交。
 
-## 本轮不建议修（2026-11-01 Pages修订）
+### Pages工作流与回滚
+
+- 工作流：`.github/workflows/pages.yml`，仅`workflow_dispatch`；`build`和`deploy`均以`github.ref == 'refs/heads/main'`为条件，非main分支只跳过、不部署。`actions/setup-node@v7`读取`.nvmrc`，执行`npm ci`与`npm run build`；`actions/configure-pages@v6`配置Pages，`actions/upload-pages-artifact@v5`仅上传`./dist`，`actions/deploy-pages@v5`部署到`github-pages`环境。权限与并发按官方接口设置。无测试步骤、第三方action或依赖变更。
+- 状态：工作流已准备，尚未提交、推送、启用Pages或触发Actions；没有Pages URL、部署运行或V01/V02/V03证据。Codex审查后由Codex启用Pages并手动执行，Cline不代操作。
+- 回滚：后续新版本部署失败或不可用时，在Actions中重新运行上一个成功的Pages工作流，重新部署其对应提交/构建；该入口仍受main限制和`github-pages`环境保护。若工作流配置本身需要撤回，移除或还原`.github/workflows/pages.yml`并停用站点；已发布历史保留，不删除失败运行或证据。当前未部署，未执行回滚。
+
+## 不建议修记录（2026-11-01 Pages修订）
 
 - 无新增已复现且未修的P0/P1：本轮只处理用户指定的构建路径前提，未做真实钱包或链上运行验收，不能据此宣布产品无缺陷。
 - 不继续2.2B及写入异常测试：不属于v0.1三条，后置。
@@ -96,3 +103,13 @@ Devnet此刻是否仍能读回3条也未重验。以上未知只按V01–V03留�
 2026-11-01：仅规则、治理合并、历史迁移及下一步工单；未改源码/依赖/视觉，未运行产品测试、构建、交易、浏览器验收或部署。治理整理不作为Sprint演示产物。具体合并决策及迁移清单见DECISIONS。 文档核对：137个本地链接均有效、两个规则块一致；26个源码文件哈希未变，8个历史证据文件字节未变，git diff --check通过。这些是文档完整性检查，不是产品验收或新增测试要求。
 
 2026-11-01补充：用户修正V01独立托管下限并指定GitHub Pages。本轮同步两份规则、工单和本节回滚记录，新增唯一构建配置base='./'，完成上述本地核验；未部署Pages、未开公网、未运行产品测试/交易。上方“仅治理整理”是前一轮历史记录，不代表本轮没有构建配置改动。
+
+2026-11-01 Pages工作流准备：仅新增`.github/workflows/pages.yml`并更新本文件；工作流只允许`workflow_dispatch`，`github.ref == 'refs/heads/main'`才构建和部署，Node读取`.nvmrc`，执行`npm ci`、`npm run build`，仅上传`./dist`，使用GitHub官方Pages actions、最小权限、`github-pages`环境与`pages`并发组。构建退出0（70 modules；JS 346.16 kB/gzip108.13，CSS 15.68 kB/gzip4.04），YAML解析通过，`git diff --check`通过。未重复产品测试，未提交、推送、启用Pages或触发Actions；V01/V02/V03仍未确认。
+
+## 本轮不建议修（2026-11-01 Pages工作流准备）
+
+- 不新增测试步骤或重复产品测试：本轮只准备部署链路；工作流仅执行安装和构建，构建成功不是V01–V03证据。
+- 不把工作流准备或本地构建当作V01/V02/V03通过：三条仍需实际Pages URL、真实链上读取和钱包连接证据，并由用户最终确认。
+- 不添加push/PR触发、非main分支部署、预览环境或第三方action：严格保留手动触发、main-only和官方最小链路。
+- 不提前处理尚未实际运行的Pages权限、环境审批、runner或部署后RPC问题：等Codex实际启用和运行时取得错误信息，再按P0/P1/P2分级处理，不新增预防性配置。
+- 不修改AGENTS/.clinerules/.memory/.agents/.githooks/.workflow.lock、业务源码、依赖或视觉：这些文件保持现状，本轮范围仅为工作流与STATUS。
