@@ -1,0 +1,30 @@
+{
+  "recordedAt": "2026-11-01T20:13:50+08:00",
+  "url": "https://londonyu.github.io/said/",
+  "deployedSha": "8c594079865f1c37264ddabb399c676e1b91a222",
+  "walletConnected": false,
+  "injectedFixtures": false,
+  "observed": {
+    "realFeedVisiblePosts": 3,
+    "authorsVisible": [
+      "Aq7gd…4yG2",
+      "Hs1Nx…k31S"
+    ],
+    "devnetPublishPanel": true,
+    "prepareDisabledWithoutWallet": true,
+    "pendingReceiptQueryEntry": true
+  },
+  "notPerformed": [
+    "wallet connection",
+    "wallet signature",
+    "transaction broadcast",
+    "real confirmation",
+    "new-post readback"
+  ],
+  "files": [
+    "public-home.png",
+    "public-home-state.txt",
+    "public-editor.png",
+    "public-editor-state.txt"
+  ]
+}

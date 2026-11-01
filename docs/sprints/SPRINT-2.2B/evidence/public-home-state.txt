@@ -1,0 +1,3 @@
+Browser tab: 1, Title: "Said", URL: "https://londonyu.github.io/said/".
+There has been no change in the accessibility tree.
+The focused UI element is 0 AXWebArea Said, URL: londonyu.github.io/said/

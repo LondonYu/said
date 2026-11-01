@@ -1,0 +1,26 @@
+Browser tab: 1, Title: "Said", URL: "https://londonyu.github.io/said/".
+0 AXWebArea Said, URL: londonyu.github.io/said/
+	1 container 编辑预览
+		2 container
+			3 button 关闭
+			4 heading 编辑预览, Value: 2, ID: dialog-title
+				5 text 编辑预览
+		6 text 本地预览，未上链
+		7 text 编辑内容只留在本机；只有你主动准备并确认后，才会请求钱包签名。
+		8 text 留言内容
+		9 text entry area (settable) 留言内容, ID: preview-draft
+		10 container draft-count
+			11 text 0  / 140  字符 0  / 560  字节
+		12 text 最多 140 字符 / 560 UTF-8 字节
+		13 button (disabled) 预览内容
+		14 container 发布到 Devnet
+			15 heading 发布到 Devnet, Value: 3, ID: publication-heading
+				16 text 发布到 Devnet
+			17 text 尚未准备
+			18 text 请先连接钱包，再准备发布。
+			19 button (disabled) 准备发布
+			20 text 准备只构造并模拟交易，不请求签名，不发送。
+			21 button 查询待确认记录
+			22 text 只查询本机保存的原签名，不重签、不重发。
+
+The focused UI element is 3 button 关闭
