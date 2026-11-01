@@ -295,6 +295,14 @@ async function main() {
           },
         },
       };
+      const stableFeatures = wallet.features;
+      Object.defineProperty(wallet, 'features', {
+        configurable: true,
+        get: () => ({
+          ...stableFeatures,
+          'solana:signTransaction': { ...stableFeatures['solana:signTransaction'] },
+        }),
+      });
       window.addEventListener('wallet-standard:app-ready', (event) => {
         event.detail.register(wallet);
       });
@@ -393,7 +401,11 @@ async function main() {
       simulation: true,
       note: BANNER,
       appUrl: APP_URL,
-      wallet: { name: '模拟钱包', address: ADDRESS },
+      wallet: {
+        name: '模拟钱包',
+        address: ADDRESS,
+        featureGetter: '每次读取返回新的 solana:signTransaction 包装对象，方法引用不变',
+      },
       rpc: 'Chrome Fetch 拦截 api.devnet.solana.com，返回固定 Devnet 形状的 JSON-RPC 结果',
       draft: DRAFT,
       screenshots,

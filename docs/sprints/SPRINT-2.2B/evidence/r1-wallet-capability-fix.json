@@ -1,0 +1,46 @@
+{
+  "verifiedAt": "2026-11-01T20:27:17+08:00",
+  "workOrder": "docs/sprints/SPRINT-2.2B/R1-wallet-capability.md",
+  "severity": "P1",
+  "rootCause": "isSessionStillCurrent 把每次 getter 新建的 feature 包装对象与事件快照、会话里的旧包装对象按引用比较；方法、版本、v0 与 Devnet 能力实际未变也被判定为不一致。",
+  "change": {
+    "file": "src/wallet.ts",
+    "sessionSnapshot": "WalletSigningSession.signTransaction 保存创建会话时的方法引用；版本与交易版本继续保存不可变副本。",
+    "liveChecks": "实时 getter 与事件期望按方法引用、版本、supportedTransactionVersions 比较；Devnet、账户地址/公钥与账户签名能力校验保持。",
+    "walletInvocation": "publisher 仍调用 session.feature.signTransaction(...)，保留原包装对象作为 this；未改 publisher、UI、协议或依赖。"
+  },
+  "checks": {
+    "typecheck": "pass",
+    "testFiles": 9,
+    "projectTestsPassed": 255,
+    "newRegressionTests": 2,
+    "build": "pass",
+    "diffCheck": "pass"
+  },
+  "simulation": {
+    "notRealWallet": true,
+    "signOrSendCalls": 0,
+    "featureGetter": "每次读取返回新的 solana:signTransaction 包装对象，signTransaction 方法引用不变，version 1.0.0，supportedTransactionVersions [0]",
+    "captureCommand": "node docs/sprints/SPRINT-2.2B/evidence/capture.mjs",
+    "capturedAt": "2026-11-01T20:27:01+08:00",
+    "prepareEnabled": true,
+    "signButtonEnabled": true,
+    "evidence": [
+      "docs/sprints/SPRINT-2.2B/evidence/capture.json",
+      "docs/sprints/SPRINT-2.2B/evidence/review-desktop.png",
+      "docs/sprints/SPRINT-2.2B/evidence/publish-ready-desktop.png",
+      "docs/sprints/SPRINT-2.2B/evidence/review-390.png",
+      "docs/sprints/SPRINT-2.2B/evidence/publish-ready-390.png"
+    ]
+  },
+  "notVerified": [
+    "真实 Phantom 重新连接与签名，由用户执行",
+    "真实 Devnet 广播、确认与刷新读回",
+    "公网候选版本部署"
+  ],
+  "sourceSha256": {
+    "src/wallet.ts": "2a6d7dff46cb6cc4175fa4d258e8829996269a3422d8506338d06c42685b866a",
+    "src/wallet.test.ts": "ab7df11e66b0fb014d60ffc45c95a463eedba3dc91db312220e920a7efb54e19",
+    "docs/sprints/SPRINT-2.2B/evidence/capture.mjs": "d73d20feb572eb3e060436baa5f757342fcc157b18e4630d3d482601ec1a55e6"
+  }
+}

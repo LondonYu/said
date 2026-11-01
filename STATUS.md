@@ -1,13 +1,13 @@
 # Said STATUS
 
-更新：2026-11-01，Asia/Shanghai。**v0.1只读演示已通过用户最终验收，SPRINT-4.0结束。** 当前工单为SPRINT-2.2B：页面接入已通过Codex初审，候选版已部署，真实Devnet签名、确认和读回仍待用户验收。已验收v0.1不重新开闸。
+更新：2026-11-01，Asia/Shanghai。**v0.1只读演示已通过用户最终验收，SPRINT-4.0结束。** 当前工单为SPRINT-2.2B R1：真实钱包截图显示签名能力校验阻断准备发布，登记P1；修复轮1/1和确认轮1/1已完成，代码确认通过，正在更新候选；真实Phantom重试待用户。候选8c59407仍在线，未完成写入验收。已验收v0.1不重新开闸。
 
 ## 当前发布
 
 - 正式地址：[https://londonyu.github.io/said/](https://londonyu.github.io/said/)，GitHub Pages托管，无本地服务器/隧道依赖。
 - 线上候选提交：`8c594079865f1c37264ddabb399c676e1b91a222`；[部署运行41305328834](https://github.com/LondonYu/said/actions/runs/41305328834)成功，2026-11-01T20:12:34+08:00。后续仅记录证据的文档提交不重新部署。
 - 已验收v0.1回退点：`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`，[运行41273238142](https://github.com/LondonYu/said/actions/runs/41273238142)。
-- 既有v0.1基线：252项项目测试、16项独立注入断言；v0.1验收范围未变。SPRINT-2.2B的当前检查与1项回归测试见下节。
+- 既有v0.1基线：252项项目测试、16项独立注入断言；v0.1验收范围未变。SPRINT-2.2B的当前检查与3项回归测试见下节。
 - 唯一治理入口：本文件管当前状态/待办/backlog；[DECISIONS](DECISIONS.md)管决策；[docs/sprints/](docs/sprints/)管历史。
 
 ## v0.1逐条最终验收
@@ -25,23 +25,39 @@
 - [x] Pages公网演示和三条证据已交付，V01/V02/V03均由用户最终确认。
 - [x] SPRINT-4.0结束，按约定删除过渡docs/CLINE-NEXT.md并修正活跃入口。
 - [x] [完整SPRINT-4.0工单与执行记录](docs/sprints/SPRINT-4.0/SPRINT-4.0.md)归档，证据保留。
-- 当前工单：[SPRINT-2.2B](docs/sprints/SPRINT-2.2B.md)。页面接入已通过Codex初审；受审检查点8c59407已提交、推送并部署至现有Pages；真实交易验收仍待执行。
+- 当前工单：[SPRINT-2.2B](docs/sprints/SPRINT-2.2B.md)。页面接入已通过Codex初审；受审检查点8c59407已提交、推送并部署至现有Pages；真实交易验收仍待执行。R1修复在未提交工作区，待Codex确认。
 - [x] Cline按工单接入既有发布核心，交可复现截图与现有检查结果，停在工作区供Codex复审。
-- [x] Codex初审通过，无P0/P1阻断；修复轮0/1、确认轮0/1，本次不需要补修。详见[复审记录](docs/sprints/SPRINT-2.2B/REVIEW.md)。
+- [x] Codex页面初审曾通过；随后用户真实截图触发P1/R1；修复轮1/1、确认轮1/1完成，代码修复通过；Phantom真实重试待用户。详见[复审记录](docs/sprints/SPRINT-2.2B/REVIEW.md)。
 - [x] 保存受审检查点8c59407、推送并完成候选部署；未运行真实钱包签名或交易。
 - [ ] 用户在钱包内置浏览器刷新正式URL，完成一笔Devnet签名、确认与刷新读回，逐项反馈W01-W03。
 - [ ] 下一版本逐条记录真实证据及用户确认；版本名暂定v0.2，不代表已发布。
+
+## 当前P1与限定修复
+
+- R1：用户真实截图显示Devnet模拟通过、余额0.00609测试SOL，但“签名能力事件与钱包实时状态不一致”导致发布禁用。记录：[真实截图观察与隔离探针](docs/sprints/SPRINT-2.2B/evidence/wallet-capability-blocker.json)。这不是已登记P2升级，是新发生的真实主路径P1；v0.1验收不重开。
+- 当前执行：[R1-wallet-capability](docs/sprints/SPRINT-2.2B/R1-wallet-capability.md)。仅修钱包能力getter的包装对象引用误判，保留真实能力撤销和方法变化的失效校验。用户确认钱包为电脑Chrome Phantom，扩展版本仍待补，不冒充已定位其具体实现。
+- 修复1/1、确认1/1完成。Codex确认通过，保存修复并更新候选；真实Phantom准备/签名仍待用户重试，不继续追加其他边界修复。
+
+### R1修复记录（代码确认通过，真实Phantom待重试）
+
+- 根因：`isSessionStillCurrent`把每次getter新建的feature包装对象与事件快照、会话旧对象按引用比较；签名方法、版本、v0与Devnet实际未变也判为不一致。
+- 改动：产品源码仅`src/wallet.ts`。实时getter与事件期望改为比较签名方法引用、版本、`supportedTransactionVersions`；会话保存创建时的方法引用快照；Devnet、账户地址/公钥、账户签名能力、断开与revision保护未改。`publisher.ts`未改，签名调用仍走`session.feature.signTransaction(...)`，保留原`this`上下文。另在`src/wallet.test.ts`新增2项回归，并让`capture.mjs`假钱包使用新包装getter。
+- 检查（2026-11-01，当前工作区）：`npm run typecheck`通过；`npm test`通过255项、9个测试文件（既有252项基线＋1项StrictMode回归＋2项R1钱包能力回归）；`npm run build`通过；`git --no-pager diff --check`无输出。真实撤销、方法替换、版本/v0/Devnet变化、账户能力变化的既有负向用例全部通过。
+- 模拟复现：`capture.mjs`假钱包改为每次读取返回新的签名feature包装对象、方法引用不变；[capture.json](docs/sprints/SPRINT-2.2B/evidence/capture.json)记录`review.prepareEnabled: true`、`prepared.signButtonEnabled: true`，采集时间2026-11-01T20:27:01+08:00。[准备完成截图](docs/sprints/SPRINT-2.2B/evidence/publish-ready-desktop.png)、[390px截图](docs/sprints/SPRINT-2.2B/evidence/publish-ready-390.png)均标注模拟状态；未签名、未广播、未上链。[修复检查摘要](docs/sprints/SPRINT-2.2B/evidence/r1-wallet-capability-fix.json)。
+- 未验证：真实Phantom重连与准备按钮、真实签名、广播、确认、刷新读回、公网候选更新；均待Codex确认后由用户操作。本轮未提交、未推送、未部署，未连接真实钱包签名或广播。
+
+- Codex唯一确认（2026-11-01T20:30:30+08:00）：独立运行typecheck、255项现有测试、build、diff检查全部退出0；[隔离探针](docs/sprints/SPRINT-2.2B/evidence/r1-codex-confirmation.json)证明同方法新包装会话可用、重复读取不失效、真实方法替换仍失效。未访问真实钱包或广播。
 
 ## SPRINT-2.2B 页面接入（代码初审通过，真实验收待执行）
 
 - 范围：`src/Publication.tsx`提供准备/签名/提交/确认/读回状态机；`src/App.tsx`复用现有publisher、simulation、history与钱包会话；`src/Preview.tsx`在既有编辑审阅页展示发布面板；`src/explorer.ts`统一Devnet Explorer链接。
 - 行为：准备只构造并模拟未签名交易；只有用户点击“签名并发送”才请求钱包；正文/账户变化使旧准备失效；发送结果不确定时只查询原签名，不提供重发；确认后按原签名读回并刷新公共流/作者历史，仅当正文与作者未变时清理草稿。
-- 检查（2026-11-01，当前工作区）：`npm run typecheck`通过；`npm test`通过253项（既有252项基线＋1项StrictMode回归）；`npm run build`通过；`git --no-pager diff --check`无输出。
+- 检查（2026-11-01，R1修复后当前工作区）：`npm run typecheck`通过；`npm test`通过255项（既有252项基线＋1项StrictMode回归＋2项R1钱包能力回归）；`npm run build`通过；`git --no-pager diff --check`无输出。
 - 浏览器验证发现并修复：React StrictMode 开发态重放 effect 时，`disposedRef`在清理阶段置真后未复位，导致准备结果不渲染；现于 effect 挂载时复位，并新增`src/Publication.test.tsx`回归用例。
-- 模拟截图（假钱包＋拦截RPC，未签名、未广播、未上链）：[桌面编辑审阅](docs/sprints/SPRINT-2.2B/evidence/review-desktop.png)、[桌面准备完成](docs/sprints/SPRINT-2.2B/evidence/publish-ready-desktop.png)、[390px编辑审阅](docs/sprints/SPRINT-2.2B/evidence/review-390.png)、[390px准备完成](docs/sprints/SPRINT-2.2B/evidence/publish-ready-390.png)。复现：`node docs/sprints/SPRINT-2.2B/evidence/capture.mjs`，元数据见[capture.json](docs/sprints/SPRINT-2.2B/evidence/capture.json)，采集时间2026-11-01T14:20:15+08:00。
+- 模拟截图（假钱包＋拦截RPC，未签名、未广播、未上链）：[桌面编辑审阅](docs/sprints/SPRINT-2.2B/evidence/review-desktop.png)、[桌面准备完成](docs/sprints/SPRINT-2.2B/evidence/publish-ready-desktop.png)、[390px编辑审阅](docs/sprints/SPRINT-2.2B/evidence/review-390.png)、[390px准备完成](docs/sprints/SPRINT-2.2B/evidence/publish-ready-390.png)。复现：`node docs/sprints/SPRINT-2.2B/evidence/capture.mjs`，元数据见[capture.json](docs/sprints/SPRINT-2.2B/evidence/capture.json)，采集时间2026-11-01T20:27:01+08:00。
 - 未验证：真实钱包签名、真实广播、链上确认、新留言刷新读回、真实异常矩阵；W01-W03仍待用户真实验收。公网候选部署已完成，不等于写入验收通过。
 
-- Codex独立复审（2026-11-01T15:36:30+08:00）：typecheck、9文件/253项测试、build、diff检查通过；3项临时mock探针通过并已删除，不增加永久测试要求。确认、原签名查询与拒签仅为模拟路径核验。[源文件摘要与检查记录](docs/sprints/SPRINT-2.2B/evidence/codex-review.json)；未发现阻断P0/P1，B05文案P2后置。
+- Codex独立复审（2026-11-01T15:36:30+08:00，R1前）：typecheck、9文件/253项测试、build、diff检查通过；3项临时mock探针通过并已删除，不增加永久测试要求。确认、原签名查询与拒签仅为模拟路径核验。[源文件摘要与检查记录](docs/sprints/SPRINT-2.2B/evidence/codex-review.json)；未发现阻断P0/P1，B05文案P2后置。
 
 ### 候选部署证据
 
@@ -59,7 +75,7 @@
 
 ## backlog（不阻断已验收v0.1）
 
-当前没有已登记未解决的P0/P1；以下为后置功能或未验证项，不冒充已复现缺陷。新P2一律在本节登记，不阻断；升降级按AGENTS的证据制度执行。
+当前有P1/R1，见上方当前工单；以下为后置功能或未验证项，不冒充已复现缺陷。新P2一律在本节登记，不阻断；升降级按AGENTS的证据制度执行。
 
 | ID | 类型 | 后置内容与理由 |
 | --- | --- | --- |
@@ -78,7 +94,7 @@
 
 ## 本轮不建议修
 
-- 无本单范围内有证据的P0/P1；B05英文网络标签属于P2，本轮不追加修复。v0.1已验收不重开；W01-W03真实写入验收仍待执行。
+- 当前只修截图触发的P1/R1，修复轮已结束；真实撤销、方法替换、版本/v0/Devnet和账户校验保持不变。B05英文网络标签及B06 EOF空行属于P2，本轮不追加修复。v0.1已验收不重开；W01-W03真实写入验收仍待执行。
 - 全钱包/机型矩阵、写入异常穷举、新增测试数量和旧核心重构后置；本单只接已有核心完成单条发布。
 - 真实钱包签名、广播、确认、新留言刷新读回仍待用户操作；候选部署已完成，不用部署成功或模拟截图代替用户验收。
 - 用户新接入的规则/技能/记忆/钩子保持原样，不借收尾整理或提交。

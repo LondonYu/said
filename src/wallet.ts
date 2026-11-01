@@ -35,6 +35,8 @@ export type WalletSigningSession = {
   readonly featureVersion: string;
   readonly supportedTransactionVersions: readonly (0 | 'legacy')[];
   readonly feature: SignTransactionFeature;
+  /** 创建会话时的方法引用快照；调用仍通过 feature 保留钱包要求的 this。 */
+  readonly signTransaction: SignTransactionFeature['signTransaction'];
   readonly revision: number;
 };
 
@@ -145,6 +147,28 @@ function sameTransactionVersions(
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
+/** 钱包每次 getter 可以返回新的 feature 包装对象；能力身份取方法引用与相关值。 */
+function sameSigningCapability(
+  left: SignTransactionFeature,
+  right: SignTransactionFeature,
+): boolean {
+  if (typeof left.signTransaction !== 'function' || typeof right.signTransaction !== 'function') {
+    return false;
+  }
+  if (left.signTransaction !== right.signTransaction) return false;
+  if (left.version !== right.version) return false;
+  if (
+    !Array.isArray(left.supportedTransactionVersions) ||
+    !Array.isArray(right.supportedTransactionVersions)
+  ) {
+    return false;
+  }
+  return sameTransactionVersions(
+    left.supportedTransactionVersions,
+    right.supportedTransactionVersions,
+  );
+}
+
 function evaluateSigningSession(
   wallet: Wallet,
   account: WalletAccount,
@@ -192,6 +216,7 @@ function evaluateSigningSession(
       featureVersion: feature.version,
       supportedTransactionVersions: [...feature.supportedTransactionVersions],
       feature,
+      signTransaction: feature.signTransaction,
       revision,
     },
     reason: null,
@@ -290,11 +315,16 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
 
     const liveFeatures = session.wallet.features;
     const effectiveFeatures = activeWalletFeatures ?? liveFeatures;
+    const liveFeature = liveFeatures[SIGN_TRANSACTION_FEATURE] as
+      | SignTransactionFeature
+      | undefined;
     const effectiveFeature = effectiveFeatures[SIGN_TRANSACTION_FEATURE] as
       | SignTransactionFeature
       | undefined;
-    if (liveFeatures[SIGN_TRANSACTION_FEATURE] !== effectiveFeature) return false;
-    if (effectiveFeature !== session.feature) return false;
+    if (liveFeature === undefined || effectiveFeature === undefined) return false;
+    if (!sameSigningCapability(liveFeature, effectiveFeature)) return false;
+    // 会话保存方法、版本与交易版本的不可变快照；新包装对象不等于能力变化。
+    if (effectiveFeature.signTransaction !== session.signTransaction) return false;
     if (effectiveFeature.version !== '1.0.0' || effectiveFeature.version !== session.featureVersion) {
       return false;
     }

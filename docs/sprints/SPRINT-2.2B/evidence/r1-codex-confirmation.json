@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-11-01T12:29:40.997Z",
+  "availableWithFreshWrapper": true,
+  "sameSessionOnEquivalentGetter": true,
+  "realMethodReplacementInvalidates": true,
+  "realWallet": false,
+  "signCalls": 0,
+  "sendCalls": 0,
+  "existingChecks": {
+    "typecheck": 0,
+    "projectTestFiles": 9,
+    "projectTests": 255,
+    "build": 0,
+    "diffCheck": 0
+  },
+  "reviewRounds": {
+    "repair": 1,
+    "confirmation": 1
+  }
+}

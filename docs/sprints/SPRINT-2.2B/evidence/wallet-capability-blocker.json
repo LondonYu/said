@@ -1,0 +1,24 @@
+{
+  "recordedAt": "2026-11-01T20:22:29+08:00",
+  "severity": "P1",
+  "source": "user real-wallet public-site screenshot",
+  "screenshotName": "截圖 2026-11-01 下午8.20.10.png",
+  "observed": {
+    "network": "Devnet",
+    "balanceSOL": "0.00609",
+    "estimatedFeeSOL": "0.000005",
+    "simulation": "passed, unsigned and not broadcast",
+    "prepareButton": "disabled",
+    "reason": "签名能力事件与钱包实时状态不一致，请重新连接。"
+  },
+  "walletName": "Phantom (user confirmed)",
+  "isolatedReproduction": {
+    "noRealWallet": true,
+    "signOrSendCalls": 0,
+    "featureGetter": "fresh object on every access; same signing method, version 1.0.0, v0 and Devnet",
+    "actual": "connected, signing.available=false, getSigningSession()=null, same error string",
+    "causalLimit": "reproduced compatible getter pattern; exact user-wallet implementation not inspected"
+  },
+  "reference": "https://github.com/wallet-standard/wallet-standard/blob/master/packages/example/wallets/src/solanaWallet.ts",
+  "walletVersion": "not provided"
+}

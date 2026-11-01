@@ -1,12 +1,13 @@
 {
-  "capturedAtStart": "2026-11-01T06:20:15.598Z",
-  "capturedAtEnd": "2026-11-01T06:20:17.420Z",
+  "capturedAtStart": "2026-11-01T12:26:59.745Z",
+  "capturedAtEnd": "2026-11-01T12:27:01.580Z",
   "simulation": true,
   "note": "模拟状态：本地假钱包 + 模拟 RPC；未签名、未广播、未上链",
   "appUrl": "http://127.0.0.1:4173/",
   "wallet": {
     "name": "模拟钱包",
-    "address": "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+    "address": "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T",
+    "featureGetter": "每次读取返回新的 solana:signTransaction 包装对象，方法引用不变"
   },
   "rpc": "Chrome Fetch 拦截 api.devnet.solana.com，返回固定 Devnet 形状的 JSON-RPC 结果",
   "draft": "2.2B 页面接入测试：准备后只请求一次签名。",

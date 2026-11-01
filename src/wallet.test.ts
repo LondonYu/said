@@ -600,6 +600,71 @@ describe('签名会话与能力检查', () => {
     controller.dispose();
   });
 
+  it('getter 每次返回新签名包装对象但方法不变时保持会话', async () => {
+    const signingAccount = account(ADDRESS_A, [DEVNET_CHAIN], [SIGN_TRANSACTION]);
+    const fakeWallet = createFakeWallet({ accounts: [signingAccount] });
+    const stableFeatures = fakeWallet.wallet.features;
+    Object.defineProperty(fakeWallet.wallet, 'features', {
+      configurable: true,
+      get: () => ({
+        ...stableFeatures,
+        [SIGN_TRANSACTION]: { ...(stableFeatures[SIGN_TRANSACTION] as object) },
+      }),
+    });
+    const firstFeature = fakeWallet.wallet.features[SIGN_TRANSACTION] as {
+      readonly version: string;
+      readonly supportedTransactionVersions: readonly (0 | 'legacy')[];
+      signTransaction: (...inputs: unknown[]) => Promise<readonly { signedTransaction: Uint8Array }[]>;
+    };
+    const secondFeature = fakeWallet.wallet.features[SIGN_TRANSACTION] as typeof firstFeature;
+    expect(secondFeature).not.toBe(firstFeature);
+    expect(secondFeature.signTransaction).toBe(firstFeature.signTransaction);
+
+    const fakeRegistry = createFakeRegistry([fakeWallet.wallet]);
+    const controller = createWalletController(fakeRegistry.registry);
+    await controller.connect(fakeWallet.wallet);
+
+    const session = controller.getSigningSession();
+    expect(session).not.toBeNull();
+    expect(session!.signTransaction).toBe(firstFeature.signTransaction);
+    expect(controller.getSnapshot().signing.available).toBe(true);
+    expect(controller.getSigningSession()).toBe(session);
+    await expect(
+      session!.feature.signTransaction({
+        account: signingAccount,
+        transaction: new Uint8Array([1, 2, 3]),
+        chain: DEVNET_CHAIN,
+      }),
+    ).resolves.toEqual([]);
+    controller.dispose();
+  });
+
+  it('实时 getter 替换签名方法后旧会话失效', async () => {
+    const signingAccount = account(ADDRESS_A, [DEVNET_CHAIN], [SIGN_TRANSACTION]);
+    const fakeWallet = createFakeWallet({ accounts: [signingAccount] });
+    const fakeRegistry = createFakeRegistry([fakeWallet.wallet]);
+    const controller = createWalletController(fakeRegistry.registry);
+    await controller.connect(fakeWallet.wallet);
+    const oldSession = controller.getSigningSession();
+    expect(oldSession).not.toBeNull();
+
+    const currentFeature = fakeWallet.wallet.features[SIGN_TRANSACTION] as {
+      readonly version: string;
+      readonly supportedTransactionVersions: readonly (0 | 'legacy')[];
+      signTransaction: (...inputs: unknown[]) => Promise<readonly { signedTransaction: Uint8Array }[]>;
+    };
+    (fakeWallet.wallet as { features: Wallet['features'] }).features = {
+      ...fakeWallet.wallet.features,
+      [SIGN_TRANSACTION]: { ...currentFeature, signTransaction: async () => [] },
+    };
+
+    expect(controller.getSigningSession()).toBeNull();
+    expect(controller.getSnapshot().signing.available).toBe(false);
+    expect(controller.getSnapshot().signing.revision).toBeGreaterThan(oldSession!.revision);
+    expect(controller.getSnapshot().signing.reason).toMatch(/签名能力已变化/);
+    controller.dispose();
+  });
+
   it.each([
     [
       '钱包没有 signTransaction',
