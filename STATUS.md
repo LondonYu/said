@@ -1,11 +1,11 @@
 # Said STATUS
 
-更新：2026-11-01，Asia/Shanghai。**v0.1和SPRINT-4.0已验收结束。** 用户Phantom现已可准备，但返回签名消息与快照不同，W01-W03未通过。旧R1修复1/1、确认1/1保留；重写后的2.2B交易准备契约已由Cline完成四条指令构造、现有检查与四指令模拟，Codex一次确认已通过，准备保存并更新候选；不向旧单追加第三轮修复，保留严格验签。当前工作区未提交、未推送、未部署。
+更新：2026-11-01，Asia/Shanghai。**v0.1和SPRINT-4.0已验收结束。** 2.2B重写后的准备契约已实施、一次确认通过并部署为7216807：签名前固定预算/优先费，严格字节一致/验签不变。用户Phantom真实重试和W01-W03仍待验；旧R1修复/确认次数保留，不宣称v0.2完成。
 
 ## 当前发布
 
 - 正式地址：[https://londonyu.github.io/said/](https://londonyu.github.io/said/)，GitHub Pages托管，无本地服务器/隧道依赖。
-- 线上候选提交：`841a419f8e7d33a272cd3b92124f99f0f20ee50e`；[修复部署运行41306880398](https://github.com/LondonYu/said/actions/runs/41306880398)成功，完成时间2026-11-01T12:31:54Z（UTC）。本次仅钱包能力兼容修复；后续证据文档提交不再次部署。
+- 线上候选提交：`72168077f97ed64cca0823e4284e28a3b72a1664`；[准备契约部署运行41308454557](https://github.com/LondonYu/said/actions/runs/41308454557)成功，完成时间2026-11-01T20:51:55+08:00。后续只记录证据的提交不再次部署。
 - 已验收v0.1回退点：`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`，[运行41273238142](https://github.com/LondonYu/said/actions/runs/41273238142)。
 - 既有v0.1基线：252项项目测试、16项独立注入断言；v0.1验收范围未变。SPRINT-2.2B的当前检查与3项回归测试见下节。
 - 唯一治理入口：本文件管当前状态/待办/backlog；[DECISIONS](DECISIONS.md)管决策；[docs/sprints/](docs/sprints/)管历史。
@@ -25,21 +25,21 @@
 - [x] Pages公网演示和三条证据已交付，V01/V02/V03均由用户最终确认。
 - [x] SPRINT-4.0结束，按约定删除过渡docs/CLINE-NEXT.md并修正活跃入口。
 - [x] [完整SPRINT-4.0工单与执行记录](docs/sprints/SPRINT-4.0/SPRINT-4.0.md)归档，证据保留。
-- 当前工单：[重写后的SPRINT-2.2B交易准备契约](docs/sprints/SPRINT-2.2B.md)。旧R1包装对象修复已部署；新P1为签名返回消息变化，具体钱包字节差异尚未捕获。Cline已按新契约完成四指令构造、现有检查与模拟证据（未提交工作区），Codex一次确认已通过。
+- 当前工单：[重写后的SPRINT-2.2B交易准备契约](docs/sprints/SPRINT-2.2B.md)。旧R1包装对象修复已部署；新P1为签名返回消息变化，具体钱包字节差异尚未捕获。Cline完成四指令准备契约，Codex一次确认通过，代码7216807已部署；实际签名消息差异仍待用户重试。
 - [x] Cline按工单接入既有发布核心，交可复现截图与现有检查结果，停在工作区供Codex复审。
 - [x] 2026-11-01：Cline按重写契约完成message四指令构造及既有断言更新；typecheck、255项测试、build、diff检查通过；四指令模拟证据见下节，Codex一次确认已通过。
 - [x] Codex页面初审曾通过；随后用户真实截图触发P1/R1；修复轮1/1、确认轮1/1完成，代码修复通过；Phantom真实重试待用户。详见[复审记录](docs/sprints/SPRINT-2.2B/REVIEW.md)。
 - [x] 保存受审检查点8c59407、推送并完成候选部署；未运行真实钱包签名或交易。
-- [ ] 用户在钱包内置浏览器刷新正式URL，完成一笔Devnet签名、确认与刷新读回，逐项反馈W01-W03。
+- [ ] 用户在Chrome Phantom刷新正式URL并重新准备一笔Devnet留言，完成签名、确认与刷新读回，逐项反馈W01-W03。
 - [ ] 下一版本逐条记录真实证据及用户确认；版本名暂定v0.2，不代表已发布。
 
 ## 当前P1：Phantom返回消息变化
 
 - [用户截图与事实边界](docs/sprints/SPRINT-2.2B/evidence/phantom-message-change.json)：实际进入签名校验，错误“签名交易消息与准备快照不一致”，本次应用提交未执行。不能凭截图断言具体新增指令；自动优先费为官方行为支持的假设。
 - 按复审上限重写交易准备契约，实质变化为模拟前显式设置400000 CU与0微lamports/CU，再保持同一消息字节签名；不是删除返回校验或只改工单编号。旧R1不清零，不追加第三轮补丁。
-- Cline仅调整message构造及直接相关既有断言，Codex一次确认；真正Phantom兼容仍待用户实测。当前旧候选841a419在线，不宣称可发布或v0.2完成。
+- Cline仅调整message构造及直接相关既有断言，Codex一次确认；真正Phantom兼容仍待用户实测。当前四指令候选7216807已上线，不宣称Phantom真实发布或v0.2完成。
 
-### 四指令准备契约实现（一次确认通过，真实钱包待验）
+### 四指令准备契约实现（已部署，真实钱包待验）
 
 - 改动：`src/message.ts`在v0消息中固定四条指令，顺序为SetComputeUnitLimit(400000)、SetComputeUnitPrice(0 micro-lamports/CU)、原System零转账、原Memo；使用Kit现有`setTransactionMessageComputeUnitLimit`与`setTransactionMessageComputeUnitPrice`生成原生ComputeBudget无账户指令，预算/价格具名常量。`src/message.test.ts`仅把既有两指令断言改为四条并解码预算与价格；`capture.mjs`从实际`getFeeForMessage`/`simulateTransaction`请求解码，校验失败即中止出证。
 - 检查（2026-11-01，当前工作区）：`npm run typecheck`通过；`npm test`通过255项、9个测试文件；`npm run build`通过；`git --no-pager diff --check`无输出。
@@ -87,6 +87,12 @@
 - 代码提交`841a419f8e7d33a272cd3b92124f99f0f20ee50e`已推送并通过手动Pages运行41306880398。[运行证据](docs/sprints/SPRINT-2.2B/evidence/r1-pages-run.json)。
 - 2026-11-01T12:32:12.011729+00:00（UTC）核验首页、JS/CSS/favicon均200，资源摘要与修复构建一致；[HTTP证据](docs/sprints/SPRINT-2.2B/evidence/r1-pages-http.json)。部署与HTTP不代替真实Phantom验收。
 - 下一步用户刷新正式URL并重新连接Phantom，再准备并主动签名一条Devnet留言。若仍受阻，保留同一R1证据并重写不清契约，不追加第三轮补丁；若出现不同问题，先留实际证据并分级，不凭推测扩展修复。
+
+### 四指令准备契约候选部署
+
+- 提交`72168077f97ed64cca0823e4284e28a3b72a1664`已推送；手动Pages运行41308454557于2026-11-01T20:51:55+08:00成功。[运行记录](docs/sprints/SPRINT-2.2B/evidence/budget-pages-run.json)。
+- 2026-11-01T12:52:58.107294+00:00（UTC）首页/JS/CSS/favicon均200，新JS为index-B7smwdlr.js，资源字节摘要与已确认构建一致。[公网资源证据](docs/sprints/SPRINT-2.2B/evidence/budget-pages-http.json)。
+- 用户下一步：保存当前草稿，刷新正式URL并重连Phantom，重新准备（避免复用旧两指令快照），核对Devnet后由用户签名。若再次消息不一致，需记录实际差异并重新界定兼容策略，不自动接受改写或继续追加补丁。
 
 ### 下一版本的最小验收（全部待验证）
 
