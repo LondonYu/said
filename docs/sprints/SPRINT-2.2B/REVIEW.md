@@ -33,3 +33,11 @@ P2/B05：src/i18n.ts英文标题使用“Devnet · Testnet”，易混淆两个�
 确认通过：typecheck、255项既有测试、build、diff均退出0；独立无钱包探针验证getter新包装通过、同一会话重复可用、方法替换失效，见[evidence/r1-codex-confirmation.json](evidence/r1-codex-confirmation.json)。Cline模拟图仍明确未签名/未广播。修复1/1、确认1/1已用完，随后更新候选让用户Phantom重试，不追加其他修复或边界复审。
 
 本轮不建议修：B05/B06、全钱包/异常矩阵继续后置；不用测试或候选部署宣称真实钱包写入成功。
+
+## 重写准备契约的一次确认
+
+用户新截图说明已越过R1能力判断，签名输出消息与原准备不一致；具体钱包返回差异未捕获。按复审上限保留R1历史次数，重写实质契约为模拟前声明预算/价格，未放宽签名后校验。
+
+Cline产品仅改message.ts，既有message断言改为四指令；publisher/wallet/历史解析/UI/依赖均未改。Codex独立typecheck、255项测试、build、diff均通过，短正文及560字节真实Devnet sigVerify=false模拟均成功；费用5000lamports、完整大小403/934字节。详见[evidence/budget-contract-confirmation.json](evidence/budget-contract-confirmation.json)和[evidence/budget-real-simulation.json](evidence/budget-real-simulation.json)。代码确认通过，更新候选后由用户真实Phantom验证，不能宣布已可签名发布。
+
+本轮不建议修：任意签名消息改写接纳、钱包矩阵、主网、UI及B05/B06均后置；不新增测试数量或继续追加边界复审。

@@ -1,0 +1,88 @@
+{
+  "checkedAt": "2026-11-01T12:48:50.491Z",
+  "rpc": "https://api.devnet.solana.com",
+  "noSigning": true,
+  "noBroadcast": true,
+  "signatureVerification": false,
+  "feePayer": "public fixture address, not a newly created signer",
+  "rows": [
+    {
+      "name": "short",
+      "textBytes": 30,
+      "feeLamports": "5000",
+      "size": 403,
+      "simulationErr": null,
+      "unitsConsumed": "963",
+      "expired": false,
+      "instructionPrograms": [
+        "ComputeBudget111111111111111111111111111111",
+        "ComputeBudget111111111111111111111111111111",
+        "11111111111111111111111111111111",
+        "Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH"
+      ],
+      "budgetBytes": [
+        [
+          2,
+          128,
+          26,
+          6,
+          0
+        ],
+        [
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "singlePayerSignature": [
+        "Aq7gd87cm9rwjuDeV17R1dwyP8DnvMbG3RkzM9T14yG2"
+      ],
+      "sameSimulatedMessage": true
+    },
+    {
+      "name": "max_utf8_560",
+      "textBytes": 560,
+      "feeLamports": "5000",
+      "size": 934,
+      "simulationErr": null,
+      "unitsConsumed": "1504",
+      "expired": false,
+      "instructionPrograms": [
+        "ComputeBudget111111111111111111111111111111",
+        "ComputeBudget111111111111111111111111111111",
+        "11111111111111111111111111111111",
+        "Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH"
+      ],
+      "budgetBytes": [
+        [
+          2,
+          128,
+          26,
+          6,
+          0
+        ],
+        [
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "singlePayerSignature": [
+        "Aq7gd87cm9rwjuDeV17R1dwyP8DnvMbG3RkzM9T14yG2"
+      ],
+      "sameSimulatedMessage": true
+    }
+  ]
+}

@@ -8,6 +8,8 @@ import {
   getU32Encoder,
   getU64Encoder,
   getUtf8Encoder,
+  setTransactionMessageComputeUnitLimit,
+  setTransactionMessageComputeUnitPrice,
   setTransactionMessageFeePayer,
   setTransactionMessageLifetimeUsingBlockhash,
   type Address,
@@ -28,6 +30,11 @@ export const TEXT_GRAPHEME_LIMIT = 140;
 export const TEXT_BYTES_LIMIT = 560;
 // 完整 v0 交易（含签名槽与消息体）的协议上限；超过则拒绝构造，不做后续 RPC。
 export const MAX_TRANSACTION_BYTES = 1232;
+
+// 准备阶段先固定预算合同：400000 是 CU 上限，不是 lamports；
+// 0 只表示优先费单价，基础网络费仍由 RPC 的 getFeeForMessage 返回。
+export const COMPUTE_UNIT_LIMIT = 400_000;
+export const COMPUTE_UNIT_PRICE_MICRO_LAMPORTS = 0n;
 
 export type MessageTextValidation =
   | { readonly ok: true; readonly count: number; readonly bytes: number }
@@ -187,12 +194,19 @@ export function buildUnsignedGuestbookTransaction({
     { blockhash: lifetime.blockhash as Blockhash, lastValidBlockHeight: lifetime.lastValidBlockHeight },
     withFeePayer,
   );
+  // 顺序即链上指令顺序：预算上限、优先费单价、零转账、Memo。
+  // Kit 在 v0 消息上追加原生 ComputeBudget 无账户指令，后续估费/模拟/签名共用同一消息。
+  const withBudget = setTransactionMessageComputeUnitLimit(COMPUTE_UNIT_LIMIT, withLifetime);
+  const withPriorityFee = setTransactionMessageComputeUnitPrice(
+    COMPUTE_UNIT_PRICE_MICRO_LAMPORTS,
+    withBudget,
+  );
   const withInstructions = appendTransactionMessageInstructions(
     [
       buildSystemTransferInstruction(feePayerAddress, address(MARKER_ADDRESS)),
       buildMemoInstruction(text, feePayerAddress),
     ],
-    withLifetime,
+    withPriorityFee,
   );
   const transaction = compileTransaction(withInstructions);
   const wireTransactionBase64 = getBase64EncodedWireTransaction(transaction);

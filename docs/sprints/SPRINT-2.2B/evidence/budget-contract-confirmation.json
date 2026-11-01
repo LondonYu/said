@@ -1,0 +1,20 @@
+{
+  "confirmedAt": "2026-11-01T20:49:54+08:00",
+  "contract": "rewrite: budget/fee decided before simulation and wallet signing",
+  "existingTests": 255,
+  "checks": {
+    "typecheck": 0,
+    "test": 0,
+    "build": 0,
+    "diffCheck": 0
+  },
+  "sourceSha256": {
+    "src/message.ts": "2f20f9bdf4195228c484f10d423db997848577903faa1c501eda02dbcee33827",
+    "src/message.test.ts": "022f789920181baedb473ce6977bc89be6c59fcc5dc547581a39895d6cce47d8",
+    "src/publisher.ts": "eb4f27e9b2c3b092c9e7d9a187e660d573725dc75cdef12684bcdbc155e9b1f2"
+  },
+  "realSimulation": "budget-real-simulation.json",
+  "realWalletVerified": false,
+  "invariant": "publisher unchanged: complete message byte equality plus Ed25519 signature verification",
+  "reviewLimit": "old R1 repair1/confirmation1 retained; rewritten preparation contract implemented once, confirmed once; no boundary additions"
+}

@@ -1,6 +1,6 @@
 {
-  "capturedAtStart": "2026-11-01T12:26:59.745Z",
-  "capturedAtEnd": "2026-11-01T12:27:01.580Z",
+  "capturedAtStart": "2026-11-01T12:48:13.566Z",
+  "capturedAtEnd": "2026-11-01T12:48:15.374Z",
   "simulation": true,
   "note": "模拟状态：本地假钱包 + 模拟 RPC；未签名、未广播、未上链",
   "appUrl": "http://127.0.0.1:4173/",
@@ -43,6 +43,63 @@
       "irreversibleWarning": true,
       "signButtonEnabled": true,
       "simulatedBanner": "模拟状态：本地假钱包 + 模拟 RPC；未签名、未广播、未上链"
+    },
+    "transaction": {
+      "sizeBytes": 432,
+      "messageBytes": 367,
+      "instructionCount": 4,
+      "programOrder": [
+        "ComputeBudget111111111111111111111111111111",
+        "ComputeBudget111111111111111111111111111111",
+        "11111111111111111111111111111111",
+        "Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH"
+      ],
+      "computeUnitLimit": 400000,
+      "computeUnitPriceMicroLamports": "0",
+      "computeBudgetAccountsEmpty": true,
+      "transferLamports": "0",
+      "memoText": "{\"app\":\"cyber-guestbook\",\"v\":1,\"board\":\"public-devnet-v1\",\"text\":\"2.2B 页面接入测试：准备后只请求一次签名。\"}",
+      "signatureSlots": [
+        "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+      ],
+      "signatureSlotsArePlaceholders": true,
+      "feeMessageMatchesPreparedTransaction": true,
+      "simulationInputMatchesPreparedTransaction": true,
+      "instructions": [
+        {
+          "index": 0,
+          "programAddress": "ComputeBudget111111111111111111111111111111",
+          "accountIndices": [],
+          "dataHex": "02801a0600",
+          "dataLength": 5
+        },
+        {
+          "index": 1,
+          "programAddress": "ComputeBudget111111111111111111111111111111",
+          "accountIndices": [],
+          "dataHex": "030000000000000000",
+          "dataLength": 9
+        },
+        {
+          "index": 2,
+          "programAddress": "11111111111111111111111111111111",
+          "accountIndices": [
+            0,
+            1
+          ],
+          "dataHex": "020000000000000000000000",
+          "dataLength": 12
+        },
+        {
+          "index": 3,
+          "programAddress": "Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH",
+          "accountIndices": [
+            0
+          ],
+          "dataHex": "7b22617070223a2263796265722d6775657374626f6f6b222c2276223a312c22626f617264223a227075626c69632d6465766e65742d7631222c2274657874223a22322e324220e9a1b5e99da2e68ea5e585a5e6b58be8af95efbc9ae58786e5a487e5908ee58faae8afb7e6b182e4b880e6aca1e7adbee5908de38082227d",
+          "dataLength": 127
+        }
+      ]
     }
   }
 }

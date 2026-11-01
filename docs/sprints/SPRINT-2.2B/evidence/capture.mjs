@@ -5,7 +5,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getBase58Encoder } from '@solana/kit';
+import { getBase58Encoder, getCompiledTransactionMessageDecoder, getTransactionDecoder } from '@solana/kit';
 
 const OUT_DIR = dirname(fileURLToPath(import.meta.url));
 const APP_URL = 'http://127.0.0.1:4173/';
@@ -15,6 +15,10 @@ const ADDRESS = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';
 const PUBLIC_KEY = Array.from(getBase58Encoder().encode(ADDRESS));
 const DRAFT = '2.2B 页面接入测试：准备后只请求一次签名。';
 const BANNER = '模拟状态：本地假钱包 + 模拟 RPC；未签名、未广播、未上链';
+const observedRpc = {
+  feeMessageBase64: null,
+  simulatedTransactionBase64: null,
+};
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -55,6 +59,12 @@ function startProcess(command, args) {
 
 function rpcPayload(body) {
   const request = JSON.parse(body);
+  if (request.method === 'getFeeForMessage') {
+    observedRpc.feeMessageBase64 = Array.isArray(request.params) ? request.params[0] ?? null : null;
+  }
+  if (request.method === 'simulateTransaction') {
+    observedRpc.simulatedTransactionBase64 = Array.isArray(request.params) ? request.params[0] ?? null : null;
+  }
   let result;
   switch (request.method) {
     case 'getGenesisHash':
@@ -91,6 +101,99 @@ function rpcPayload(body) {
       throw new Error(`Unexpected RPC method in capture: ${request.method}`);
   }
   return JSON.stringify({ jsonrpc: '2.0', id: request.id, result });
+}
+
+const COMPUTE_BUDGET_PROGRAM = 'ComputeBudget111111111111111111111111111111';
+const SYSTEM_PROGRAM = '11111111111111111111111111111111';
+const MEMO_PROGRAM = 'Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH';
+
+function decodeFourInstructionTransaction(transactionBase64) {
+  if (typeof transactionBase64 !== 'string' || transactionBase64 === '') {
+    throw new Error('未捕获 simulatedTransaction 的 transaction 字节');
+  }
+  const wireBytes = new Uint8Array(Buffer.from(transactionBase64, 'base64'));
+  const transaction = getTransactionDecoder().decode(wireBytes);
+  const message = getCompiledTransactionMessageDecoder().decode(transaction.messageBytes);
+  const decodedInstructions = message.instructions.map((instruction, index) => {
+    const data = new Uint8Array(instruction.data ?? new Uint8Array());
+    return {
+      index,
+      programAddress: message.staticAccounts[instruction.programAddressIndex] ?? null,
+      accountIndices: instruction.accountIndices ?? [],
+      dataHex: Buffer.from(data).toString('hex'),
+      dataLength: data.length,
+    };
+  });
+
+  const limitData = new Uint8Array(message.instructions[0]?.data ?? new Uint8Array());
+  const limitView = new DataView(limitData.buffer, limitData.byteOffset, limitData.byteLength);
+  const priceData = new Uint8Array(message.instructions[1]?.data ?? new Uint8Array());
+  const priceView = new DataView(priceData.buffer, priceData.byteOffset, priceData.byteLength);
+  const transferData = new Uint8Array(message.instructions[2]?.data ?? new Uint8Array());
+  const memoData = new Uint8Array(message.instructions[3]?.data ?? new Uint8Array());
+
+  const programOrder = decodedInstructions.map((instruction) => instruction.programAddress);
+  const computeUnitLimit =
+    limitData.length === 5 && limitView.getUint8(0) === 2 ? limitView.getUint32(1, true) : null;
+  const computeUnitPriceMicroLamports =
+    priceData.length === 9 && priceView.getUint8(0) === 3 ? priceView.getBigUint64(1, true) : null;
+  const memoText = new TextDecoder().decode(memoData);
+  const signatureSlots = Object.keys(transaction.signatures);
+  const signatureSlotsArePlaceholders = Object.values(transaction.signatures).every(
+    (signature) =>
+      signature === null ||
+      signature === undefined ||
+      (signature.length === 64 && signature.every((byte) => byte === 0)),
+  );
+  const messageBase64 = Buffer.from(new Uint8Array(transaction.messageBytes)).toString('base64');
+
+  const summary = {
+    sizeBytes: wireBytes.length,
+    messageBytes: new Uint8Array(transaction.messageBytes).length,
+    instructionCount: decodedInstructions.length,
+    programOrder,
+    computeUnitLimit,
+    computeUnitPriceMicroLamports: computeUnitPriceMicroLamports?.toString() ?? null,
+    computeBudgetAccountsEmpty:
+      decodedInstructions[0]?.accountIndices.length === 0 && decodedInstructions[1]?.accountIndices.length === 0,
+    transferLamports:
+      transferData.length === 12 && transferData[0] === 2 && transferData.slice(1).every((byte) => byte === 0)
+        ? '0'
+        : null,
+    memoText,
+    signatureSlots,
+    signatureSlotsArePlaceholders,
+    feeMessageMatchesPreparedTransaction: observedRpc.feeMessageBase64 === messageBase64,
+    simulationInputMatchesPreparedTransaction: observedRpc.simulatedTransactionBase64 === transactionBase64,
+    instructions: decodedInstructions,
+  };
+
+  const failures = [];
+  if (summary.instructionCount !== 4) failures.push(`instructionCount=${summary.instructionCount}`);
+  if (
+    programOrder[0] !== COMPUTE_BUDGET_PROGRAM ||
+    programOrder[1] !== COMPUTE_BUDGET_PROGRAM ||
+    programOrder[2] !== SYSTEM_PROGRAM ||
+    programOrder[3] !== MEMO_PROGRAM
+  ) {
+    failures.push(`programOrder=${JSON.stringify(programOrder)}`);
+  }
+  if (summary.computeUnitLimit !== 400_000) failures.push(`computeUnitLimit=${summary.computeUnitLimit}`);
+  if (computeUnitPriceMicroLamports !== 0n) {
+    failures.push(`computeUnitPriceMicroLamports=${summary.computeUnitPriceMicroLamports}`);
+  }
+  if (!summary.computeBudgetAccountsEmpty) failures.push('computeBudgetAccountsEmpty=false');
+  if (summary.transferLamports !== '0') failures.push(`transferLamports=${summary.transferLamports}`);
+  if (!summary.feeMessageMatchesPreparedTransaction) failures.push('feeMessageMatches=false');
+  if (!summary.simulationInputMatchesPreparedTransaction) failures.push('simulationInputMatches=false');
+  if (signatureSlots.length !== 1 || !signatureSlotsArePlaceholders) {
+    failures.push(`signatureSlots=${JSON.stringify(signatureSlots)}`);
+  }
+  if (failures.length > 0) {
+    throw new Error(`四指令模拟证据校验失败：${failures.join('；')}`);
+  }
+
+  return summary;
 }
 
 async function main() {
@@ -395,6 +498,8 @@ async function main() {
     await sleep(250);
     screenshots.push({ file: await screenshot('publish-ready-390.png'), viewport: '390x844' });
 
+    const transactionChecks = decodeFourInstructionTransaction(observedRpc.simulatedTransactionBase64);
+
     const evidence = {
       capturedAtStart,
       capturedAtEnd: new Date().toISOString(),
@@ -409,7 +514,7 @@ async function main() {
       rpc: 'Chrome Fetch 拦截 api.devnet.solana.com，返回固定 Devnet 形状的 JSON-RPC 结果',
       draft: DRAFT,
       screenshots,
-      checks: { review: reviewChecks, prepared: preparedChecks },
+      checks: { review: reviewChecks, prepared: preparedChecks, transaction: transactionChecks },
     };
     await writeFile(join(OUT_DIR, 'capture.json'), `${JSON.stringify(evidence, null, 2)}\n`);
     console.log(JSON.stringify(evidence, null, 2));

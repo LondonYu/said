@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-11-01T20:42:10+08:00",
+  "severity": "P1",
+  "wallet": "Chrome Phantom (previously user confirmed)",
+  "screenshotName": "截圖 2026-11-01 下午8.38.40.png",
+  "observed": {
+    "network": "Devnet",
+    "feeSOL": "0.000005",
+    "text": "测试",
+    "phase": "sign failed; draft retained",
+    "error": "签名交易消息与准备快照不一致。"
+  },
+  "codeLocation": "verifySignedGuestbookTransaction compares returned messageBytes to prepared messageBytes before submit",
+  "known": "wallet output message differed; app submit was not reached in this attempt",
+  "notKnown": "actual signed wire/diff and exact Phantom modification not captured; no claim about unrelated wallet activity or absolute balance",
+  "hypothesis": "Phantom automatic priority-fee instruction insertion",
+  "officialSource": "https://github.com/phantom/docs/blob/master/development-powertools/solana-priority-fees.md",
+  "governance": "old R1 repair/confirmation exhausted; rewrite unsigned fee/budget contract, preserve full byte equality and signature verification"
+}

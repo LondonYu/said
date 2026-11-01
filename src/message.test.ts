@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { AccountRole } from '@solana/kit';
 import {
+  COMPUTE_UNIT_LIMIT,
+  COMPUTE_UNIT_PRICE_MICRO_LAMPORTS,
   MARKER_ADDRESS,
   MEMO_PROGRAM_ADDRESS,
   MAX_TRANSACTION_BYTES,
@@ -11,6 +13,8 @@ import {
   TEXT_BYTES_LIMIT,
   TEXT_GRAPHEME_LIMIT,
 } from './message';
+
+const COMPUTE_BUDGET_PROGRAM_ADDRESS = 'ComputeBudget111111111111111111111111111111';
 
 const FEE_PAYER = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';
 const LIFETIME = { blockhash: 'B'.repeat(43), lastValidBlockHeight: 900000n };
@@ -63,12 +67,32 @@ describe('留言正文校验', () => {
 });
 
 describe('未签名交易构造', () => {
-  it('生成两条指令、付款者为唯一占位签名者', () => {
+  it('生成四条指令（预算/价格/零转账/Memo），付款者为唯一占位签名者', () => {
     const unsigned = buildUnsignedGuestbookTransaction({ feePayer: FEE_PAYER, text: '测试', lifetime: LIFETIME });
 
-    expect(unsigned.message.instructions).toHaveLength(2);
-    expect(unsigned.message.instructions[0]!.programAddress).toBe(SYSTEM_PROGRAM_ADDRESS);
-    expect(unsigned.message.instructions[1]!.programAddress).toBe(MEMO_PROGRAM_ADDRESS);
+    expect(unsigned.message.instructions).toHaveLength(4);
+    expect(unsigned.message.instructions.map((instruction) => instruction.programAddress)).toEqual([
+      COMPUTE_BUDGET_PROGRAM_ADDRESS,
+      COMPUTE_BUDGET_PROGRAM_ADDRESS,
+      SYSTEM_PROGRAM_ADDRESS,
+      MEMO_PROGRAM_ADDRESS,
+    ]);
+
+    const limit = unsigned.message.instructions[0]!;
+    const limitData = new Uint8Array(limit.data ?? new Uint8Array());
+    const limitView = new DataView(limitData.buffer, limitData.byteOffset, limitData.byteLength);
+    expect(limit.accounts ?? []).toHaveLength(0);
+    expect(limitData).toHaveLength(5);
+    expect(limitView.getUint8(0)).toBe(2);
+    expect(limitView.getUint32(1, true)).toBe(COMPUTE_UNIT_LIMIT);
+
+    const price = unsigned.message.instructions[1]!;
+    const priceData = new Uint8Array(price.data ?? new Uint8Array());
+    const priceView = new DataView(priceData.buffer, priceData.byteOffset, priceData.byteLength);
+    expect(price.accounts ?? []).toHaveLength(0);
+    expect(priceData).toHaveLength(9);
+    expect(priceView.getUint8(0)).toBe(3);
+    expect(priceView.getBigUint64(1, true)).toBe(COMPUTE_UNIT_PRICE_MICRO_LAMPORTS);
 
     const signers = Object.keys(unsigned.transaction.signatures);
     expect(signers).toEqual([FEE_PAYER]);
@@ -77,7 +101,7 @@ describe('未签名交易构造', () => {
 
   it('系统指令为0 lamports转账且付款者为写签名账户', () => {
     const unsigned = buildUnsignedGuestbookTransaction({ feePayer: FEE_PAYER, text: '测试', lifetime: LIFETIME });
-    const instruction = unsigned.message.instructions[0]!;
+    const instruction = unsigned.message.instructions[2]!;
     const data = new Uint8Array(instruction.data ?? new Uint8Array());
     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     expect(view.getUint32(0, true)).toBe(2);
@@ -89,7 +113,7 @@ describe('未签名交易构造', () => {
 
   it('Memo指令包含付款作者签名账户，整笔仅一个签名槽', () => {
     const unsigned = buildUnsignedGuestbookTransaction({ feePayer: FEE_PAYER, text: '测试', lifetime: LIFETIME });
-    const memo = unsigned.message.instructions[1]!;
+    const memo = unsigned.message.instructions[3]!;
     expect(memo.accounts).toHaveLength(1);
     expect(memo.accounts![0]).toMatchObject({ address: FEE_PAYER, role: AccountRole.READONLY_SIGNER });
     expect(Object.keys(unsigned.transaction.signatures)).toEqual([FEE_PAYER]);
@@ -99,7 +123,7 @@ describe('未签名交易构造', () => {
   it('Memo指令写入协议JSON且大小与序列化消息一致', () => {
     const text = '中文 emoji 👋';
     const unsigned = buildUnsignedGuestbookTransaction({ feePayer: FEE_PAYER, text, lifetime: LIFETIME });
-    const memo = unsigned.message.instructions[1]!;
+    const memo = unsigned.message.instructions[3]!;
     const decoded = new TextDecoder().decode(new Uint8Array(memo.data ?? new Uint8Array()));
     expect(JSON.parse(decoded)).toEqual({ app: 'cyber-guestbook', v: 1, board: 'public-devnet-v1', text });
 
