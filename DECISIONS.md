@@ -118,3 +118,5 @@ Phantom真实签名返回消息与准备快照不一致，旧单R1已完成修�
 选择构建时固定网络配置：本地/既有测试默认Devnet，Pages显式mainnet；genesis/chain/board/Explorer/回执按同一配置隔离。保留准备消息严格验签和费用复核，不做全局替换RPC、不混用测试网回执、不新增服务密钥或付费RPC。
 
 本次官方主网公共端点返回403；[PublicNode官方端点](https://solana.publicnode.com/)只读预检返回正确主网genesis和Memo可执行信息，作为当前候选RPC，不承诺其可用性或浏览器兼容已验。当前站点仍Devnet，主网需另行按M01-M03验证。工单及实际结果见STATUS。
+
+主网部署后的真实发布会话发现 PublicNode 的 `getBlockHeight` 间歇返回 slot 数值，导致有效 blockhash 被误判为过期。改用 `https://rpc.solanatracker.io/public`：其浏览器 CORS 允许 GitHub Pages 来源，主网 genesis、blockhash、真实 block height、费用估算和未签名模拟一致。保留现有 genesis 校验、blockhash 有效期复核与单次广播保护；不以放宽过期判断绕过问题。

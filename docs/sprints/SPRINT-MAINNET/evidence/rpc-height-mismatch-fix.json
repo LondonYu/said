@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-11-02T00:05:54+08:00",
+  "severity": "P1",
+  "problem": {
+    "rpc": "https://solana-rpc.publicnode.com",
+    "latestBlockhashLastValidBlockHeight": "442173747",
+    "returnedBlockHeight": "464152132",
+    "observedResult": "Valid blockhash was rejected as expired because the returned block-height value used the slot scale."
+  },
+  "fix": {
+    "rpc": "https://rpc.solanatracker.io/public",
+    "browserOrigin": "https://londonyu.github.io",
+    "corsAllowed": true,
+    "genesisHash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+  },
+  "readOnlySimulationRounds": [
+    {
+      "round": 1,
+      "lastValidBlockHeight": "442174411",
+      "blockHeight": "442174273",
+      "blockhashExpired": false,
+      "feeLamports": "5000",
+      "balanceLamports": "102099861",
+      "simulationErr": null
+    },
+    {
+      "round": 2,
+      "lastValidBlockHeight": "442174434",
+      "blockHeight": "442174306",
+      "blockhashExpired": false,
+      "feeLamports": "5000",
+      "balanceLamports": "102099861",
+      "simulationErr": null
+    },
+    {
+      "round": 3,
+      "lastValidBlockHeight": "442174469",
+      "blockHeight": "442174339",
+      "blockhashExpired": false,
+      "feeLamports": "5000",
+      "balanceLamports": "102099861",
+      "simulationErr": null
+    }
+  ],
+  "checks": {
+    "typecheckExitCode": 0,
+    "testFilesPassed": 9,
+    "testsPassed": 255,
+    "mainnetBuildExitCode": 0,
+    "mainnetBundle": "index-CAOfeV7O.js"
+  },
+  "signed": false,
+  "broadcast": false
+}

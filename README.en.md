@@ -80,7 +80,7 @@ The user completed a real Devnet publication in Chrome with Phantom and confirme
 
 - The mainnet build is deployed on GitHub Pages. Browser checks passed for the public mainnet empty state, Phantom mainnet connection, and real balance retrieval. Real mainnet signing, broadcast, confirmation, and refresh read-back still require an account with enough SOL; M03 is not accepted.
 - An initially empty mainnet public feed is expected. Old Devnet posts remain on Devnet and are not described as migrated or deleted.
-- Mainnet uses `https://solana-rpc.publicnode.com`. Node read-only requests passed genesis, executable Memo program, and empty board checks; the public browser successfully read the mainnet empty board and connected Phantom.
+- Mainnet uses `https://rpc.solanatracker.io/public`. The public endpoint allows browser requests from GitHub Pages and returns consistent results for `getLatestBlockhash`, `getBlockHeight`, fee estimation, and unsigned simulation.
 - Public RPC services may throttle requests or lack historical data. Permanent storage and complete availability are not guaranteed. The mainnet basic fee is whatever the RPC estimates for that transaction.
 - Other wallets, mobile signing, and all failure scenarios have not been verified. An initial timeout followed by a successful Devnet retry is recorded; its cause is unknown.
 - Sponsored fees, platform charges, likes, replies, and private messages are outside this implementation.

@@ -1,13 +1,13 @@
 # Said STATUS
 
-更新：2026-11-01T23:56:15+08:00。**SPRINT-MAINNET 已部署，线上运行主网 9be4bad。** 公网首页明确显示 Solana 主网与真实 SOL；未连接时主网公共板为空状态。浏览器中的 Phantom 已连接主网账户，显示完整地址和真实余额；该账户余额为 0 SOL，因此准备、签名、广播与读回尚未执行。
+更新：2026-11-02T00:05:54+08:00。**主网发布路径发现并修复 P1：PublicNode 的 `getBlockHeight` 间歇返回 slot，导致有效 blockhash 被误判过期。** 用户已有 0.102099861 主网 SOL；新 RPC 端点连续 3 次未签名模拟通过，等待提交、部署与用户实际签名。
 
 ## 当前发布
 
 - 正式地址：[Said](https://londonyu.github.io/said/)，GitHub Pages托管，独立于用户电脑和本地进程。
 - 线上代码：`9be4bade341e2b6722910257ecee03e4747c9710`；[部署运行41323014881](https://github.com/LondonYu/said/actions/runs/41323014881)成功，build与deploy均成功，2026-11-01T23:48:25+08:00。线上资源清单见[public-assets.json](docs/sprints/SPRINT-MAINNET/evidence/public-assets.json)。
 - 线上能力：连接钱包、读取公共/作者历史、显式准备/签名/提交、原签名确认与读回；当前线上已切到 Solana 主网。主网公共板为空，旧 Devnet 留言与回执不进入当前页面。
-- 主网配置：Pages工作流build显式`VITE_SOLANA_NETWORK=mainnet`；本地`npm run dev`和`npm test`默认Devnet。主网使用`solana:mainnet`、PublicNode、主网genesis、`public-mainnet-v1`、独立回执key和无cluster的Explorer；真实SOL网络费由用户支付，平台不额外收费。
+- 主网配置：Pages工作流build显式`VITE_SOLANA_NETWORK=mainnet`；本地`npm run dev`和`npm test`默认Devnet。主网使用`solana:mainnet`、Solana Tracker公共RPC、主网genesis、`public-mainnet-v1`、独立回执key和无cluster的Explorer；真实SOL网络费由用户支付，平台不额外收费。
 - 既有检查：255项项目测试、typecheck、默认Devnet构建、主网构建均通过；非法网络值构建失败；`git diff --check`通过。主网只读证据见[SPRINT-MAINNET](docs/sprints/SPRINT-MAINNET/evidence/read-only-mainnet.json)。
 - 治理入口：本文件维护当前状态/待办；[DECISIONS](DECISIONS.md)维护决策；[docs/sprints/](docs/sprints/)维护历史。
 
@@ -26,11 +26,11 @@
 - [x] v0.1只读演示由用户完成V01/V02/V03最终确认；[归档与证据](docs/sprints/SPRINT-4.0/SPRINT-4.0.md)。不重新开闸。
 - [x] 2.2B发布页面、能力getter兼容及模拟前预算契约完成；旧R1修复1/1、确认1/1保留，准备契约实质重写后一次确认，不追加边界复审。
 - [x] 用户真实Phantom发布成功、链上finalized、刷新读回确认；[2.2B验收归档](docs/sprints/SPRINT-2.2B/ACCEPTANCE.md)。
-- 当前工单：[SPRINT-MAINNET](docs/sprints/SPRINT-MAINNET.md)。用户要求“用Solana真实币呀”，允许开发主网能力，覆盖旧Devnet-only边界。Cline已在工作区实现候选并留证，未改线上部署。
+- 当前工单：[SPRINT-MAINNET](docs/sprints/SPRINT-MAINNET.md)。用户要求“用Solana真实币呀”，允许开发主网能力，覆盖旧Devnet-only边界。主网版本已部署；当前执行P1 RPC修复。
 - [x] Cline统一网络配置、chain/genesis/board/回执/Explorer隔离和主网文案，保留原发布保护，交一次审查。
 - [x] Codex一次独立审查通过：typecheck、255项测试、主网build、diff检查通过；隔离探针确认旧Devnet回执不读取、错genesis拒绝且无回退，实际浏览器真实主网空列表成功。证据：[审查](docs/sprints/SPRINT-MAINNET/evidence/codex-review.json)、[截图](docs/sprints/SPRINT-MAINNET/evidence/preview-home.png)。
 - [x] Codex部署主网版本，线上运行`9be4bad`；M01通过，M02主网连接与余额读取通过，M03待有真实SOL的账户完成一笔交易。
-- [ ] 用户切换至有主网SOL的Phantom账户，或在确认风险后向当前地址转入足够支付网络费的主网SOL；随后准备、签名、确认并刷新读回一笔测试留言。
+- [ ] 提交并部署RPC修复；用户在公网页面重新准备同一笔`test`留言，钱包签名后确认、刷新并读回。
 
 ## 开源作品文档收尾（已完成）
 
@@ -42,17 +42,24 @@
 ## 主网实现、部署与验收
 
 - 网络来源：`src/network.ts`统一导出chain、RPC、genesis、board、Explorer后缀和回执key；未设置`VITE_SOLANA_NETWORK`默认Devnet，只接受`devnet`/`mainnet`，非法值在Vite构建和模块加载时失败，无运行时URL/query切网或失败回退。wallet/network/message/simulation/publisher/history/explorer/App共同使用该来源。
-- 隔离：主网`solana:mainnet`、`https://solana-rpc.publicnode.com`、genesis`5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`、board`public-mainnet-v1`、回执key`said.publication-receipts.mainnet.v1`、Explorer不带cluster；Devnet保留原RPC/genesis/board/`said.publication-receipts.v1`和`?cluster=devnet`。既有Devnet记录不迁移、不混入主网查询。
+- 隔离：主网`solana:mainnet`、`https://rpc.solanatracker.io/public`、genesis`5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`、board`public-mainnet-v1`、回执key`said.publication-receipts.mainnet.v1`、Explorer不带cluster；Devnet保留原RPC/genesis/board/`said.publication-receipts.v1`和`?cluster=devnet`。既有Devnet记录不迁移、不混入主网查询。
 - 交易保护保留：400000 CU与0 micro-lamports/CU在准备时定义，基础费由RPC估算；同消息估费/模拟/签名、逐字节一致、实际Ed25519验签、genesis/会话/高度/费用/余额复核、同步签名锁、单次广播、原签名查询与回执恢复均未放宽。
 - 展示：页面顶部、余额、发布审阅、钱包指引、历史详情和Explorer按构建网络显示；主网三语言文案经SSR读取检查，无Devnet/Testnet/测试币/水龙头用语。主网公共流为空，不展示旧Devnet四条记录或示例冒充主网。
 - 工作流与文档：Pages仅build命令改为`VITE_SOLANA_NETWORK=mainnet npm run build`；中英文README说明主网目标、本地Devnet默认和两种构建。未新增依赖、服务、密钥、账号或付费RPC。
 - 构建证据：[mainnet-build.json](docs/sprints/SPRINT-MAINNET/evidence/mainnet-build.json)。2026-11-01T23:30:48+08:00，`VITE_SOLANA_NETWORK=mainnet npm run build`成功，73 modules，单一JS产物`index-CNefGxtp.js`399348 bytes，`index.html`引用同一产物，bundle hash`b4e4de09ba6fe60bbb101ac713f30e6df1be67e7b98bf2aeaf76a8756b1b6f16`；主网token均在产物中。`VITE_SOLANA_NETWORK=testnet`构建exit 1并报“只支持devnet或mainnet”。
 - 只读RPC证据：[read-only-mainnet.json](docs/sprints/SPRINT-MAINNET/evidence/read-only-mainnet.json)。2026-11-01T23:27:21+08:00，Vite SSR以mainnet加载实际模块：chain/genesis/board/回执key/Explorer一致，PublicNode genesis匹配，Memo程序executable，marker历史0条；三语言流程文案forbiddenMatches为空。无签名、无广播。
 - M01：通过。公网部署后的真实浏览器显示“Solana 主网 · 真实 SOL”“Solana 主网只读”；未连接时主网板返回真实空状态，扫描候选为0。
-- M02：主网连接与余额读取通过。浏览器请求 Phantom 连接后显示完整地址`Hs1NxWYZdXE6opzTY1wR9XCbq2QtNwrGdkWgSMeWk31S`与余额`0 SOL（真实主网 SOL）`。准备交易、签名与广播未执行，因为当前余额不足以支付任何主网手续费。
+- M02：主网连接、余额与交易准备通过。Phantom 当前显示付款公钥`3nbt5qpNubJRPynU5vVJgZJmRkNRimVsQZjZPperNA5w`与余额`0.102099861 SOL`；修复后的只读准备连续3次模拟成功，等待用户在公网版本确认签名。
 - M03：待验证。尚无真实主网交易、确认或刷新读回；不把空板、模拟或注入测试当作M03证据。
 - 浏览器证据：[pages-mainnet-browser.json](docs/sprints/SPRINT-MAINNET/evidence/pages-mainnet-browser.json)；部署记录：[pages-deployment.json](docs/sprints/SPRINT-MAINNET/evidence/pages-deployment.json)。
-- 未验证项：有余额账户的主网估费/签名/广播/确认/读回、其他钱包、真机与异常矩阵。公共RPC预检、Node只读请求和注入测试不能替代这些验收。
+- 未验证项：主网签名/广播/确认/读回、其他钱包、真机与异常矩阵。公共RPC预检、Node只读请求和注入测试不能替代这些验收。
+
+### RPC区块高度误判修复
+
+- P1复现：用户在浏览器连接有余额账户后，页面连续显示“区块哈希已过期”。只读探针记录PublicNode返回的最新blockhash有效高度为`442173747`，同一端点却把当前`getBlockHeight`返回为`464152132`；后者实际是slot量级，交易模拟结果本身为成功。
+- 修复：主网RPC切换到`https://rpc.solanatracker.io/public`。该端点对GitHub Pages来源返回CORS许可，genesis与主网一致，真实block height处于`lastValidBlockHeight`之前。
+- 验证：同一账户`3nbt5qpNubJRPynU5vVJgZJmRkNRimVsQZjZPperNA5w`和新正文`test`连续3次只读准备均得到`blockhashExpired=false`、`feeLamports=5000`、`balanceLamports=102099861`、模拟成功；未请求签名、未广播。[证据](docs/sprints/SPRINT-MAINNET/evidence/rpc-height-mismatch-fix.json)。
+- 现有检查：typecheck退出0；9个测试文件、255项通过；mainnet构建退出0。待提交并重新部署后，再执行浏览器准备与用户签名。
 
 ## backlog（不阻断已验收里程碑）
 
@@ -78,7 +85,7 @@
 ## 本轮不建议修
 
 - 主网动态优先费、平台代付、收费和额外转账不在本单；固定400000 CU/0 micro-lamports价格继续保留。
-- PublicNode已在真实浏览器只读读取成功；真实主网钱包签名、广播、确认和读回由用户在部署后按M02/M03验收，不用模拟替代。
+- PublicNode已在真实浏览器只读读取成功，但真实发布会话中其`getBlockHeight`间歇返回slot值，导致有效blockhash被误判过期；因此主网端点已切换到Solana Tracker公共RPC。该端点的浏览器CORS、区块高度、费用估算和未签名模拟已验证；真实主网钱包签名、广播、确认和读回仍由用户按M02/M03验收，不用模拟替代。
 - 旧Devnet记录不迁移、不删除；主网公共流为空是正常状态。
 - B05/B06、B07和全钱包/异常矩阵继续后置，不以P2或未验证项阻止候选审查。
 - 用户接入的规则、技能、记忆和钩子保持原样，不借本轮提交或整理。

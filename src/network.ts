@@ -18,7 +18,7 @@ const NETWORKS = {
     name: 'mainnet',
     displayName: 'Solana Mainnet',
     chain: 'solana:mainnet',
-    rpcUrl: 'https://solana-rpc.publicnode.com',
+    rpcUrl: 'https://rpc.solanatracker.io/public',
     genesisHash: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d',
     board: 'public-mainnet-v1',
     explorerCluster: '',
