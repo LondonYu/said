@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import type { Wallet, WalletAccount } from '@wallet-standard/base';
 import { getBase58Encoder } from '@solana/kit';
 import {
-  DEVNET_CHAIN,
   createWalletController,
   type WalletController,
   type WalletRegistry,
 } from './wallet';
+import { SOLANA_CHAIN } from './network';
+
+const DEVNET_CHAIN = SOLANA_CHAIN;
 
 // 两个真实格式的 Solana 公钥，只用于展示与断言，不对应任何私钥。
 const ADDRESS_A = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';

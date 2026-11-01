@@ -17,10 +17,10 @@ import {
 } from './message';
 import type { GuestbookMessage } from './history';
 import type { SimulationClient } from './simulation';
-import { DEVNET_GENESIS_HASH } from './network';
-import { DEVNET_CHAIN, type WalletSigningSession } from './wallet';
+import { SOLANA_CHAIN, SOLANA_NETWORK_CONFIG } from './network';
+import type { WalletSigningSession } from './wallet';
 
-export const PUBLICATION_RECEIPT_STORAGE_KEY = 'said.publication-receipts.v1';
+export const PUBLICATION_RECEIPT_STORAGE_KEY = SOLANA_NETWORK_CONFIG.receiptStorageKey;
 export const MAX_PUBLICATION_RECEIPTS = 10;
 
 const RECEIPT_VERSION = 1 as const;
@@ -57,7 +57,7 @@ const TERMINAL_STATUSES: readonly PublicationStatus[] = [
 /** 只保存重建/核对交易所需的最小字段，不保存正文或完整交易。 */
 export type PublicationReceipt = {
   readonly version: typeof RECEIPT_VERSION;
-  readonly chain: typeof DEVNET_CHAIN;
+  readonly chain: typeof SOLANA_CHAIN;
   readonly author: string;
   readonly signature: string;
   readonly blockhash: string;
@@ -68,7 +68,7 @@ export type PublicationReceipt = {
 
 export type PreparedPublication = {
   readonly version: typeof PREPARED_VERSION;
-  readonly chain: typeof DEVNET_CHAIN;
+  readonly chain: typeof SOLANA_CHAIN;
   readonly sessionRevision: number;
   readonly walletName: string;
   readonly author: string;
@@ -278,7 +278,7 @@ function assertCurrentSession(
     session === null ||
     session.wallet === undefined ||
     session.account === undefined ||
-    session.chain !== DEVNET_CHAIN ||
+    session.chain !== SOLANA_CHAIN ||
     getCurrentSession() !== session
   ) {
     throw new Error('签名会话已失效，请重新连接钱包。');
@@ -448,8 +448,10 @@ async function recheckPreparedState(
   const genesisHash = await runWithTimeout(deadline, timeoutMs, '网络复核', (signal) =>
     rpc.getGenesisHash().send({ abortSignal: signal }),
   );
-  if (genesisHash !== DEVNET_GENESIS_HASH) {
-    throw new Error('网络复核失败：RPC 不是 Devnet，请重新准备后再试。');
+  if (genesisHash !== SOLANA_NETWORK_CONFIG.genesisHash) {
+    throw new Error(
+      `网络复核失败：RPC 不是 ${SOLANA_NETWORK_CONFIG.displayName}，请重新准备后再试。`,
+    );
   }
 
   const blockHeight = await runWithTimeout(deadline, timeoutMs, '区块高度复核', (signal) =>
@@ -480,7 +482,7 @@ async function recheckPreparedState(
 function validateReceipt(value: unknown): PublicationReceipt {
   if (!isRecord(value)) throw new Error('回执存储损坏：条目不是对象。');
   if (value.version !== RECEIPT_VERSION) throw new Error('回执存储损坏：版本不受支持。');
-  if (value.chain !== DEVNET_CHAIN) throw new Error('回执存储损坏：链不一致。');
+  if (value.chain !== SOLANA_CHAIN) throw new Error('回执存储损坏：链不一致。');
   if (typeof value.author !== 'string' || !isAddress(value.author)) {
     throw new Error('回执存储损坏：作者地址无效。');
   }
@@ -504,7 +506,7 @@ function validateReceipt(value: unknown): PublicationReceipt {
   }
   return Object.freeze({
     version: RECEIPT_VERSION,
-    chain: DEVNET_CHAIN,
+    chain: SOLANA_CHAIN,
     author: value.author,
     signature: value.signature,
     blockhash: value.blockhash,
@@ -600,7 +602,7 @@ function validatePrepared(
   session: WalletSigningSession,
 ): PreparedBytes {
   if (!isRecord(prepared)) throw new Error('准备快照无效：不是对象。');
-  if (prepared.version !== PREPARED_VERSION || prepared.chain !== DEVNET_CHAIN) {
+  if (prepared.version !== PREPARED_VERSION || prepared.chain !== SOLANA_CHAIN) {
     throw new Error('准备快照无效：版本或链不一致。');
   }
   if (prepared.author !== session.accountAddress || prepared.author !== session.account.address) {
@@ -811,7 +813,7 @@ export function createPublisher(dependencies: PublisherDependencies): Publisher 
 
       const prepared: PreparedPublication = Object.freeze({
         version: PREPARED_VERSION,
-        chain: DEVNET_CHAIN,
+        chain: SOLANA_CHAIN,
         sessionRevision: session.revision,
         walletName: session.wallet.name,
         author: session.accountAddress,
@@ -982,7 +984,7 @@ export function createPublisher(dependencies: PublisherDependencies): Publisher 
 
       let receipt: PublicationReceipt = Object.freeze({
         version: RECEIPT_VERSION,
-        chain: DEVNET_CHAIN,
+        chain: SOLANA_CHAIN,
         author: prepared.author,
         signature: verified.signature,
         blockhash: prepared.blockhash,

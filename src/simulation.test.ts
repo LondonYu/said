@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { Address } from '@solana/kit';
-import { DEVNET_GENESIS_HASH } from './network';
+import { SOLANA_NETWORK_CONFIG } from './network';
 import { createSimulationClient, type SimulationRpc } from './simulation';
 
 const ADDRESS_A = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';
 const ADDRESS_B = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM';
+const DEVNET_GENESIS_HASH = SOLANA_NETWORK_CONFIG.genesisHash;
 
 type FakeSimulationOptions = {
   genesisHash?: string;

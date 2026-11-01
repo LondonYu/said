@@ -1,6 +1,6 @@
 import { createSolanaRpc, isAddress } from '@solana/kit';
 import type { Address } from '@solana/kit';
-import { DEVNET_GENESIS_HASH, DEVNET_RPC_URL } from './network';
+import { SOLANA_NETWORK_CONFIG } from './network';
 import { buildUnsignedGuestbookTransaction, describeMessageTextError, validateMessageText, type BlockhashLifetime } from './message';
 
 export const SIMULATION_TIMEOUT_MS = 10_000;
@@ -82,7 +82,7 @@ function describeSimulationError(
 
 
 export function createSimulationClient(
-  rpc: SimulationRpc = createSolanaRpc(DEVNET_RPC_URL) as unknown as SimulationRpc,
+  rpc: SimulationRpc = createSolanaRpc(SOLANA_NETWORK_CONFIG.rpcUrl) as unknown as SimulationRpc,
   options: Readonly<{ timeoutMs?: number }> = {},
 ): SimulationClient {
   const timeoutMs = options.timeoutMs ?? SIMULATION_TIMEOUT_MS;
@@ -101,10 +101,12 @@ export function createSimulationClient(
     }
   }
 
-  async function verifyDevnet(callerSignal: AbortSignal): Promise<void> {
+  async function verifyNetwork(callerSignal: AbortSignal): Promise<void> {
     const genesisHash = await call('网络校验', callerSignal, (signal) => rpc.getGenesisHash().send({ abortSignal: signal }));
-    if (genesisHash !== DEVNET_GENESIS_HASH) {
-      throw new Error(`网络校验失败：应用查询的 RPC 不是 Devnet（genesis ${genesisHash}）。`);
+    if (genesisHash !== SOLANA_NETWORK_CONFIG.genesisHash) {
+      throw new Error(
+        `网络校验失败：应用查询的 RPC 不是 ${SOLANA_NETWORK_CONFIG.displayName}（genesis ${genesisHash}）。`,
+      );
     }
   }
 
@@ -132,7 +134,7 @@ export function createSimulationClient(
     const validation = validateMessageText(text);
     if (!validation.ok) throw new Error(describeMessageTextError(validation.reason));
 
-    await verifyDevnet(signal);
+    await verifyNetwork(signal);
 
     const latestBlockhash = await call('获取最新 blockhash', signal, (requestSignal) =>
       rpc.getLatestBlockhash({ commitment: 'confirmed' }).send({ abortSignal: requestSignal }),

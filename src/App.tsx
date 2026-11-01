@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Wallet } from '@wallet-standard/base';
 import { createSolanaRpc } from '@solana/kit';
-import { DEVNET_RPC_URL, readBalance, verifyDevnet } from './network';
+import { SOLANA_NETWORK_CONFIG, readBalance, verifyNetwork } from './network';
 import { createWalletController, type WalletController, type WalletSnapshot } from './wallet';
 import { createSimulationClient, type SimulationCheckResult } from './simulation';
 import { translations, type Labels } from './i18n';
@@ -91,7 +91,7 @@ function BalancePanel({
   return (
     <div className="balance-panel" aria-live="polite">
       {balance.status === 'loading' && <p>{labels.balanceLoading}</p>}
-      {balance.status === 'ready' && <p className="balance">{labels.balance}{formatSol(balance.lamports)} {labels.testSol}</p>}
+      {balance.status === 'ready' && <p className="balance">{labels.balance}{formatSol(balance.lamports)} {labels.balanceUnit}</p>}
       {balance.status === 'error' && <>
         <ErrorNotice message={balance.message} title={labels.balanceError} labels={labels} />
         <button className="button secondary" type="button" onClick={onRetry}>{labels.retry}</button>
@@ -131,7 +131,7 @@ function TransactionSummary({ result, labels }: { result: SimulationCheckResult;
 function ErrorNotice({ message, title, labels }: { message: string; title: string; labels: Labels }) {
   const known = message.includes('已在钱包中拒绝') ? labels.rejected
     : message.includes('standard:connect') ? labels.unsupported
-    : message.includes('钱包没有提供') ? labels.noDevnetAccount : null;
+    : message.includes('钱包没有提供') ? labels.noNetworkAccount : null;
   return <div className="error" role="alert">
     <p>{known ?? title}</p>
     {!known && <details><summary>{labels.details}</summary><p className="error-detail">{message}</p></details>}
@@ -244,7 +244,7 @@ export default function App() {
   const publisher = useMemo(
     () => createPublisher({
       simulationClient: simulation,
-      rpc: createSolanaRpc(DEVNET_RPC_URL) as unknown as PublisherRpc,
+      rpc: createSolanaRpc(SOLANA_NETWORK_CONFIG.rpcUrl) as unknown as PublisherRpc,
       receiptStore: createBrowserPublicationReceiptStore(),
       historyClient,
       getCurrentSession: () => controller?.getSigningSession() ?? null,
@@ -267,7 +267,7 @@ export default function App() {
 
   const networkReadyForAccount = network.status === 'ready' && network.address === accountAddress;
   const networkErrorForAccount = network.status === 'error' && network.address === accountAddress;
-  const networkLabel = networkReadyForAccount ? 'Devnet' : networkErrorForAccount ? labels.notReady : labels.checking;
+  const networkLabel = networkReadyForAccount ? labels.networkName : networkErrorForAccount ? labels.notReady : labels.checking;
 
   // 钱包被取消注册后清空已选项，不自动静默改选其他钱包。
   useEffect(() => {
@@ -291,7 +291,7 @@ export default function App() {
 
     void (async () => {
       try {
-        await verifyDevnet(abort.signal);
+        await verifyNetwork(abort.signal);
       } catch (error) {
         if (!cancelled) setNetwork({ status: 'error', address: accountAddress, message: toMessage(error) });
         return;
@@ -568,7 +568,7 @@ export default function App() {
               : <p className="hint">{labels.connectForBalance}</p>}
             <p className="hint">{labels.networkHint}</p>
           </section>
-          <details className="devnet-guide"><summary>{labels.devnetGuide}</summary><p className="hint">{labels.phantomPath}</p><p className="hint">{labels.rpcHint}</p></details>
+          <details className="wallet-network-guide"><summary>{labels.walletNetworkGuide}</summary><p className="hint">{labels.phantomPath}</p><p className="hint">{labels.rpcHint}</p></details>
           <button className="help-link" type="button" onClick={() => setModal('guide')}>{labels.walletHelp}</button>
           <p className="connection-note">{labels.connectionNote}</p>
         </>}

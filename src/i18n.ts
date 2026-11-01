@@ -1,12 +1,21 @@
+import { IS_MAINNET } from './network';
+
 export const zhCN = {
   home: '首页', mine: '我的留言', search: '搜索', write: '发布', settings: '设置',
   login: '登录', connectWallet: '连接钱包', account: '我的钱包', navigation: '主导航',
-  close: '关闭', back: '返回', readOnly: 'Devnet · 测试网',
+  close: '关闭', back: '返回',
+  readOnly: IS_MAINNET ? 'Solana 主网 · 真实 SOL' : 'Devnet · 测试网',
   appearance: '外观', light: '浅色', dark: '深色', system: '跟随系统', language: '语言',
   settingsNote: '外观与语言只保存在这台设备上。', storageError: '当前无法保存设置，刷新后将恢复默认。',
-  unavailable: '暂未开放', writeUnavailable: '发布暂未开放。当前可以连接钱包，查看 Devnet 测试币余额。',
+  unavailable: '暂未开放',
+  writeUnavailable: IS_MAINNET
+    ? '发布暂未开放。当前可以连接钱包，查看 Solana 主网真实余额。'
+    : '发布暂未开放。当前可以连接钱包，查看 Devnet 测试币余额。',
   searchUnavailable: '搜索暂未开放。', feedUnavailable: '留言功能暂未开放',
-  feedNote: '目前可连接钱包，查看账户和测试币余额。', mineNote: '留言记录尚未接入，此处暂不显示历史。',
+  feedNote: IS_MAINNET
+    ? '目前可连接钱包，查看账户和真实主网 SOL 余额。'
+    : '目前可连接钱包，查看账户和测试币余额。',
+  mineNote: '留言记录尚未接入，此处暂不显示历史。',
   prompt: '有什么新鲜事？', initializing: '正在发现钱包…', noWallets: '未发现支持 Solana 的浏览器钱包。',
   installHint: '请使用支持 Wallet Standard 的 Solana 钱包，安装后刷新页面，或在钱包内置浏览器打开。',
   chooseWallet: '先选择钱包，再确认连接。', connect: '连接所选钱包', connecting: '正在等待钱包确认…',
@@ -14,21 +23,36 @@ export const zhCN = {
   cancelledWait: '已停止页面等待，但不会关闭钱包弹窗或撤销授权。',
   pending: '仍在等待钱包处理：', pendingHint: '请先在钱包中完成或关闭旧弹窗；结束后可重试。',
   connectedWallet: '已连接钱包', fullAddress: '完整公钥', disconnect: '断开连接',
-  accountHint: '多账户时使用钱包返回的首个 solana:devnet 账户；可在钱包内切换账户。',
+  accountHint: IS_MAINNET
+    ? '多账户时使用钱包返回的首个 solana:mainnet 账户；可在钱包内切换账户。'
+    : '多账户时使用钱包返回的首个 solana:devnet 账户；可在钱包内切换账户。',
   connectionNote: '连接仅共享公钥，不请求签名、不发送交易，也不收集钱包密码。',
   walletHelp: '没有钱包？', walletGuide: '钱包使用指引',
   guide1: '从钱包官方网站安装 Phantom 或支持 Wallet Standard 的 Solana 钱包。',
   guide2: '在钱包中自行创建或导入账户，妥善保管恢复信息；不要在网页里填写助记词或私钥。',
-  guide3: '测试时使用独立账户，并在钱包中选择 Solana Devnet。',
+  guide3: IS_MAINNET
+    ? '使用你的主网账户，确认钱包当前为 Solana 主网；真实 SOL 余额和网络费由你支付。'
+    : '测试时使用独立账户，并在钱包中选择 Solana Devnet。',
   network: '网络与余额', queryNetwork: '应用查询网络：', checking: '校验中…', notReady: '未就绪',
-  balanceLoading: '正在读取余额…', balance: '余额：', testSol: 'SOL（Devnet 测试币）', retry: '重试',
-  connectForBalance: '连接钱包后显示该账户的 Devnet 余额。',
-  networkHint: '应用查询 Devnet 不代表钱包已切换网络，请在钱包内确认。',
-  devnetGuide: 'Phantom Devnet 指引', phantomPath: 'Phantom → 设置 → 开发者设置 → Testnet Mode → Solana Devnet。',
-  rpcHint: 'Devnet 测试币没有实际价值。公共 RPC 可能限流，请稍后重试。',
+  networkName: IS_MAINNET ? 'Solana 主网' : 'Devnet',
+  balanceLoading: '正在读取余额…', balance: '余额：',
+  balanceUnit: IS_MAINNET ? 'SOL（真实主网 SOL）' : 'SOL（Devnet 测试币）', retry: '重试',
+  connectForBalance: IS_MAINNET
+    ? '连接钱包后显示该账户的真实主网余额。'
+    : '连接钱包后显示该账户的 Devnet 余额。',
+  networkHint: IS_MAINNET
+    ? '应用查询 Solana 主网，不代表钱包已切换网络；请在钱包内确认主网账户。'
+    : '应用查询 Devnet 不代表钱包已切换网络，请在钱包内确认。',
+  walletNetworkGuide: IS_MAINNET ? 'Phantom 主网设置' : 'Phantom Devnet 指引',
+  phantomPath: IS_MAINNET
+    ? '在 Phantom 中确认当前账户显示 Solana 主网。'
+    : 'Phantom → 设置 → 开发者设置 → Testnet Mode → Solana Devnet。',
+  rpcHint: IS_MAINNET
+    ? '发布使用真实 SOL 支付 Solana 主网网络费；平台不额外收费。公共 RPC 可能限流，请稍后重试。'
+    : 'Devnet 测试币没有实际价值。公共 RPC 可能限流，请稍后重试。',
   walletError: '钱包连接失败，请重试。', networkError: '网络校验失败，请重试。', balanceError: '余额读取失败，请重试。',
   details: '查看错误详情', rejected: '你已在钱包中拒绝连接请求。',
-  noDevnetAccount: '钱包没有提供支持 Devnet 的账户。', unsupported: '该钱包不支持标准连接，请使用其他钱包。',
+  noNetworkAccount: IS_MAINNET ? '钱包没有提供支持 Solana 主网的账户。' : '钱包没有提供支持 Devnet 的账户。', unsupported: '该钱包不支持标准连接，请使用其他钱包。',
   cleared: '钱包账户已不可用，页面已清理连接状态。', localDisconnect: '已清除页面连接状态，请在钱包中核对授权。',
   sampleLabel: '示例留言 · 未上链',
   sampleAuthor: '示例账户',
@@ -68,7 +92,7 @@ export const zhCN = {
   txBlockExpired: '区块哈希已过期，结果已失效；请重试。',
   txUnsigned: '未签名、未上链',
   txError: '交易检查失败，请重试。',
-  publishSection: '发布到 Devnet',
+  publishSection: IS_MAINNET ? '发布到 Solana 主网' : '发布到 Devnet',
   publishIdle: '尚未准备',
   publishPrepare: '准备发布',
   publishPreparing: '正在准备交易…',
@@ -87,13 +111,19 @@ export const zhCN = {
   publishFeePayer: '付款公钥',
   publishBody: '原正文',
   publishFee: '预估网络费',
-  publishIrreversible: '交易公开且不可撤回。只有你点击“签名并发送”后，钱包才会请求签名；费用是测试 SOL，以当前 Devnet 模拟结果为准。',
+  publishIrreversible: IS_MAINNET
+    ? '交易公开且不可撤回。只有你点击“签名并发送”后，钱包才会请求签名；费用是真实 SOL，以当前 Solana 主网模拟结果为准。'
+    : '交易公开且不可撤回。只有你点击“签名并发送”后，钱包才会请求签名；费用是测试 SOL，以当前 Devnet 模拟结果为准。',
   publishPrepareHint: '准备只构造并模拟交易，不请求签名，不发送。',
   publishConnectFirst: '请先连接钱包，再准备发布。',
-  publishNoSession: '当前钱包没有可用的签名会话。请连接支持签名的 Solana Devnet 钱包。',
+  publishNoSession: IS_MAINNET
+    ? '当前钱包没有可用的签名会话。请连接支持签名的 Solana 主网钱包。'
+    : '当前钱包没有可用的签名会话。请连接支持签名的 Solana Devnet 钱包。',
   publishSignFailed: '签名未完成，草稿已保留。',
   publishSignature: '交易签名',
-  publishOpenExplorer: '在 Solana Explorer 查看（Devnet）',
+  publishOpenExplorer: IS_MAINNET
+    ? '在 Solana Explorer 查看（Solana 主网）'
+    : '在 Solana Explorer 查看（Devnet）',
   publishQuerySignature: '查询原签名',
   publishQuerying: '正在查询原签名…',
   publishReprepare: '重新准备',
@@ -110,9 +140,11 @@ export const zhCN = {
   publishNoReplay: '不要重复发送。只查询原签名。',
   publishStoredStatus: '本地记录',
   publishCheckedStatus: '链上查询',
-  onChainFeed: '链上留言 · Devnet 只读',
-  onChainBadge: 'Devnet 链上',
-  historyBoardNote: '从公共板级标记读取真实 Devnet 留言；公共 RPC 可能限流，历史可能不完整。',
+  onChainFeed: IS_MAINNET ? '链上留言 · Solana 主网只读' : '链上留言 · Devnet 只读',
+  onChainBadge: IS_MAINNET ? 'Solana 主网链上' : 'Devnet 链上',
+  historyBoardNote: IS_MAINNET
+    ? '从公共板级标记读取真实 Solana 主网留言；公共 RPC 可能限流，历史可能不完整。'
+    : '从公共板级标记读取真实 Devnet 留言；公共 RPC 可能限流，历史可能不完整。',
   historyMineNote: '按当前钱包完整公钥独立查询本板留言，不使用首页已加载结果代替。',
   mineConnectTitle: '连接钱包查看我的留言',
   mineConnectNote: '连接后按当前账户公钥查询链上历史。不会请求签名或自动弹出钱包。',
@@ -142,7 +174,9 @@ export const zhCN = {
   transactionSlot: 'Slot（非区块高度）',
   transactionFee: '实际网络费',
   transactionSignature: '交易签名',
-  openInExplorer: '在 Solana Explorer 查看（Devnet）',
+  openInExplorer: IS_MAINNET
+    ? '在 Solana Explorer 查看（Solana 主网）'
+    : '在 Solana Explorer 查看（Devnet）',
   detailNote: '详情来自本次已验证的链上记录，不额外重扫链。正文按纯文本显示。',
   searchLoaded: '搜索当前已加载留言',
   searchLoadedHint: '仅过滤当前范围已加载的 {count} 条真实记录（正文与作者公钥），不请求额外 RPC，不是全链搜索。',
@@ -158,12 +192,19 @@ export type Language = 'zh-CN' | 'zh-TW' | 'en';
 const zhTW: Labels = {
   home: '首頁', mine: '我的留言', search: '搜尋', write: '發佈', settings: '設定',
   login: '登入', connectWallet: '連接錢包', account: '我的錢包', navigation: '主要導覽',
-  close: '關閉', back: '返回', readOnly: 'Devnet · 測試網',
+  close: '關閉', back: '返回',
+  readOnly: IS_MAINNET ? 'Solana 主網 · 真實 SOL' : 'Devnet · 測試網',
   appearance: '外觀', light: '淺色', dark: '深色', system: '跟隨系統', language: '語言',
   settingsNote: '外觀與語言只儲存在這台裝置上。', storageError: '目前無法儲存設定，重新整理後將恢復預設。',
-  unavailable: '尚未開放', writeUnavailable: '發佈尚未開放。目前可以連接錢包，查看 Devnet 測試幣餘額。',
+  unavailable: '尚未開放',
+  writeUnavailable: IS_MAINNET
+    ? '發佈尚未開放。目前可以連接錢包，查看 Solana 主網真實餘額。'
+    : '發佈尚未開放。目前可以連接錢包，查看 Devnet 測試幣餘額。',
   searchUnavailable: '搜尋尚未開放。', feedUnavailable: '留言功能尚未開放',
-  feedNote: '目前可連接錢包，查看帳戶和測試幣餘額。', mineNote: '留言記錄尚未接入，此處暫不顯示歷史。',
+  feedNote: IS_MAINNET
+    ? '目前可連接錢包，查看帳戶和真實主網 SOL 餘額。'
+    : '目前可連接錢包，查看帳戶和測試幣餘額。',
+  mineNote: '留言記錄尚未接入，此處暫不顯示歷史。',
   prompt: '有什麼新鮮事？', initializing: '正在尋找錢包…', noWallets: '未發現支援 Solana 的瀏覽器錢包。',
   installHint: '請使用支援 Wallet Standard 的 Solana 錢包，安裝後重新整理頁面，或在錢包內建瀏覽器開啟。',
   chooseWallet: '先選擇錢包，再確認連接。', connect: '連接所選錢包', connecting: '正在等待錢包確認…',
@@ -171,21 +212,36 @@ const zhTW: Labels = {
   cancelledWait: '已停止頁面等待，但不會關閉錢包視窗或撤銷授權。',
   pending: '仍在等待錢包處理：', pendingHint: '請先在錢包中完成或關閉舊視窗；結束後可重試。',
   connectedWallet: '已連接錢包', fullAddress: '完整公鑰', disconnect: '中斷連接',
-  accountHint: '多帳戶時使用錢包傳回的首個 solana:devnet 帳戶；可在錢包內切換帳戶。',
+  accountHint: IS_MAINNET
+    ? '多帳戶時使用錢包傳回的首個 solana:mainnet 帳戶；可在錢包內切換帳戶。'
+    : '多帳戶時使用錢包傳回的首個 solana:devnet 帳戶；可在錢包內切換帳戶。',
   connectionNote: '連接僅分享公鑰，不請求簽名、不發送交易，也不收集錢包密碼。',
   walletHelp: '沒有錢包？', walletGuide: '錢包使用指引',
   guide1: '從錢包官方網站安裝 Phantom 或支援 Wallet Standard 的 Solana 錢包。',
   guide2: '在錢包中自行建立或匯入帳戶，妥善保管復原資訊；不要在網頁裡填寫助記詞或私鑰。',
-  guide3: '測試時使用獨立帳戶，並在錢包中選擇 Solana Devnet。',
+  guide3: IS_MAINNET
+    ? '使用你的主網帳戶，確認錢包目前為 Solana 主網；真實 SOL 餘額和網路費由你支付。'
+    : '測試時使用獨立帳戶，並在錢包中選擇 Solana Devnet。',
   network: '網路與餘額', queryNetwork: '應用查詢網路：', checking: '驗證中…', notReady: '尚未就緒',
-  balanceLoading: '正在讀取餘額…', balance: '餘額：', testSol: 'SOL（Devnet 測試幣）', retry: '重試',
-  connectForBalance: '連接錢包後顯示該帳戶的 Devnet 餘額。',
-  networkHint: '應用查詢 Devnet 不代表錢包已切換網路，請在錢包內確認。',
-  devnetGuide: 'Phantom Devnet 指引', phantomPath: 'Phantom → 設定 → 開發者設定 → Testnet Mode → Solana Devnet。',
-  rpcHint: 'Devnet 測試幣沒有實際價值。公共 RPC 可能限流，請稍後重試。',
+  networkName: IS_MAINNET ? 'Solana 主網' : 'Devnet',
+  balanceLoading: '正在讀取餘額…', balance: '餘額：',
+  balanceUnit: IS_MAINNET ? 'SOL（真實主網 SOL）' : 'SOL（Devnet 測試幣）', retry: '重試',
+  connectForBalance: IS_MAINNET
+    ? '連接錢包後顯示該帳戶的真實主網餘額。'
+    : '連接錢包後顯示該帳戶的 Devnet 餘額。',
+  networkHint: IS_MAINNET
+    ? '應用查詢 Solana 主網，不代表錢包已切換網路；請在錢包內確認主網帳戶。'
+    : '應用查詢 Devnet 不代表錢包已切換網路，請在錢包內確認。',
+  walletNetworkGuide: IS_MAINNET ? 'Phantom 主網設定' : 'Phantom Devnet 指引',
+  phantomPath: IS_MAINNET
+    ? '在 Phantom 中確認目前帳戶顯示 Solana 主網。'
+    : 'Phantom → 設定 → 開發者設定 → Testnet Mode → Solana Devnet。',
+  rpcHint: IS_MAINNET
+    ? '發佈使用真實 SOL 支付 Solana 主網網路費；平台不額外收費。公共 RPC 可能限流，請稍後重試。'
+    : 'Devnet 測試幣沒有實際價值。公共 RPC 可能限流，請稍後重試。',
   walletError: '錢包連接失敗，請重試。', networkError: '網路驗證失敗，請重試。', balanceError: '餘額讀取失敗，請重試。',
   details: '查看錯誤詳情', rejected: '你已在錢包中拒絕連接請求。',
-  noDevnetAccount: '錢包未提供支援 Devnet 的帳戶。', unsupported: '此錢包不支援標準連接，請使用其他錢包。',
+  noNetworkAccount: IS_MAINNET ? '錢包未提供支援 Solana 主網的帳戶。' : '錢包未提供支援 Devnet 的帳戶。', unsupported: '此錢包不支援標準連接，請使用其他錢包。',
   cleared: '錢包帳戶已無法使用，頁面已清除連接狀態。', localDisconnect: '已清除頁面連接狀態，請在錢包中核對授權。',
   sampleLabel: '範例留言 · 未上鏈',
   sampleAuthor: '範例帳戶',
@@ -225,7 +281,7 @@ const zhTW: Labels = {
   txBlockExpired: '區塊雜湊已過期，結果已失效；請重試。',
   txUnsigned: '未簽名、未上鏈',
   txError: '交易檢查失敗，請重試。',
-  publishSection: '發佈到 Devnet',
+  publishSection: IS_MAINNET ? '發佈到 Solana 主網' : '發佈到 Devnet',
   publishIdle: '尚未準備',
   publishPrepare: '準備發佈',
   publishPreparing: '正在準備交易…',
@@ -244,13 +300,19 @@ const zhTW: Labels = {
   publishFeePayer: '付款公鑰',
   publishBody: '原正文',
   publishFee: '預估網路費',
-  publishIrreversible: '交易公開且不可撤回。只有你點擊「簽名並發送」後，錢包才會請求簽名；費用是測試 SOL，以目前 Devnet 模擬結果為準。',
+  publishIrreversible: IS_MAINNET
+    ? '交易公開且不可撤回。只有你點擊「簽名並發送」後，錢包才會請求簽名；費用是真實 SOL，以目前 Solana 主網模擬結果為準。'
+    : '交易公開且不可撤回。只有你點擊「簽名並發送」後，錢包才會請求簽名；費用是測試 SOL，以目前 Devnet 模擬結果為準。',
   publishPrepareHint: '準備只建構並模擬交易，不請求簽名，不發送。',
   publishConnectFirst: '請先連接錢包，再準備發佈。',
-  publishNoSession: '目前錢包沒有可用的簽名工作階段。請連接支援簽名的 Solana Devnet 錢包。',
+  publishNoSession: IS_MAINNET
+    ? '目前錢包沒有可用的簽名工作階段。請連接支援簽名的 Solana 主網錢包。'
+    : '目前錢包沒有可用的簽名工作階段。請連接支援簽名的 Solana Devnet 錢包。',
   publishSignFailed: '簽名未完成，草稿已保留。',
   publishSignature: '交易簽名',
-  publishOpenExplorer: '在 Solana Explorer 查看（Devnet）',
+  publishOpenExplorer: IS_MAINNET
+    ? '在 Solana Explorer 查看（Solana 主網）'
+    : '在 Solana Explorer 查看（Devnet）',
   publishQuerySignature: '查詢原簽名',
   publishQuerying: '正在查詢原簽名…',
   publishReprepare: '重新準備',
@@ -267,9 +329,11 @@ const zhTW: Labels = {
   publishNoReplay: '不要重複發送。只查詢原簽名。',
   publishStoredStatus: '本機記錄',
   publishCheckedStatus: '鏈上查詢',
-  onChainFeed: '鏈上留言 · Devnet 唯讀',
-  onChainBadge: 'Devnet 鏈上',
-  historyBoardNote: '從公共板級標記讀取真實 Devnet 留言；公共 RPC 可能限流，歷史可能不完整。',
+  onChainFeed: IS_MAINNET ? '鏈上留言 · Solana 主網唯讀' : '鏈上留言 · Devnet 唯讀',
+  onChainBadge: IS_MAINNET ? 'Solana 主網鏈上' : 'Devnet 鏈上',
+  historyBoardNote: IS_MAINNET
+    ? '從公共板級標記讀取真實 Solana 主網留言；公共 RPC 可能限流，歷史可能不完整。'
+    : '從公共板級標記讀取真實 Devnet 留言；公共 RPC 可能限流，歷史可能不完整。',
   historyMineNote: '按目前錢包完整公鑰獨立查詢本板留言，不使用首頁已載入結果代替。',
   mineConnectTitle: '連接錢包查看我的留言',
   mineConnectNote: '連接後按目前帳戶公鑰查詢鏈上歷史。不會請求簽名或自動彈出錢包。',
@@ -299,7 +363,9 @@ const zhTW: Labels = {
   transactionSlot: 'Slot（非區塊高度）',
   transactionFee: '實際網路費',
   transactionSignature: '交易簽名',
-  openInExplorer: '在 Solana Explorer 查看（Devnet）',
+  openInExplorer: IS_MAINNET
+    ? '在 Solana Explorer 查看（Solana 主網）'
+    : '在 Solana Explorer 查看（Devnet）',
   detailNote: '詳情來自本次已驗證的鏈上記錄，不額外重掃鏈。正文按純文字顯示。',
   searchLoaded: '搜尋目前已載入留言',
   searchLoadedHint: '僅過濾目前範圍已載入的 {count} 條真實記錄（正文與作者公鑰），不請求額外 RPC，不是全鏈搜尋。',
@@ -312,12 +378,19 @@ const zhTW: Labels = {
 const en: Labels = {
   home: 'Home', mine: 'My posts', search: 'Search', write: 'Post', settings: 'Settings',
   login: 'Log in', connectWallet: 'Connect wallet', account: 'My wallet', navigation: 'Main navigation',
-  close: 'Close', back: 'Back', readOnly: 'Devnet · Testnet',
+  close: 'Close', back: 'Back',
+  readOnly: IS_MAINNET ? 'Solana Mainnet · Real SOL' : 'Devnet · Testnet',
   appearance: 'Appearance', light: 'Light', dark: 'Dark', system: 'Use device setting', language: 'Language',
   settingsNote: 'Appearance and language are saved on this device only.', storageError: 'Settings could not be saved. Reloading will restore the defaults.',
-  unavailable: 'Not available yet', writeUnavailable: 'Posting is not available yet. You can connect a wallet and view its Devnet balance.',
+  unavailable: 'Not available yet',
+  writeUnavailable: IS_MAINNET
+    ? 'Posting is not available yet. You can connect a wallet and view its real Solana Mainnet balance.'
+    : 'Posting is not available yet. You can connect a wallet and view its Devnet balance.',
   searchUnavailable: 'Search is not available yet.', feedUnavailable: 'Posts are not available yet',
-  feedNote: 'Connect a wallet to view your account and test SOL balance.', mineNote: 'Post history is not connected yet. No history is shown here.',
+  feedNote: IS_MAINNET
+    ? 'Connect a wallet to view your account and real mainnet SOL balance.'
+    : 'Connect a wallet to view your account and test SOL balance.',
+  mineNote: 'Post history is not connected yet. No history is shown here.',
   prompt: "What's new?", initializing: 'Looking for wallets…', noWallets: 'No Solana browser wallets found.',
   installHint: 'Use a Solana wallet that supports Wallet Standard. Reload after installation, or open this page in the wallet browser.',
   chooseWallet: 'Choose a wallet, then confirm the connection.', connect: 'Connect selected wallet', connecting: 'Waiting for wallet confirmation…',
@@ -325,21 +398,36 @@ const en: Labels = {
   cancelledWait: 'Stopped waiting on this page. The wallet popup and its permissions are unchanged.',
   pending: 'Still waiting for wallet: ', pendingHint: 'Complete or close the previous wallet popup before trying again.',
   connectedWallet: 'Connected wallet', fullAddress: 'Full public key', disconnect: 'Disconnect',
-  accountHint: 'Uses the first account returned with solana:devnet support. Switch accounts in your wallet.',
+  accountHint: IS_MAINNET
+    ? 'Uses the first account returned with solana:mainnet support. Switch accounts in your wallet.'
+    : 'Uses the first account returned with solana:devnet support. Switch accounts in your wallet.',
   connectionNote: 'Connecting shares your public key. No signature, transaction or wallet password is requested.',
   walletHelp: 'Need a wallet?', walletGuide: 'Using a wallet',
   guide1: 'Install Phantom or a Solana wallet supporting Wallet Standard from its official website.',
   guide2: 'Create or import an account inside your wallet and keep its recovery information safe. Never enter recovery phrases or private keys on this page.',
-  guide3: 'Use a separate test account and select Solana Devnet in your wallet.',
+  guide3: IS_MAINNET
+    ? 'Use your own mainnet account and confirm the wallet is on Solana Mainnet. You pay the real SOL balance and network fee.'
+    : 'Use a separate test account and select Solana Devnet in your wallet.',
   network: 'Network and balance', queryNetwork: 'App query network: ', checking: 'Checking…', notReady: 'Not ready',
-  balanceLoading: 'Reading balance…', balance: 'Balance: ', testSol: 'SOL (Devnet test tokens)', retry: 'Retry',
-  connectForBalance: 'Connect a wallet to view its Devnet balance.',
-  networkHint: 'The app queries Devnet. This does not verify or change the network displayed in your wallet.',
-  devnetGuide: 'Phantom Devnet settings', phantomPath: 'Phantom → Settings → Developer Settings → Testnet Mode → Solana Devnet.',
-  rpcHint: 'Devnet tokens have no monetary value. The public RPC may be rate limited; try again later.',
+  networkName: IS_MAINNET ? 'Solana Mainnet' : 'Devnet',
+  balanceLoading: 'Reading balance…', balance: 'Balance: ',
+  balanceUnit: IS_MAINNET ? 'SOL (real mainnet SOL)' : 'SOL (Devnet test tokens)', retry: 'Retry',
+  connectForBalance: IS_MAINNET
+    ? 'Connect a wallet to view its real mainnet balance.'
+    : 'Connect a wallet to view its Devnet balance.',
+  networkHint: IS_MAINNET
+    ? 'The app queries Solana Mainnet. This does not verify or change the network displayed in your wallet.'
+    : 'The app queries Devnet. This does not verify or change the network displayed in your wallet.',
+  walletNetworkGuide: IS_MAINNET ? 'Phantom mainnet settings' : 'Phantom Devnet settings',
+  phantomPath: IS_MAINNET
+    ? 'In Phantom, confirm the current account shows Solana Mainnet.'
+    : 'Phantom → Settings → Developer Settings → Testnet Mode → Solana Devnet.',
+  rpcHint: IS_MAINNET
+    ? 'Publishing pays the Solana Mainnet network fee in real SOL; the platform charges nothing extra. The public RPC may be rate limited; try again later.'
+    : 'Devnet tokens have no monetary value. The public RPC may be rate limited; try again later.',
   walletError: 'Could not connect to your wallet. Please retry.', networkError: 'Network verification failed. Please retry.', balanceError: 'Could not read your balance. Please retry.',
   details: 'Error details', rejected: 'Connection declined in your wallet.',
-  noDevnetAccount: 'Your wallet did not provide an account supporting Devnet.', unsupported: 'This wallet does not support standard connection. Choose another wallet.',
+  noNetworkAccount: IS_MAINNET ? 'Your wallet did not provide an account supporting Solana Mainnet.' : 'Your wallet did not provide an account supporting Devnet.', unsupported: 'This wallet does not support standard connection. Choose another wallet.',
   cleared: 'The wallet account is unavailable. The page has cleared its connection state.', localDisconnect: 'The page has disconnected locally. Check permissions in your wallet.',
   sampleLabel: 'Sample posts · Not on chain',
   sampleAuthor: 'Sample account',
@@ -379,7 +467,7 @@ const en: Labels = {
   txBlockExpired: 'The blockhash has expired. Result is invalid; retry.',
   txUnsigned: 'Unsigned, not on chain',
   txError: 'Transaction check failed. Please retry.',
-  publishSection: 'Publish to Devnet',
+  publishSection: IS_MAINNET ? 'Publish to Solana Mainnet' : 'Publish to Devnet',
   publishIdle: 'Not prepared',
   publishPrepare: 'Prepare post',
   publishPreparing: 'Preparing transaction…',
@@ -398,13 +486,19 @@ const en: Labels = {
   publishFeePayer: 'Fee payer public key',
   publishBody: 'Original text',
   publishFee: 'Estimated network fee',
-  publishIrreversible: 'The transaction is public and cannot be undone. The wallet is asked to sign only after you press “Sign and send”; the fee is test SOL based on the current Devnet simulation.',
+  publishIrreversible: IS_MAINNET
+    ? 'The transaction is public and cannot be undone. The wallet is asked to sign only after you press “Sign and send”; the fee is real SOL based on the current Solana Mainnet simulation.'
+    : 'The transaction is public and cannot be undone. The wallet is asked to sign only after you press “Sign and send”; the fee is test SOL based on the current Devnet simulation.',
   publishPrepareHint: 'Preparation only builds and simulates the transaction. It does not request a signature or send anything.',
   publishConnectFirst: 'Connect a wallet before preparing a post.',
-  publishNoSession: 'No signing session is available. Connect a Solana Devnet wallet that supports signing.',
+  publishNoSession: IS_MAINNET
+    ? 'No signing session is available. Connect a Solana Mainnet wallet that supports signing.'
+    : 'No signing session is available. Connect a Solana Devnet wallet that supports signing.',
   publishSignFailed: 'Signing did not complete. Your draft is kept.',
   publishSignature: 'Transaction signature',
-  publishOpenExplorer: 'View on Solana Explorer (Devnet)',
+  publishOpenExplorer: IS_MAINNET
+    ? 'View on Solana Explorer (Solana Mainnet)'
+    : 'View on Solana Explorer (Devnet)',
   publishQuerySignature: 'Query original signature',
   publishQuerying: 'Querying original signature…',
   publishReprepare: 'Prepare again',
@@ -421,9 +515,11 @@ const en: Labels = {
   publishNoReplay: 'Do not send again. Query only the original signature.',
   publishStoredStatus: 'Local record',
   publishCheckedStatus: 'Chain query',
-  onChainFeed: 'On-chain posts · Devnet read-only',
-  onChainBadge: 'Devnet on-chain',
-  historyBoardNote: 'Reads real Devnet posts from the public board marker. The public RPC may rate-limit and history may be incomplete.',
+  onChainFeed: IS_MAINNET ? 'On-chain posts · Solana Mainnet read-only' : 'On-chain posts · Devnet read-only',
+  onChainBadge: IS_MAINNET ? 'Solana Mainnet on-chain' : 'Devnet on-chain',
+  historyBoardNote: IS_MAINNET
+    ? 'Reads real Solana Mainnet posts from the public board marker. The public RPC may rate-limit and history may be incomplete.'
+    : 'Reads real Devnet posts from the public board marker. The public RPC may rate-limit and history may be incomplete.',
   historyMineNote: 'Queries this board by the full public key of the connected wallet; does not reuse the home feed as history.',
   mineConnectTitle: 'Connect to view your posts',
   mineConnectNote: 'After connection, history is queried for the current account. No signature is requested and no wallet popup is opened automatically.',
@@ -453,7 +549,9 @@ const en: Labels = {
   transactionSlot: 'Slot (not block height)',
   transactionFee: 'Actual network fee',
   transactionSignature: 'Transaction signature',
-  openInExplorer: 'View on Solana Explorer (Devnet)',
+  openInExplorer: IS_MAINNET
+    ? 'View on Solana Explorer (Solana Mainnet)'
+    : 'View on Solana Explorer (Devnet)',
   detailNote: 'Details come from records verified in this session; the chain is not rescanned. Text is rendered as plain text.',
   searchLoaded: 'Search loaded posts',
   searchLoadedHint: 'Filters only the {count} real records loaded in this scope (text and author public keys). No extra RPC and not a full-chain search.',

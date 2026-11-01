@@ -17,6 +17,7 @@ import {
   type Transaction,
   type TransactionMessage,
 } from '@solana/kit';
+import { SOLANA_NETWORK_CONFIG } from './network';
 
 export const SYSTEM_PROGRAM_ADDRESS = '11111111111111111111111111111111' as Address;
 export const MARKER_ADDRESS = 'CDiRbgJmeDfUwAYXuoxbr9gYjKetA1UwsCsVLhzFRgKN' as Address;
@@ -24,7 +25,7 @@ export const MEMO_PROGRAM_ADDRESS = 'Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH
 
 export const PROTOCOL_APP = 'cyber-guestbook';
 export const PROTOCOL_VERSION = 1;
-export const PROTOCOL_BOARD = 'public-devnet-v1';
+export const PROTOCOL_BOARD = SOLANA_NETWORK_CONFIG.board;
 
 export const TEXT_GRAPHEME_LIMIT = 140;
 export const TEXT_BYTES_LIMIT = 560;
@@ -170,7 +171,7 @@ function buildMemoInstruction(text: string, feePayer: Address) {
 
 /**
  * 构造 v0 未签名交易。签名槽保留为占位，不创建私钥或临时签名者；
- * 结果仅用于费用检查与 sigVerify=false 的 Devnet 模拟。
+ * 结果仅用于费用检查与 sigVerify=false 的所选网络模拟。
  */
 export function buildUnsignedGuestbookTransaction({
   feePayer,

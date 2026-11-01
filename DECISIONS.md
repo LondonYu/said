@@ -110,3 +110,11 @@ Phantom真实签名返回消息与准备快照不一致，旧单R1已完成修�
 用户报告第二次Phantom签名发布“测试”成功，并明确确认刷新后仍可见；独立RPC读到同作者/正文/签名，最终finalized、err=null。W01-W03完成，结束2.2B，作为v0.2 Devnet演示里程碑；不创建GitHub Release/tag或扩展功能。
 
 首次超时缺少阶段和第一笔回执，记STATUS B07后置，不断言未上链、不自动重发，也不因此继续增加修复/测试轮。验收前STATUS快照和完整证据归档2.2B，根STATUS只保留当前结果。
+
+## D10：用户要求使用主网真实SOL（2026-11-01T23:09:31+08:00）
+
+用户明确提出“用Solana真实币呀”，将下一阶段从Devnet演示改为Solana主网能力，覆盖先前仅Devnet的范围限制。按仅网络手续费、平台不额外收费实施；用户自行审阅并签名，代理不操作真实资金交易。
+
+选择构建时固定网络配置：本地/既有测试默认Devnet，Pages显式mainnet；genesis/chain/board/Explorer/回执按同一配置隔离。保留准备消息严格验签和费用复核，不做全局替换RPC、不混用测试网回执、不新增服务密钥或付费RPC。
+
+本次官方主网公共端点返回403；[PublicNode官方端点](https://solana.publicnode.com/)只读预检返回正确主网genesis和Memo可执行信息，作为当前候选RPC，不承诺其可用性或浏览器兼容已验。当前站点仍Devnet，主网需另行按M01-M03验证。工单及实际结果见STATUS。

@@ -1,0 +1,28 @@
+Browser tab: 3, Title: "Said", URL: "http://127.0.0.1:5184/".
+0 AXWebArea Said, URL: 127.0.0.1:5184/
+	1 container root
+		2 link Description: 首页, Value: 127.0.0.1:5184/#main
+		3 container 主导航
+			4 button Said
+			5 button 首页
+			6 button 搜索
+			7 button 发布
+			8 button 我的留言
+			9 button 设置
+		10 container main
+			11 container
+				12 heading 首页, Value: 1
+					13 text 首页
+				14 button 登录
+			15 text Solana 主网 · 真实 SOL
+			16 container 首页
+				17 button 我的钱包
+				18 button 连接钱包
+				19 button 有什么新鲜事？
+				20 button 发布
+				21 container
+					22 text 链上留言 · Solana 主网只读
+					23 button 刷新
+					24 text 从公共板级标记读取真实 Solana 主网留言；公共 RPC 可能限流，历史可能不完整。 暂未发现留言。仅表示本次可读取的范围，不代表全链从未发布。 已到达本次可读取范围的末尾。 本次扫描候选 0 条；不是全链留言总数。
+
+The focused UI element is 0 AXWebArea Said, URL: 127.0.0.1:5184/

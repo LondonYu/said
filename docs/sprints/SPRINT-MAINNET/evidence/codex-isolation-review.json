@@ -1,0 +1,15 @@
+{
+  "time": "2026-11-01T15:43:51.264Z",
+  "mode": "mainnet",
+  "source": "Vite SSR actual source modules; isolated in-memory storage and RPC",
+  "assertions": {
+    "chain": true,
+    "board": true,
+    "explorer": true,
+    "receiptStorageIsolated": true,
+    "oldDevnetStorageUnchanged": true,
+    "wrongGenesisRejectedWithoutFallback": true
+  },
+  "signatures": false,
+  "broadcast": false
+}

@@ -1,8 +1,47 @@
 import { createSolanaRpc, isAddress } from '@solana/kit';
 import type { Address } from '@solana/kit';
 
-export const DEVNET_RPC_URL = 'https://api.devnet.solana.com';
-export const DEVNET_GENESIS_HASH = 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
+export type SolanaNetworkName = 'devnet' | 'mainnet';
+
+const NETWORKS = {
+  devnet: {
+    name: 'devnet',
+    displayName: 'Devnet',
+    chain: 'solana:devnet',
+    rpcUrl: 'https://api.devnet.solana.com',
+    genesisHash: 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG',
+    board: 'public-devnet-v1',
+    explorerCluster: '?cluster=devnet',
+    receiptStorageKey: 'said.publication-receipts.v1',
+  },
+  mainnet: {
+    name: 'mainnet',
+    displayName: 'Solana Mainnet',
+    chain: 'solana:mainnet',
+    rpcUrl: 'https://solana-rpc.publicnode.com',
+    genesisHash: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d',
+    board: 'public-mainnet-v1',
+    explorerCluster: '',
+    receiptStorageKey: 'said.publication-receipts.mainnet.v1',
+  },
+} as const;
+
+export type SolanaNetworkConfig = (typeof NETWORKS)[SolanaNetworkName];
+
+/** 未设置时使用 Devnet；只接受构建时注入的 devnet/mainnet，非法值直接失败。 */
+export function resolveSolanaNetwork(value: string | undefined): SolanaNetworkName {
+  const normalized = value?.trim();
+  if (normalized === undefined || normalized === '') return 'devnet';
+  if (normalized === 'devnet' || normalized === 'mainnet') return normalized;
+  throw new Error(`VITE_SOLANA_NETWORK 只支持 devnet 或 mainnet，收到：${value}`);
+}
+
+export const SOLANA_NETWORK = resolveSolanaNetwork(
+  import.meta.env.VITE_SOLANA_NETWORK as string | undefined,
+);
+export const SOLANA_NETWORK_CONFIG: SolanaNetworkConfig = NETWORKS[SOLANA_NETWORK];
+export const SOLANA_CHAIN = SOLANA_NETWORK_CONFIG.chain;
+export const IS_MAINNET = SOLANA_NETWORK === 'mainnet';
 export const RPC_TIMEOUT_MS = 10_000;
 
 type RpcSendOptions = Readonly<{ abortSignal?: AbortSignal }>;
@@ -14,13 +53,13 @@ type PendingRpcRequest<TResponse> = {
  * 只声明本阶段需要的只读 RPC 能力，便于在测试中替换为假实现。
  * 不包含任何交易构造、签名或发送方法。
  */
-export type DevnetRpc = {
+export type NetworkRpc = {
   getGenesisHash(): PendingRpcRequest<string>;
   getBalance(address: Address): PendingRpcRequest<{ value: bigint }>;
 };
 
 export type NetworkReader = {
-  verifyDevnet(signal: AbortSignal): Promise<void>;
+  verifyNetwork(signal: AbortSignal): Promise<void>;
   readBalance(address: string, signal: AbortSignal): Promise<bigint>;
 };
 
@@ -48,12 +87,12 @@ function describeRpcError(
 }
 
 export function createNetworkReader(
-  rpc: DevnetRpc = createSolanaRpc(DEVNET_RPC_URL),
+  rpc: NetworkRpc = createSolanaRpc(SOLANA_NETWORK_CONFIG.rpcUrl),
   options: NetworkReaderOptions = {},
 ): NetworkReader {
   const timeoutMs = options.timeoutMs ?? RPC_TIMEOUT_MS;
 
-  async function verifyDevnet(signal: AbortSignal): Promise<void> {
+  async function verifyNetwork(signal: AbortSignal): Promise<void> {
     const timeout = AbortSignal.timeout(timeoutMs);
     const combined = AbortSignal.any([signal, timeout]);
 
@@ -64,8 +103,10 @@ export function createNetworkReader(
       throw describeRpcError(error, signal, timeout, '网络校验', timeoutMs);
     }
 
-    if (genesisHash !== DEVNET_GENESIS_HASH) {
-      throw new Error(`网络校验失败：应用查询的 RPC 不是 Devnet（genesis ${genesisHash}）。`);
+    if (genesisHash !== SOLANA_NETWORK_CONFIG.genesisHash) {
+      throw new Error(
+        `网络校验失败：应用查询的 RPC 不是 ${SOLANA_NETWORK_CONFIG.displayName}（genesis ${genesisHash}）。`,
+      );
     }
   }
 
@@ -93,10 +134,10 @@ export function createNetworkReader(
     return value;
   }
 
-  return { verifyDevnet, readBalance };
+  return { verifyNetwork, readBalance };
 }
 
 const defaultReader = createNetworkReader();
 
-export const verifyDevnet = defaultReader.verifyDevnet;
+export const verifyNetwork = defaultReader.verifyNetwork;
 export const readBalance = defaultReader.readBalance;

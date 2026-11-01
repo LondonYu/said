@@ -1,7 +1,7 @@
 import type { GuestbookMessage } from './history';
 import type { HistoryFeedState } from './historyFeed';
 import type { Labels, Language } from './i18n';
-import { devnetExplorerUrl } from './explorer';
+import { explorerUrl } from './explorer';
 
 const LAMPORTS_PER_SOL = 1_000_000_000n;
 
@@ -285,7 +285,7 @@ export function HistoryDetail({
   language: Language;
 }) {
   const time = formatBlockTime(message.blockTime, language);
-  const explorer = devnetExplorerUrl(message.signature);
+  const explorer = explorerUrl(message.signature);
   return (
     <div className="preview-detail history-detail">
       <p className="preview-banner">{labels.onChainFeed}</p>
@@ -301,7 +301,7 @@ export function HistoryDetail({
       <dl className="tx-facts history-facts">
         <div><dt>{labels.transactionTime}</dt><dd>{time ?? labels.unknownTime}</dd></div>
         <div><dt>{labels.transactionSlot}</dt><dd>{message.slot.toString()}</dd></div>
-        <div><dt>{labels.transactionFee}</dt><dd>{message.feeLamports.toString()} lamports · {formatSol(message.feeLamports)} SOL · Devnet</dd></div>
+        <div><dt>{labels.transactionFee}</dt><dd>{message.feeLamports.toString()} lamports · {formatSol(message.feeLamports)} SOL · {labels.networkName}</dd></div>
         <div><dt>{labels.transactionSignature}</dt><dd><code>{message.signature}</code></dd></div>
       </dl>
       <a className="button secondary history-explorer" href={explorer} target="_blank" rel="noopener noreferrer">

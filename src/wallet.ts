@@ -1,8 +1,8 @@
 import { getWallets } from '@wallet-standard/app';
 import type { Wallet, WalletAccount } from '@wallet-standard/base';
 import { getBase58Decoder, type ReadonlyUint8Array } from '@solana/kit';
+import { SOLANA_CHAIN, SOLANA_NETWORK_CONFIG } from './network';
 
-export const DEVNET_CHAIN = 'solana:devnet' as const;
 export const SIGN_TRANSACTION_FEATURE = 'solana:signTransaction' as const;
 
 export type WalletStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -31,7 +31,7 @@ export type WalletSigningSession = {
   readonly account: WalletAccount;
   readonly accountAddress: string;
   readonly publicKey: ReadonlyUint8Array;
-  readonly chain: typeof DEVNET_CHAIN;
+  readonly chain: typeof SOLANA_CHAIN;
   readonly featureVersion: string;
   readonly supportedTransactionVersions: readonly (0 | 'legacy')[];
   readonly feature: SignTransactionFeature;
@@ -113,10 +113,10 @@ function listSolanaWallets(registry: WalletRegistry): readonly Wallet[] {
 
 /**
  * 账户的 chains 只是“支持能力”，不代表钱包当前显示的网络。
- * 这里仅筛选支持 solana:devnet 能力的账户，用于读取余额。
+ * 这里仅筛选支持所选网络能力的账户，用于读取余额。
  */
-function pickDevnetAccount(accounts: readonly WalletAccount[]): WalletAccount | undefined {
-  return accounts.find((account) => account.chains.includes(DEVNET_CHAIN));
+function pickNetworkAccount(accounts: readonly WalletAccount[]): WalletAccount | undefined {
+  return accounts.find((account) => account.chains.includes(SOLANA_CHAIN));
 }
 
 function readFeature<TFeature>(wallet: Wallet, name: `${string}:${string}`): TFeature | undefined {
@@ -176,8 +176,8 @@ function evaluateSigningSession(
   walletChains: readonly string[],
   walletFeatures: Wallet['features'],
 ): { session: WalletSigningSession | null; reason: string | null } {
-  if (!walletChains.includes(DEVNET_CHAIN)) {
-    return { session: null, reason: '钱包未声明支持 Solana Devnet，无法准备签名。' };
+  if (!walletChains.includes(SOLANA_CHAIN)) {
+    return { session: null, reason: `钱包未声明支持 ${SOLANA_NETWORK_CONFIG.displayName}，无法准备签名。` };
   }
   const feature = walletFeatures[SIGN_TRANSACTION_FEATURE] as
     | SignTransactionFeature
@@ -194,8 +194,8 @@ function evaluateSigningSession(
   if (!feature.supportedTransactionVersions.includes(SIGNING_TRANSACTION_VERSION)) {
     return { session: null, reason: '钱包不支持 v0 交易版本。' };
   }
-  if (!account.chains.includes(DEVNET_CHAIN)) {
-    return { session: null, reason: '所选账户未声明 solana:devnet 支持。' };
+  if (!account.chains.includes(SOLANA_CHAIN)) {
+    return { session: null, reason: `所选账户未声明 ${SOLANA_CHAIN} 支持。` };
   }
   if (!account.features.includes(SIGN_TRANSACTION_FEATURE)) {
     return { session: null, reason: '所选账户未声明签名能力。' };
@@ -212,7 +212,7 @@ function evaluateSigningSession(
       account,
       accountAddress: account.address,
       publicKey: account.publicKey,
-      chain: DEVNET_CHAIN,
+      chain: SOLANA_CHAIN,
       featureVersion: feature.version,
       supportedTransactionVersions: [...feature.supportedTransactionVersions],
       feature,
@@ -311,7 +311,7 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
     const liveChains = session.wallet.chains;
     const effectiveChains = activeWalletChains ?? liveChains;
     if (!sameStringList(liveChains, effectiveChains)) return false;
-    if (!effectiveChains.includes(DEVNET_CHAIN)) return false;
+    if (!effectiveChains.includes(SOLANA_CHAIN)) return false;
 
     const liveFeatures = session.wallet.features;
     const effectiveFeatures = activeWalletFeatures ?? liveFeatures;
@@ -339,7 +339,7 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
 
     // 账户对象可能被原地修改；不能只比较引用。
     if (session.accountAddress !== session.account.address) return false;
-    if (!session.account.chains.includes(DEVNET_CHAIN)) return false;
+    if (!session.account.chains.includes(SOLANA_CHAIN)) return false;
     if (!session.account.features.includes(SIGN_TRANSACTION_FEATURE)) return false;
     return accountMatchesAddress(session.account);
   }
@@ -397,9 +397,9 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
       resetToDisconnected('钱包已断开连接或没有可用账户，页面已清理连接状态。');
       return;
     }
-    const account = pickDevnetAccount(accounts);
+    const account = pickNetworkAccount(accounts);
     if (!account) {
-      resetToDisconnected('钱包已没有支持 solana:devnet 的账户，页面已清理连接状态。');
+      resetToDisconnected(`钱包已没有支持 ${SOLANA_CHAIN} 的账户，页面已清理连接状态。`);
       return;
     }
     if (sameAccountIdentity(activeAccount, account)) {
@@ -513,9 +513,9 @@ export function createWalletController(registry: WalletRegistry = getWallets()):
       // 等待钱包弹窗期间用户可能已取消、断开或卸载页面，旧结果必须丢弃。
       if (disposed || requestId !== generation) return;
 
-      const account = pickDevnetAccount(accounts.length > 0 ? accounts : wallet.accounts);
+      const account = pickNetworkAccount(accounts.length > 0 ? accounts : wallet.accounts);
       if (account === undefined) {
-        update({ status: 'error', error: '钱包没有提供支持 solana:devnet 的账户。' });
+        update({ status: 'error', error: `钱包没有提供支持 ${SOLANA_CHAIN} 的账户。` });
         return;
       }
 

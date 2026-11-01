@@ -1,0 +1,29 @@
+{
+  "time": "2026-11-01T23:45:13+08:00",
+  "reviewRound": 1,
+  "result": "No evidenced P0/P1 found; candidate approved for Pages deployment, not mainnet wallet acceptance",
+  "checks": {
+    "typecheck": 0,
+    "tests": {
+      "files": 9,
+      "passed": 255,
+      "exit": 0
+    },
+    "mainnetBuild": 0,
+    "diffCheck": 0,
+    "browser": "real mainnet empty feed at http://127.0.0.1:5184/; no wallet or injected RPC",
+    "receiptAndGenesisIsolation": "codex-isolation-review.json"
+  },
+  "notRecommended": [
+    "B05/B06 old copy/format issues",
+    "B07 first timeout cause unknown",
+    "full wallet/device/error matrix",
+    "dynamic priority fees"
+  ],
+  "notVerified": [
+    "real mainnet wallet signature",
+    "mainnet broadcast confirmation and refresh readback"
+  ],
+  "signed": false,
+  "broadcast": false
+}

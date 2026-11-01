@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-11-01 23:30:48+08:00",
+  "command": "VITE_SOLANA_NETWORK=mainnet npm run build",
+  "exitCode": 0,
+  "nodeVersion": "v26.12.1",
+  "headCommit": "528223c0d5a9e69220e7d73fd10b73c0be22c101",
+  "workingTree": "uncommitted candidate; not committed, pushed or deployed",
+  "modulesTransformed": 73,
+  "index": {
+    "name": "index.html",
+    "bytes": 956,
+    "sha256": "1d82fbb71dffdec85ac3c8241587997e8b07eaaecb860f92831b31a29c75ad90"
+  },
+  "distFiles": [
+    {
+      "name": "index-CNefGxtp.js",
+      "bytes": 399348
+    },
+    {
+      "name": "index-Cdoq2_5D.css",
+      "bytes": 16663
+    }
+  ],
+  "bundle": {
+    "name": "index-CNefGxtp.js",
+    "bytes": 399348,
+    "sha256": "b4e4de09ba6fe60bbb101ac713f30e6df1be67e7b98bf2aeaf76a8756b1b6f16",
+    "referencedByIndexHtml": true,
+    "mainnetTokens": {
+      "solana:mainnet": 4,
+      "https://solana-rpc.publicnode.com": 1,
+      "public-mainnet-v1": 1,
+      "said.publication-receipts.mainnet.v1": 1,
+      "Solana 主网": 16,
+      "真实 SOL": 4
+    }
+  },
+  "invalidEnvironment": {
+    "command": "VITE_SOLANA_NETWORK=testnet npm run build",
+    "exitCode": 1,
+    "error": "VITE_SOLANA_NETWORK 只支持 devnet 或 mainnet，收到：testnet"
+  },
+  "runtimeSelectionEvidence": "docs/sprints/SPRINT-MAINNET/evidence/read-only-mainnet.json",
+  "scope": "Build artifact and invalid-value gate only; not a deployment or browser acceptance"
+}

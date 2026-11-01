@@ -9,7 +9,7 @@ import {
   SYSTEM_PROGRAM_ADDRESS,
   validateMessageText,
 } from './message';
-import { DEVNET_GENESIS_HASH, DEVNET_RPC_URL } from './network';
+import { SOLANA_NETWORK_CONFIG } from './network';
 
 export const COMPUTE_BUDGET_PROGRAM_ADDRESS = 'ComputeBudget111111111111111111111111111111' as Address;
 
@@ -322,7 +322,7 @@ function describeOperationError(error: unknown, signal: AbortSignal, action: str
 }
 
 export function createHistoryClient(
-  rpc: HistoryRpc = createSolanaRpc(DEVNET_RPC_URL) as unknown as HistoryRpc,
+  rpc: HistoryRpc = createSolanaRpc(SOLANA_NETWORK_CONFIG.rpcUrl) as unknown as HistoryRpc,
   options: Readonly<{ rpcTimeoutMs?: number; operationTimeoutMs?: number }> = {},
 ) {
   const rpcTimeoutMs = options.rpcTimeoutMs ?? RPC_TIMEOUT_MS;
@@ -345,8 +345,10 @@ export function createHistoryClient(
     }
     if (baseSignal.aborted) throw new Error('操作已取消或超时。');
     if (requestSignal.aborted) throw new Error('网络校验超时，请重试。');
-    if (genesis !== DEVNET_GENESIS_HASH) {
-      throw new Error(`网络校验失败：应用查询的 RPC 不是 Devnet（genesis ${genesis}）。`);
+    if (genesis !== SOLANA_NETWORK_CONFIG.genesisHash) {
+      throw new Error(
+        `网络校验失败：应用查询的 RPC 不是 ${SOLANA_NETWORK_CONFIG.displayName}（genesis ${genesis}）。`,
+      );
     }
   }
 

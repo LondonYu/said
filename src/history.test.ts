@@ -12,13 +12,14 @@ import {
   parseGuestbookTransaction,
   type HistoryRpc,
 } from './history';
-import { DEVNET_GENESIS_HASH } from './network';
+import { SOLANA_NETWORK_CONFIG } from './network';
 import realWallet from './fixtures/real-wallet-transaction.json';
 
 const decoder = getBase58Decoder();
 const b58 = (bytes: Uint8Array) => decoder.decode(bytes);
 const AUTHOR = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';
 const AUTHOR2 = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM';
+const DEVNET_GENESIS_HASH = SOLANA_NETWORK_CONFIG.genesisHash;
 
 function encodeMemo(text: string): string {
   return JSON.stringify({ app: PROTOCOL_APP, v: 1, board: PROTOCOL_BOARD, text });

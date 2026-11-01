@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-11-01T23:09:31+08:00",
+  "noSigning": true,
+  "noBroadcast": true,
+  "originHeader": "https://londonyu.github.io",
+  "officialEndpoints": [
+    {
+      "url": "https://api.mainnet.solana.com",
+      "status": 403,
+      "error": "Access forbidden"
+    },
+    {
+      "url": "https://api.mainnet-beta.solana.com",
+      "status": 403,
+      "error": "Access forbidden"
+    }
+  ],
+  "selectedEndpoint": "https://solana-rpc.publicnode.com",
+  "providerSource": "https://solana.publicnode.com/",
+  "httpStatus": 200,
+  "allowOrigin": "*",
+  "genesis": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+  "memoProgramExecutable": true,
+  "boardMarkerHistory": [],
+  "scope": "HTTP API preflight only, not a browser or real wallet acceptance"
+}

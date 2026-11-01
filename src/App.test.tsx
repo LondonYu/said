@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Wallet, WalletAccount } from '@wallet-standard/base';
 import App from './App';
 import type { WalletRegistry } from './wallet';
+import { SOLANA_CHAIN } from './network';
 import type { SimulationCheckResult } from './simulation';
 import type { GuestbookMessage, ReadPageResult } from './history';
 
@@ -11,7 +12,7 @@ import type { GuestbookMessage, ReadPageResult } from './history';
 const ADDRESS_A = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T';
 const ADDRESS_B = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM';
 const SIGNATURE_A = '5'.repeat(88);
-const DEVNET_CHAIN = 'solana:devnet' as const;
+const DEVNET_CHAIN = SOLANA_CHAIN;
 
 type ChangeListener = (properties: { accounts?: readonly WalletAccount[] }) => void;
 
@@ -30,7 +31,7 @@ vi.mock('./wallet', async (importOriginal) => {
 });
 
 const networkMock = vi.hoisted(() => ({
-  verifyDevnet: vi.fn(),
+  verifyNetwork: vi.fn(),
   readBalance: vi.fn(),
 }));
 
@@ -38,7 +39,7 @@ vi.mock('./network', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./network')>();
   return {
     ...actual,
-    verifyDevnet: networkMock.verifyDevnet,
+    verifyNetwork: networkMock.verifyNetwork,
     readBalance: networkMock.readBalance,
   };
 });
@@ -197,7 +198,7 @@ beforeEach(() => {
     configurable: true,
     value() { this.removeAttribute('open'); },
   });
-  networkMock.verifyDevnet.mockReset().mockResolvedValue(undefined);
+  networkMock.verifyNetwork.mockReset().mockResolvedValue(undefined);
   networkMock.readBalance.mockReset().mockResolvedValue(0n);
   historyMock.readPage.mockReset().mockResolvedValue(historyPage());
   historyMock.retrySignatures.mockReset().mockResolvedValue(historyPage());

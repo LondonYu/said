@@ -1,13 +1,14 @@
 # Said STATUS
 
-更新：2026-11-01T22:44:04+08:00。**v0.2 Devnet单条发布演示已完成最小验收，SPRINT-2.2B结束。** 用户Chrome Phantom完成签名发布“测试”，并确认刷新后仍可读；独立链上核验为finalized且无错误。用户要求继续后，本轮完成开源作品文档收尾；当前无产品开发工单，不自动追加功能或修复。
+更新：2026-11-01T23:45:13+08:00。**SPRINT-MAINNET候选已完成一次Codex审查，无有证据P0/P1，待提交和Pages部署；线上仍运行Devnet 7216807。** 统一网络配置、chain/genesis/board/回执/Explorer隔离和三语言主网文案完成；主网候选构建与只读RPC证据通过。公网页面、真实主网钱包签名、广播和读回待Codex部署后由用户验收。
 
 ## 当前发布
 
 - 正式地址：[Said](https://londonyu.github.io/said/)，GitHub Pages托管，独立于用户电脑和本地进程。
 - 线上代码：`72168077f97ed64cca0823e4284e28a3b72a1664`；[部署运行41308454557](https://github.com/LondonYu/said/actions/runs/41308454557)成功，2026-11-01T20:51:55+08:00。后续证据文档提交不再次部署。
-- 当前能力：连接钱包、读取公共/作者历史、显式准备/签名/提交、原签名确认与读回；仅Solana Devnet。真实写入验证覆盖本次电脑Chrome Phantom路径，版本未提供，不承诺全钱包兼容或永久存储。
-- 既有检查：255项项目测试、typecheck/build已在代码确认时通过；本轮仅用户验收及只读链上核验，不新增/重跑测试、不改产品或再次部署。
+- 线上能力：连接钱包、读取公共/作者历史、显式准备/签名/提交、原签名确认与读回；当前线上仍仅Solana Devnet。主网候选未部署，不冒充线上已切主网。
+- 主网候选：Pages工作流build显式`VITE_SOLANA_NETWORK=mainnet`；本地`npm run dev`和`npm test`默认Devnet。主网使用`solana:mainnet`、PublicNode、主网genesis、`public-mainnet-v1`、独立回执key和无cluster的Explorer；只在页面明确标注主网，真实SOL网络费由用户支付，平台不额外收费。
+- 既有检查：255项项目测试、typecheck、默认Devnet构建、主网构建均通过；非法网络值构建失败；`git diff --check`通过。主网只读证据见[SPRINT-MAINNET](docs/sprints/SPRINT-MAINNET/evidence/read-only-mainnet.json)。
 - 治理入口：本文件维护当前状态/待办；[DECISIONS](DECISIONS.md)维护决策；[docs/sprints/](docs/sprints/)维护历史。
 
 ## v0.2 逐条验收
@@ -25,7 +26,10 @@
 - [x] v0.1只读演示由用户完成V01/V02/V03最终确认；[归档与证据](docs/sprints/SPRINT-4.0/SPRINT-4.0.md)。不重新开闸。
 - [x] 2.2B发布页面、能力getter兼容及模拟前预算契约完成；旧R1修复1/1、确认1/1保留，准备契约实质重写后一次确认，不追加边界复审。
 - [x] 用户真实Phantom发布成功、链上finalized、刷新读回确认；[2.2B验收归档](docs/sprints/SPRINT-2.2B/ACCEPTANCE.md)。
-- 当前无新执行工单。后续目标由用户选择；不因首次超时或P2反馈继续增加测试和功能。
+- 当前工单：[SPRINT-MAINNET](docs/sprints/SPRINT-MAINNET.md)。用户要求“用Solana真实币呀”，允许开发主网能力，覆盖旧Devnet-only边界。Cline已在工作区实现候选并留证，未改线上部署。
+- [x] Cline统一网络配置、chain/genesis/board/回执/Explorer隔离和主网文案，保留原发布保护，交一次审查。
+- [x] Codex一次独立审查通过：typecheck、255项测试、主网build、diff检查通过；隔离探针确认旧Devnet回执不读取、错genesis拒绝且无回退，实际浏览器真实主网空列表成功。证据：[审查](docs/sprints/SPRINT-MAINNET/evidence/codex-review.json)、[截图](docs/sprints/SPRINT-MAINNET/evidence/preview-home.png)。
+- [ ] Codex部署主网候选，M01-M03由实际证据及用户钱包操作验收；代理不签名/广播真实资金交易。
 
 ## 开源作品文档收尾（已完成）
 
@@ -33,6 +37,18 @@
 - 演示材料：[真实公网首页截图](docs/sprints/SPRINT-2.2B/evidence/portfolio-home.png)，显示4条真实记录、未连接钱包；[采集记录](docs/sprints/SPRINT-2.2B/evidence/portfolio-home.json)。记录时间2026-11-01T22:55:55+08:00，线上仍7216807。
 - 核对来源：本地.nvmrc/package.json/脚本、已验收交易记录、GitHub连接器确认现有仓库public；官方水龙头链接已打开核对。本轮只读网页与改文档，不改产品/依赖/视觉，不运行测试/签名/广播/部署，不创建Release或tag。
 - 当前无新产品工单；后续目标由用户另定，不从backlog自动续做。
+
+## 主网候选实现与证据（未部署）
+
+- 网络来源：`src/network.ts`统一导出chain、RPC、genesis、board、Explorer后缀和回执key；未设置`VITE_SOLANA_NETWORK`默认Devnet，只接受`devnet`/`mainnet`，非法值在Vite构建和模块加载时失败，无运行时URL/query切网或失败回退。wallet/network/message/simulation/publisher/history/explorer/App共同使用该来源。
+- 隔离：主网`solana:mainnet`、`https://solana-rpc.publicnode.com`、genesis`5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`、board`public-mainnet-v1`、回执key`said.publication-receipts.mainnet.v1`、Explorer不带cluster；Devnet保留原RPC/genesis/board/`said.publication-receipts.v1`和`?cluster=devnet`。既有Devnet记录不迁移、不混入主网查询。
+- 交易保护保留：400000 CU与0 micro-lamports/CU在准备时定义，基础费由RPC估算；同消息估费/模拟/签名、逐字节一致、实际Ed25519验签、genesis/会话/高度/费用/余额复核、同步签名锁、单次广播、原签名查询与回执恢复均未放宽。
+- 展示：页面顶部、余额、发布审阅、钱包指引、历史详情和Explorer按构建网络显示；主网三语言文案经SSR读取检查，无Devnet/Testnet/测试币/水龙头用语。主网公共流为空，不展示旧Devnet四条记录或示例冒充主网。
+- 工作流与文档：Pages仅build命令改为`VITE_SOLANA_NETWORK=mainnet npm run build`；中英文README说明主网目标、本地Devnet默认和两种构建。未新增依赖、服务、密钥、账号或付费RPC。
+- 构建证据：[mainnet-build.json](docs/sprints/SPRINT-MAINNET/evidence/mainnet-build.json)。2026-11-01T23:30:48+08:00，`VITE_SOLANA_NETWORK=mainnet npm run build`成功，73 modules，单一JS产物`index-CNefGxtp.js`399348 bytes，`index.html`引用同一产物，bundle hash`b4e4de09ba6fe60bbb101ac713f30e6df1be67e7b98bf2aeaf76a8756b1b6f16`；主网token均在产物中。`VITE_SOLANA_NETWORK=testnet`构建exit 1并报“只支持devnet或mainnet”。
+- 只读RPC证据：[read-only-mainnet.json](docs/sprints/SPRINT-MAINNET/evidence/read-only-mainnet.json)。2026-11-01T23:27:21+08:00，Vite SSR以mainnet加载实际模块：chain/genesis/board/回执key/Explorer一致，PublicNode genesis匹配，Memo程序executable，marker历史0条；三语言流程文案forbiddenMatches为空。无签名、无广播。
+- M01：候选构建、三语言主网文案和API网络身份/空板只读证据完成；公网页面仍是Devnet，部署前不算完成。M02：未连接主网钱包、未签名，未验证。M03：无主网交易、确认或读回，未验证。
+- 未验证项：真实Phantom主网账户与签名接受、主网广播/确认/读回、部署后的公网页面。预检和Node只读请求不能替代这些验收。
 
 ## backlog（不阻断已验收里程碑）
 
@@ -50,12 +66,15 @@
 
 ## 回退
 
+- 主网候选仍在未提交工作区，未部署；线上仍运行Devnet 7216807及Pages运行41308454557，无需切回。若候选审查未通过，丢弃本轮工作区改动即回到已验收Devnet基线，不改写链上记录。
 - 保留当前main-only手动Pages工作流；重新运行之前成功的Pages提交可回退。
 - 已验收只读v0.1回退点：`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`，[运行41273238142](https://github.com/LondonYu/said/actions/runs/41273238142)。本轮未回退。
 - Vite `base: './'`适配`/said/`子路径，恢复默认根路径前需重新核对资源路径。
 
 ## 本轮不建议修
 
-- 首次超时的根因暂不扩展排查：缺少阶段/错误/回执证据，第二次发布及刷新已成功，记B07并后置。
-- B05/B06和全钱包/异常矩阵继续后置，不以P2推迟已验收的最小演示。
-- 用户接入的规则、技能、记忆和钩子保持原样，不借收尾整理或提交。
+- 主网动态优先费、平台代付、收费和额外转账不在本单；固定400000 CU/0 micro-lamports价格继续保留。
+- PublicNode已在真实浏览器只读读取成功；真实主网钱包签名、广播、确认和读回由用户在部署后按M02/M03验收，不用模拟替代。
+- 旧Devnet记录不迁移、不删除；主网公共流为空是正常状态。
+- B05/B06、B07和全钱包/异常矩阵继续后置，不以P2或未验证项阻止候选审查。
+- 用户接入的规则、技能、记忆和钩子保持原样，不借本轮提交或整理。

@@ -6,7 +6,6 @@ import {
   getTransactionEncoder,
 } from '@solana/kit';
 import {
-  DEVNET_CHAIN,
   createWalletController,
   type WalletRegistry,
   type WalletSigningSession,
@@ -14,6 +13,7 @@ import {
 import { buildUnsignedGuestbookTransaction } from './message';
 import type { GuestbookMessage } from './history';
 import type { SimulationCheckResult } from './simulation';
+import { SOLANA_CHAIN, SOLANA_NETWORK_CONFIG } from './network';
 import {
   PUBLICATION_RECEIPT_STORAGE_KEY,
   createBrowserPublicationReceiptStore,
@@ -29,7 +29,8 @@ const BLOCKHASH = getBase58Decoder().decode(new Uint8Array(32).fill(9));
 const LAST_VALID_BLOCK_HEIGHT = 900_000n;
 const CURRENT_BLOCK_HEIGHT = 899_990n;
 const NOW = 1_700_000_000_000;
-const DEVNET_GENESIS_HASH = 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
+const DEVNET_CHAIN = SOLANA_CHAIN;
+const DEVNET_GENESIS_HASH = SOLANA_NETWORK_CONFIG.genesisHash;
 
 type TestSigner = {
   readonly keyPair: CryptoKeyPair;

@@ -2,21 +2,21 @@
 
 [English](README.en.md) · [简体中文](README.md) · [Live demo](https://londonyu.github.io/said/)
 
-An open-source guestbook on Solana Devnet. Connect a wallet, sign a short message, and read the public feed or an author's history through RPC. Built with React, TypeScript, and Vite, without a custom application server or traditional database.
+An open-source guestbook on Solana. Connect a wallet, sign a short message, and read the public feed or an author's history through RPC. The build chooses Solana Devnet or Solana Mainnet; the Pages workflow uses mainnet, while local development and tests default to Devnet. Built with React, TypeScript, and Vite, without a custom application server or traditional database.
 
-This is a learning and portfolio project. The current implementation uses Solana Devnet and is available under the MIT license.
+This is a learning and portfolio project available under the MIT license. Mainnet publishing pays the network fee in real SOL; the platform charges nothing extra. The user's wallet performs signing and broadcasting.
 
 ![Said public feed](docs/sprints/SPRINT-2.2B/evidence/portfolio-home.png)
 
-Public-site screenshot from November 1, 2026: real Devnet messages, with no wallet connected.
+Public-site screenshot from November 1, 2026: real Devnet messages, with no wallet connected. It does not show mainnet records.
 
 ## Try it
 
-1. Open the [live demo](https://londonyu.github.io/said/). Reading the public feed requires no wallet connection.
-2. Connect a wallet to post. Desktop Chrome with Phantom has been verified for real signing; other wallets need separate verification.
-3. Make sure the account has a small amount of **Devnet test SOL**. You can request it from the [official Solana faucet](https://faucet.solana.com/), subject to its limits. Devnet SOL and mainnet SOL are separate.
-4. Enter a message, preview it, and choose “Prepare post.” Review Devnet, the fee payer, text, and estimated fee, then choose “Sign and send” and confirm in your wallet.
-5. Check the confirmation status and Devnet Explorer link. After refreshing, the published message should load from the chain again.
+1. Open the [live demo](https://londonyu.github.io/said/). Reading the public feed requires no wallet connection. The Pages build command is fixed to `VITE_SOLANA_NETWORK=mainnet`; [STATUS](STATUS.md) records the currently deployed version and mainnet acceptance state.
+2. Connect a wallet to post. Desktop Chrome with Phantom has been verified for a real Devnet signature; mainnet signing still needs user-led M02/M03 verification.
+3. A mainnet account needs real SOL for the network fee. The page shows Solana Mainnet, the full fee payer, the original text, and the RPC fee estimate. No fixed 5000-lamport promise is made, and the platform does not sponsor or add charges.
+4. Enter a message, preview it, and choose “Prepare post.” Review the mainnet identity, fee payer, text, and estimated fee, then choose “Sign and send” and confirm in your wallet.
+5. Check the confirmation status and mainnet Explorer link. After refreshing, the published mainnet message should load from the chain again.
 
 Messages allow up to 140 grapheme clusters and 560 UTF-8 bytes. Text is public. The site does not need a password, private key, or recovery phrase.
 
@@ -33,49 +33,57 @@ npm ci
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173/>. No API key or database setup is required; the app uses the public Solana Devnet RPC. For mobile access, use the live demo. Your computer's `127.0.0.1` is not an address your phone can use.
+Open <http://127.0.0.1:5173/>. No API key or database setup is required; without `VITE_SOLANA_NETWORK`, local development uses the public Solana Devnet RPC. For mobile access, use the live demo. Your computer's `127.0.0.1` is not an address your phone can use.
 
-Existing checks and build commands:
+Two production builds:
+
+```sh
+npm run build                                  # Devnet
+VITE_SOLANA_NETWORK=mainnet npm run build      # Solana Mainnet candidate
+```
+
+Existing checks:
 
 ```sh
 npm run typecheck
 npm test
-npm run build
 ```
 
-The production build is written to `dist/`. GitHub Pages uses the existing manual workflow; ordinary pushes do not deploy automatically. [STATUS](STATUS.md) records the running version and acceptance evidence.
+`VITE_SOLANA_NETWORK` accepts only `devnet` or `mainnet`; an invalid value fails the build. There is no runtime URL or query switching and no fallback to another network when RPC fails. The production build is written to `dist/`. GitHub Pages uses the existing manual workflow; ordinary pushes do not deploy automatically. [STATUS](STATUS.md) records the running version and acceptance evidence.
 
 ## How it works
 
-- **Identity:** Wallet Standard connects the wallet, and its public key identifies the author. The wallet signs; the site does not hold user keys.
-- **Writing:** A v0 transaction sets a compute budget and Devnet priority-fee price, transfers 0 lamports to a fixed board marker, and writes the text through Memo4.
-- **Payload:** `{"app":"cyber-guestbook","v":1,"board":"public-devnet-v1","text":"..."}`. The Memo instruction includes the author as a signer. The protocol name remains compatible with existing records.
-- **Publishing:** The same message is estimated, simulated, and signed. The client checks returned message bytes and verifies the signature before submitting through the fixed Devnet RPC. Uncertain results are queried by the original signature without automatic re-signing or resending.
-- **Reading:** `getSignaturesForAddress` discovers candidates by board marker or author; `getTransaction` validates them. History is paginated rather than scanned across the entire chain, and unavailable records can be retried.
+- **Network configuration:** `src/network.ts` is the single source for chain, RPC, genesis, text board, Explorer, and the local receipt key. Mainnet uses `public-mainnet-v1`; Devnet uses `public-devnet-v1`. The ledgers and receipts are isolated, and old Devnet records are not migrated.
+- **Identity:** Wallet Standard connects the wallet and selects only accounts declaring the current network chain. The public key identifies the author. The wallet signs; the site does not hold user keys.
+- **Writing:** A v0 transaction sets a 400,000 CU limit and 0 micro-lamports/CU priority-fee price, transfers 0 lamports to a fixed board marker, and writes the text through Memo4. The basic network fee comes from the RPC estimate.
+- **Payload:** An example is `{"app":"cyber-guestbook","v":1,"board":"public-mainnet-v1","text":"..."}`; the build network selects the actual board. The Memo instruction includes the author as a signer. The protocol name remains compatible with existing records.
+- **Publishing:** The same message is estimated, simulated, and signed. After the wallet returns, the client checks message byte equality and verifies the signature, then rechecks genesis, session, block height, fee, and balance before a single broadcast. Uncertain results are queried by the original signature without automatic re-signing or resending.
+- **Reading:** `getSignaturesForAddress` discovers candidates by board marker or author; `getTransaction` validates them and their board. History is paginated rather than scanned across the entire chain, and unavailable records can be retried.
 - **Hosting:** GitHub Pages serves the static frontend, which calls RPC directly and uses existing Solana programs. There is no custom on-chain program.
 
-## Adapting it to another chain
-
-There is no multi-chain adapter interface. A port needs to replace and verify these parts for the target chain:
+## What to check when changing networks
 
 | Module | Responsibility |
 | --- | --- |
-| [wallet.ts](src/wallet.ts) | Wallet connection, accounts, and signing capabilities |
-| [network.ts](src/network.ts) | RPC, network identity, and balances |
-| [message.ts](src/message.ts) | Transaction construction, payload, and board-discovery protocol |
-| [simulation.ts](src/simulation.ts) | Fee estimation and unsigned simulation |
-| [publisher.ts](src/publisher.ts) | Signature verification, submission, confirmation, and receipt recovery |
-| [history.ts](src/history.ts) | Candidate discovery, authorship checks, and parsing |
+| [wallet.ts](src/wallet.ts) | Wallet connection, current-network accounts, and signing capabilities |
+| [network.ts](src/network.ts) | Build-time network selection, RPC, genesis, and balances |
+| [message.ts](src/message.ts) | Transaction construction, payload, and network-selected board |
+| [simulation.ts](src/simulation.ts) | Current-network fee estimation and unsigned simulation |
+| [publisher.ts](src/publisher.ts) | Signature verification, submission, confirmation, and network-isolated receipt recovery |
+| [history.ts](src/history.ts) | Current-network discovery, authorship checks, and board parsing |
 
 The React interface, themes, language settings, and some text validation can be reused. Changing only the RPC URL is insufficient.
 
 ## Verified behavior and limits
 
-The user completed a real Devnet publication in Chrome with Phantom and confirmed that the message remained visible after refreshing. The [verification transaction](https://explorer.solana.com/tx/3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz?cluster=devnet) reached finalized. See [STATUS](STATUS.md) for the evidence.
+The user completed a real Devnet publication in Chrome with Phantom and confirmed that the message remained visible after refreshing. The [Devnet verification transaction](https://explorer.solana.com/tx/3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz?cluster=devnet) reached finalized. See [STATUS](STATUS.md) for the evidence.
 
-- Devnet may reset. Public RPC services may throttle requests or lack historical data. Permanent storage and complete availability are not guaranteed.
-- Other wallets, mobile signing, and all failure scenarios have not been verified. An initial timeout followed by a successful retry is recorded; its cause is unknown.
-- Mainnet posting, sponsored fees, likes, replies, and private messages are outside this implementation.
+- The mainnet code, build configuration, and read-only network evidence are complete, but real wallet signing, mainnet broadcast, on-chain confirmation, and refresh read-back still need user acceptance. The candidate is not a completed mainnet release; M01-M03 are user-verified.
+- Real mainnet signing has not been verified. An initially empty mainnet public feed is expected. Old Devnet posts remain on Devnet and are not described as migrated or deleted.
+- The mainnet candidate uses `https://solana-rpc.publicnode.com`. Node read-only requests passed genesis, executable Memo program, and empty board checks. Browser CORS and the real wallet path remain unverified.
+- Public RPC services may throttle requests or lack historical data. Permanent storage and complete availability are not guaranteed. The mainnet basic fee is whatever the RPC estimates for that transaction.
+- Other wallets, mobile signing, and all failure scenarios have not been verified. An initial timeout followed by a successful Devnet retry is recorded; its cause is unknown.
+- Sponsored fees, platform charges, likes, replies, and private messages are outside this implementation.
 
 When reporting an issue, include reproduction steps, wallet and browser versions, error text, and a transaction signature if available. Never include private keys or recovery phrases. See [DECISIONS](DECISIONS.md) and the [archive](docs/sprints/) for decisions and historical work.
 

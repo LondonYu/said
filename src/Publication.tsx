@@ -11,7 +11,7 @@ import {
   type SignedPublication,
 } from './publisher';
 import type { WalletSigningSession } from './wallet';
-import { devnetExplorerUrl } from './explorer';
+import { explorerUrl } from './explorer';
 
 export type PublicationPhase =
   | 'idle'
@@ -589,7 +589,7 @@ export function PublicationPanel({
         <div className="publish-summary">
           <p className="section-label">{labels.publishSummary}</p>
           <dl className="tx-facts">
-            <div><dt>{labels.publishNetwork}</dt><dd>Devnet</dd></div>
+            <div><dt>{labels.publishNetwork}</dt><dd>{labels.networkName}</dd></div>
             <div><dt>{labels.publishFeePayer}</dt><dd><code>{prepared.author}</code></dd></div>
             <div><dt>{labels.publishBody}</dt><dd className="tx-body">{prepared.text}</dd></div>
             <div><dt>{labels.publishFee}</dt><dd>{formatSol(prepared.feeLamports)} SOL</dd></div>
@@ -632,7 +632,7 @@ export function PublicationPanel({
           <code>{state.signature}</code>
           <a
             className="button secondary"
-            href={devnetExplorerUrl(state.signature)}
+            href={explorerUrl(state.signature)}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -737,7 +737,7 @@ export function PublicationPanel({
             </p>
             <a
               className="button secondary"
-              href={devnetExplorerUrl(entry.receipt.signature)}
+              href={explorerUrl(entry.receipt.signature)}
               target="_blank"
               rel="noopener noreferrer"
             >
