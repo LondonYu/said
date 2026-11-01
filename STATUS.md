@@ -1,11 +1,11 @@
 # Said STATUS
 
-更新：2026-11-02T00:05:54+08:00。**主网发布路径发现并修复 P1：PublicNode 的 `getBlockHeight` 间歇返回 slot，导致有效 blockhash 被误判过期。** 用户已有 0.102099861 主网 SOL；新 RPC 端点连续 3 次未签名模拟通过，等待提交、部署与用户实际签名。
+更新：2026-11-02T00:12:04+08:00。**主网发布路径 P1 已修复并部署。线上运行 `76b2a55`；PublicNode 的 `getBlockHeight` 间歇返回 slot导致 blockhash 误判的问题已由 Solana Tracker RPC 修复。** 用户已有 0.102099861 主网 SOL，公网页面已成功准备 `test` 并进入钱包签名等待。
 
 ## 当前发布
 
 - 正式地址：[Said](https://londonyu.github.io/said/)，GitHub Pages托管，独立于用户电脑和本地进程。
-- 线上代码：`9be4bade341e2b6722910257ecee03e4747c9710`；[部署运行41323014881](https://github.com/LondonYu/said/actions/runs/41323014881)成功，build与deploy均成功，2026-11-01T23:48:25+08:00。线上资源清单见[public-assets.json](docs/sprints/SPRINT-MAINNET/evidence/public-assets.json)。
+- 线上代码：`76b2a55ffdbbb6ce069cbc7c2b7a13ec1a1795bf`；[部署运行41324737287](https://github.com/LondonYu/said/actions/runs/41324737287)成功，build与deploy均成功，2026-11-02T00:08:46+08:00。
 - 线上能力：连接钱包、读取公共/作者历史、显式准备/签名/提交、原签名确认与读回；当前线上已切到 Solana 主网。主网公共板为空，旧 Devnet 留言与回执不进入当前页面。
 - 主网配置：Pages工作流build显式`VITE_SOLANA_NETWORK=mainnet`；本地`npm run dev`和`npm test`默认Devnet。主网使用`solana:mainnet`、Solana Tracker公共RPC、主网genesis、`public-mainnet-v1`、独立回执key和无cluster的Explorer；真实SOL网络费由用户支付，平台不额外收费。
 - 既有检查：255项项目测试、typecheck、默认Devnet构建、主网构建均通过；非法网络值构建失败；`git diff --check`通过。主网只读证据见[SPRINT-MAINNET](docs/sprints/SPRINT-MAINNET/evidence/read-only-mainnet.json)。
@@ -30,7 +30,7 @@
 - [x] Cline统一网络配置、chain/genesis/board/回执/Explorer隔离和主网文案，保留原发布保护，交一次审查。
 - [x] Codex一次独立审查通过：typecheck、255项测试、主网build、diff检查通过；隔离探针确认旧Devnet回执不读取、错genesis拒绝且无回退，实际浏览器真实主网空列表成功。证据：[审查](docs/sprints/SPRINT-MAINNET/evidence/codex-review.json)、[截图](docs/sprints/SPRINT-MAINNET/evidence/preview-home.png)。
 - [x] Codex部署主网版本，线上运行`9be4bad`；M01通过，M02主网连接与余额读取通过，M03待有真实SOL的账户完成一笔交易。
-- [ ] 提交并部署RPC修复；用户在公网页面重新准备同一笔`test`留言，钱包签名后确认、刷新并读回。
+- [ ] 用户在 Phantom 确认当前已准备的 `test` 主网交易；随后确认链上结果、刷新公共流并读回。
 
 ## 开源作品文档收尾（已完成）
 
@@ -59,7 +59,8 @@
 - P1复现：用户在浏览器连接有余额账户后，页面连续显示“区块哈希已过期”。只读探针记录PublicNode返回的最新blockhash有效高度为`442173747`，同一端点却把当前`getBlockHeight`返回为`464152132`；后者实际是slot量级，交易模拟结果本身为成功。
 - 修复：主网RPC切换到`https://rpc.solanatracker.io/public`。该端点对GitHub Pages来源返回CORS许可，genesis与主网一致，真实block height处于`lastValidBlockHeight`之前。
 - 验证：同一账户`3nbt5qpNubJRPynU5vVJgZJmRkNRimVsQZjZPperNA5w`和新正文`test`连续3次只读准备均得到`blockhashExpired=false`、`feeLamports=5000`、`balanceLamports=102099861`、模拟成功；未请求签名、未广播。[证据](docs/sprints/SPRINT-MAINNET/evidence/rpc-height-mismatch-fix.json)。
-- 现有检查：typecheck退出0；9个测试文件、255项通过；mainnet构建退出0。待提交并重新部署后，再执行浏览器准备与用户签名。
+- 公网验证：`76b2a55`部署后刷新页面并重连Phantom，再次准备同一笔`test`成功，页面进入“正在等待钱包签名”；尚未在钱包确认，未签名、未广播。
+- 现有检查：typecheck退出0；9个测试文件、255项通过；mainnet构建退出0；Pages运行41324737287 build/deploy成功。
 
 ## backlog（不阻断已验收里程碑）
 

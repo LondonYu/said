@@ -47,7 +47,20 @@
     "testFilesPassed": 9,
     "testsPassed": 255,
     "mainnetBuildExitCode": 0,
-    "mainnetBundle": "index-CAOfeV7O.js"
+    "mainnetBundle": "index-CAOfeV7O.js",
+    "pagesRun": "https://github.com/LondonYu/said/actions/runs/41324737287",
+    "pagesRunConclusion": "success",
+    "deployedCommit": "76b2a55ffdbbb6ce069cbc7c2b7a13ec1a1795bf",
+    "deployedAt": "2026-11-02T00:08:46+08:00"
+  },
+  "publicBrowserPreparation": {
+    "checkedAt": "2026-11-02T00:12:04+08:00",
+    "result": "success",
+    "state": "waiting for wallet signature",
+    "network": "Solana 主网",
+    "text": "test",
+    "feeLamports": "5000",
+    "payer": "3nbt5qpNubJRPynU5vVJgZJmRkNRimVsQZjZPperNA5w"
   },
   "signed": false,
   "broadcast": false
