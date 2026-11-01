@@ -1,0 +1,11 @@
+{
+  "recordedAt": "2026-11-01T04:36:04.374718+00:00",
+  "recordedAtAsiaShanghai": "2026-11-01T12:36:04.375194+08:00",
+  "url": "https://londonyu.github.io/said/",
+  "criterion": "V03",
+  "source": "Direct user answer to the current public URL real-wallet check",
+  "question": "在手机钱包内置浏览器打开正式Pages URL，主动连接，页面是否显示与你钱包一致的完整Solana地址？只连接，不签名发送。",
+  "answer": "显示了，地址一致",
+  "acceptance": "user confirmed V03",
+  "limits": "User report; agent did not operate wallet, collect the address, see a wallet screenshot, or independently verify the wallet. Actual operation time and wallet version were not provided; timestamp is when feedback was recorded."
+}
