@@ -16,7 +16,7 @@
 - 既有验证基线：252项项目测试、16项独立注入断言；原背景239项是较早记录。本轮没有重跑或增加测试，计数不构成发布验收。
 - 当前公网URL：**[https://londonyu.github.io/said/](https://londonyu.github.io/said/)**，GitHub Pages / Actions托管，无本地服务器或隧道依赖。已部署提交`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`；[部署运行](https://github.com/LondonYu/said/actions/runs/41273238142)成功。电脑断网＋手机移动数据的等效实测仍待用户留证。
 - 下一步：完成SPRINT-4.0剩余用户验收：电脑彻底断网，手机关闭Wi-Fi并使用移动数据刷新同一URL；确认首页3条留言，V03已确认不重复要求。**2.2B后置，不是v0.1前置条件**。
-- 唯一治理入口：本文件管状态、证据、待办/backlog和当前工单；[DECISIONS](../../../DECISIONS.md)管决策/被否方案；[docs/sprints/](..)保留历史。[CLINE-NEXT](../../CLINE-NEXT.md)仅过渡传话，SPRINT-4.0结束后删除。
+- 唯一治理入口：本文件管状态、证据、待办/backlog和当前工单；[DECISIONS](../../../DECISIONS.md)管决策/被否方案；[docs/sprints/](..)保留历史。[CLINE-NEXT](../../../STATUS.md)仅过渡传话，SPRINT-4.0结束后删除。
 
 ## v0.1验收与证据
 
