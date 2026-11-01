@@ -1,13 +1,13 @@
 # Said STATUS
 
-更新：2026-11-01，Asia/Shanghai。当前唯一目标：**v0.1只读演示**。GitHub Pages已部署；公网未连接钱包读到3条真实留言。V03真实钱包地址已由用户确认；V01关机后复验和V02用户最终确认待完成，不宣称v0.1验收通过。
+更新：2026-11-01，Asia/Shanghai。当前唯一目标：**v0.1只读演示**。GitHub Pages已部署；公网未连接钱包读到3条真实留言。V03真实钱包地址已由用户确认；V01独立联网复验和V02用户最终确认待完成，不宣称v0.1验收通过。
 
 ## 当前状态
 
 - 产品源码检查点：[f9add95](https://github.com/LondonYu/said/commit/f9add95e75c63cad0b49aa664684bb71d368a74e)。钱包连接、Devnet历史流、地址显示已实现；2.2A发布核心通过旧阶段复审，页面未接签名/发送。
 - 既有验证基线：252项项目测试、16项独立注入断言；原背景239项是较早记录。本轮没有重跑或增加测试，计数不构成发布验收。
-- 当前公网URL：**[https://londonyu.github.io/said/](https://londonyu.github.io/said/)**，GitHub Pages / Actions托管，无本地服务器或隧道依赖。已部署提交`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`；[部署运行](https://github.com/LondonYu/said/actions/runs/41273238142)成功。关机后实测仍待用户留证。
-- 下一步：完成SPRINT-4.0剩余用户验收：手机/另一设备关机后访问同一URL，真实钱包连接核对地址，逐条确认三项。**2.2B后置，不是v0.1前置条件**。
+- 当前公网URL：**[https://londonyu.github.io/said/](https://londonyu.github.io/said/)**，GitHub Pages / Actions托管，无本地服务器或隧道依赖。已部署提交`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`；[部署运行](https://github.com/LondonYu/said/actions/runs/41273238142)成功。电脑断网＋手机移动数据的等效实测仍待用户留证。
+- 下一步：完成SPRINT-4.0剩余用户验收：电脑彻底断网，手机关闭Wi-Fi并使用移动数据刷新同一URL；确认首页3条留言，V03已确认不重复要求。**2.2B后置，不是v0.1前置条件**。
 - 唯一治理入口：本文件管状态、证据、待办/backlog和当前工单；[DECISIONS](DECISIONS.md)管决策/被否方案；[docs/sprints/](docs/sprints/)保留历史。[CLINE-NEXT](docs/CLINE-NEXT.md)仅过渡传话，SPRINT-4.0结束后删除。
 
 ## v0.1验收与证据
@@ -16,13 +16,13 @@
 
 | ID | 唯一通过标准 | 当前证据与时间 | 当前判定 | 用户最终确认 |
 | --- | --- | --- | --- | --- |
-| V01 | 公网URL在用户电脑关机、本地进程结束后仍可访问；仅以GitHub Pages托管验收，临时隧道不算证据 | [实际URL](https://londonyu.github.io/said/)，[部署成功](https://github.com/LondonYu/said/actions/runs/41273238142)；2026-11-01T12:30:36.269415+08:00直接HTTPS首页/JS/CSS/favicon均200，[输出](docs/sprints/SPRINT-4.0/evidence/pages-http.json)。代理未启动本地预览/隧道；用户关机后的另一设备实测待补 | 公网已观察；关机后复验待用户 | 待确认 |
+| V01 | 公网URL在用户电脑关机、本地进程结束后仍可访问；仅以GitHub Pages托管验收，临时隧道不算证据 | [实际URL](https://londonyu.github.io/said/)，[部署成功](https://github.com/LondonYu/said/actions/runs/41273238142)；2026-11-01T12:30:36.269415+08:00直接HTTPS首页/JS/CSS/favicon均200，[输出](docs/sprints/SPRINT-4.0/evidence/pages-http.json)。代理未启动本地预览/隧道；用户电脑断网、手机移动数据刷新同一URL的等效实测待补 | 公网已观察；独立联网复验待用户 | 待确认 |
 | V02 | 未连接钱包可读取3条真实链上留言 | 2026-11-01T12:31:50.085+08:00，同一Pages提交新会话未连接钱包，正常RPC读到3条/2作者，逐条核对不同交易签名及Devnet详情；[观测JSON](docs/sprints/SPRINT-4.0/evidence/pages-browser-observation.json)、[截图](docs/sprints/SPRINT-4.0/evidence/pages-public.png)、[三条详情](docs/sprints/SPRINT-4.0/evidence/pages-details.json) | 代理已观察，用户待验收 | 待确认 |
 | V03 | 连接钱包后显示自身地址，不含签名发送 | 用户对正式URL的手机钱包连接问题直接回复“显示了，地址一致”；[反馈证据](docs/sprints/SPRINT-4.0/evidence/pages-wallet-user-confirmation.json)，记录时间2026-11-01T12:36:04.375194+08:00。这是用户实测反馈，代理未代点钱包；操作精确时间/钱包版本未提供，不冒充代理独立观测 | 用户实测确认 | 用户已确认 |
 
 每项执行后在此表更新并附实际记录（不是新验收条件）：
 
-- GitHub Pages实际URL、部署运行链接、对应提交/构建标识；不接受临时隧道作为V01证据。V01须记录本地进程停止、用户电脑关机后从另一设备访问同一URL的实际结果及时间戳；关机由用户安排，执行者不代为关机。
+- GitHub Pages实际URL、部署运行链接、对应提交/构建标识；临时隧道不算V01证据。按用户确认的等效方法：电脑断开所有联网方式，手机关闭Wi-Fi、使用移动数据刷新同一URL，记录实际结果及时间戳即可；无需实际关机。这里只更新验证方法，用户尚未报告实测通过。
 - 实际步骤与结果；提供URL、命令实际输出或截图，附ISO 8601时间戳和时区。不要用命令文本或“应该成功”代替输出。
 - V02保留同一公网版本未连接状态的3条记录及交易签名/Devnet详情证据，允许同文不同签名；不拿本地缓存、示例或注入数据凑数。
 - V03保留页面地址与用户钱包同一Solana公钥的核对证据；由用户授权，截图不得包含秘密。记录所用设备/钱包版本即可，不要求补齐所有组合。
@@ -34,13 +34,13 @@
 - [x] 合并治理入口，保留历史证据，记录于DECISIONS。
 - [x] SPRINT-4.0 Pages部署成功，首页及静态资源200，未连接钱包的3条真实留言已留证。
 - [x] 用户在正式URL用真实手机钱包连接，确认完整地址一致（V03）。
-- [ ] 补V01关机后另一设备访问及V02首页3条的用户最终确认；V03已确认，不再重复要求。
+- [ ] 补V01电脑断网＋手机移动数据访问及V02首页3条的用户最终确认；V03已确认，不再重复要求。
 - [ ] 用户逐条确认v0.1；未确认前不宣布发布验收达成。
 - [ ] SPRINT-4.0结束后删除docs/CLINE-NEXT.md，并修正指向它的当前入口；历史引用不当作执行指令。
 
 ## 缺陷与backlog
 
-本轮公网观测未发现未解决的P0/P1；V01用户关机复验尚未执行，V03用户已确认，不能据此宣称全部路径无缺陷。P2和未验证项按下表后置，旧阶段已修复缺陷不重复打开。
+本轮公网观测未发现未解决的P0/P1；V01独立联网复验尚未反馈结果，V03用户已确认，不能据此宣称全部路径无缺陷。P2和未验证项按下表后置，旧阶段已修复缺陷不重复打开。
 
 P2发现后**一律在本节登记，不阻断、不追加到本轮修复**。登记格式：ID、P级、影响路径、复现证据/时间、暂不修理由；升级另列原级别→新级别、真机/真实钱包触发证据、步骤、实际影响及时间。P0/P1降级须附不可达路径复现证据；不确定就标不确定。
 
@@ -53,13 +53,13 @@ P2发现后**一律在本节登记，不阻断、不追加到本轮修复**。�
 
 ## 当前工单：SPRINT-4.0 — v0.1只读公网演示
 
-状态：**Pages部署完成，待用户验收**。工作流提交`ea2f60e`已推送，Pages已启用并手动部署成功；V03用户已确认；V01关机实测与V02用户最终确认待补。执行者VS Code/Cline，Codex审查，用户验收。工单/修复轮次从此单重新记录：修复0/1、确认0/1；不沿用旧2.2A的无限修复方式。
+状态：**Pages部署完成，待用户验收**。工作流提交`ea2f60e`已推送，Pages已启用并手动部署成功；V03用户已确认；V01独立联网实测与V02用户最终确认待补。执行者VS Code/Cline，Codex审查，用户验收。工单/修复轮次从此单重新记录：修复0/1、确认0/1；不沿用旧2.2A的无限修复方式。
 
 ### 目标与操作
 
 1. 读取STATUS、DECISIONS、AGENTS/.clinerules并检查工作区。使用本轮vite.config.ts（base='./'），用现有npm run build重新生成dist；**不得复用本次配置前的旧dist**。不新增测试或提高测试数，不把构建或测试当V01–V03证据。
 2. 仅使用现有LondonYu/said仓库与账号的GitHub Pages；最小工作流已准备为`.github/workflows/pages.yml`：只允许`workflow_dispatch`手动触发，仅当`github.ref == 'refs/heads/main'`时构建和部署；Node版本读取`.nvmrc`，执行`npm ci`和`npm run build`，仅上传`./dist`；使用官方`actions/checkout@v7`、`actions/setup-node@v7`、`actions/configure-pages@v6`、`actions/upload-pages-artifact@v5`、`actions/deploy-pages@v5`，权限为`contents: read`、`pages: write`、`id-token: write`，并发组`pages`，部署环境`github-pages`。Codex审查后由Codex启用Pages（发布源选GitHub Actions）并手动运行；Cline不触发。无需新账号、付费服务、自定义域名或DNS修改。
-3. 记录Actions部署运行、实际输出page_url和对应提交；从该URL检查首页与JS/CSS/favicon资源。停用本次本地预览/隧道后，用另一设备访问；用户安排电脑关机后再次访问同一URL留证，才提交V01确认。临时Quick Tunnel只可调试，不得回退成V01产物。
+3. 记录Actions部署运行、实际输出page_url和对应提交；从该URL检查首页与JS/CSS/favicon资源。可用用户认可的等效验证：电脑彻底断网，手机关闭Wi-Fi、使用移动数据刷新同一URL并留证；无需实际关机，不把已有页面未刷新的缓存显示当成重新访问成功。临时Quick Tunnel只可调试，不得回退成V01产物。
 4. 在同一Pages版本的新会话、不连接钱包，记录3条真实Devnet留言的V02证据。不得写交易、播种新留言或注入假数据补数；若不足3条/RPC不可用，如实记录缺口与证据，交用户决定，不悄悄放宽标准。
 5. 用户在一个实际可用的浏览器＋钱包组合中主动连接，核对页面完整地址与钱包公钥，保存V03证据；只连接，不请求signMessage/signTransaction/sendTransaction。是否弹窗取决于既有授权状态，不能把自动复连冒充新弹框。
 6. 将三条证据、时间戳、版本、部署运行和实际Pages URL写回STATUS，逐条提交用户最终确认。演示截图/命令输出可存docs/sprints/SPRINT-4.0/evidence/；不新增平行状态/验收文档。
@@ -78,7 +78,7 @@ P2发现后**一律在本节登记，不阻断、不追加到本轮修复**。�
 - 地址：[https://londonyu.github.io/said/](https://londonyu.github.io/said/)，HTTPS启用，无自定义域名或DNS修改。
 - 发布提交：`ea2f60e46d851b38806009dcee81d2c9afb3c5bb`，与分支后续文档提交分开记录，不把HEAD自动当线上版本。
 - Actions运行：[41273238142](https://github.com/LondonYu/said/actions/runs/41273238142)，build/deploy均success；部署成功时间2026-11-01T12:29:12+08:00。
-- [运行证据](docs/sprints/SPRINT-4.0/evidence/pages-deployment.json)、[部署状态](docs/sprints/SPRINT-4.0/evidence/pages-deployment-status.json)、[HTTP证据](docs/sprints/SPRINT-4.0/evidence/pages-http.json)。只部署dist，不依赖电脑进程。用户关机后的实际访问仍未记录，不自动确认V01。
+- [运行证据](docs/sprints/SPRINT-4.0/evidence/pages-deployment.json)、[部署状态](docs/sprints/SPRINT-4.0/evidence/pages-deployment-status.json)、[HTTP证据](docs/sprints/SPRINT-4.0/evidence/pages-http.json)。只部署dist，不依赖电脑进程。用户电脑断网＋手机移动数据刷新的实际结果仍待反馈，不自动确认V01。
 - V02当前公网版本已观察3条/2作者，待用户最终确认；V03实际钱包地址一致已由用户确认。252项既有测试本轮未重跑，无交易、无新增测试要求。
 
 ### 本轮构建配置变更与回滚
@@ -130,3 +130,5 @@ Pages工作流使用官方Actions现有版本，Node按.nvmrc、锁文件安装�
 - 无本轮新发现的未解决P0/P1；不凭未测试的边界追加修复。
 
 用户反馈记录（2026-11-01T12:36:04.375194+08:00）：针对当前Pages URL的真实钱包连接检查，用户答“显示了，地址一致”，V03记为用户确认；无用户钱包截图或版本信息，不冒称代理独立验收。V01关机复验与V02用户最终确认继续待办。
+
+V01验证方法调整（2026-11-01，用户提出）：允许电脑彻底断网、手机关闭Wi-Fi并使用移动数据刷新正式URL作为关机测试的等效验证。独立托管下限保持，临时隧道仍不算证据；本条只确认方法，尚未收到用户实测成功反馈，V01仍待确认。V03已确认，不重复要求。
