@@ -1,0 +1,10 @@
+{
+  "capturedAt": "2026-11-01T14:54:05.483Z",
+  "url": "https://londonyu.github.io/said/",
+  "deployedSha": "72168077f97ed64cca0823e4284e28a3b72a1664",
+  "page": "actual public homepage, no wallet connection, no fixtures",
+  "visibleMessages": 4,
+  "newestText": "测试",
+  "purpose": "bilingual README project screenshot",
+  "reproduction": "open the public URL in a fresh tab without a connected wallet, let real RPC history load, scroll to top and capture; historical content may change"
+}
