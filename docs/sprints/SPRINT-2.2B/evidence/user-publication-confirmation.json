@@ -1,0 +1,18 @@
+{
+  "recordedAt": "2026-11-01T22:44:04+08:00",
+  "operationTime": "not provided by user; chain block time recorded independently",
+  "url": "https://londonyu.github.io/said/",
+  "deployedSha": "72168077f97ed64cca0823e4284e28a3b72a1664",
+  "wallet": "Chrome Phantom, user previously confirmed; version not provided",
+  "publicationReport": "第一次失败显示超时 第二次成功签名并发布 测试",
+  "refreshQuestion": "刷新 Said 页面后，首页还能看到你刚发布的“测试”吗？这一步用于确认下次进入也能从链上读回。",
+  "refreshAnswer": "能看到“测试”",
+  "firstTimeout": {
+    "stage": "not provided",
+    "reason": "not determined",
+    "firstAttemptSignature": "not provided",
+    "disposition": "recoverable timeout feedback deferred; do not infer non-broadcast or automatically resend"
+  },
+  "linkedChainSignature": "3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz",
+  "evidenceBoundary": "user wallet operations not observed directly by agent; separate read-only chain evidence verifies message/author/finalized success; no test result substitutes for user acceptance"
+}

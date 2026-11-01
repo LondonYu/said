@@ -2,13 +2,13 @@
 
 [English](README.en.md) · [简体中文](README.md)
 
-[Live demo (Solana Devnet, read-only)](https://londonyu.github.io/said/)
+[Live demo (Solana Devnet)](https://londonyu.github.io/said/)
 
-Said is a blockchain guestbook example under development. Its goal is to let people use a wallet to publish short messages on-chain, then read the public feed and their own history. Wallet connection, unsigned transaction construction, simulation, a publishing core module, a standalone history reader, and a real Devnet interface for the public feed, personal history, search, details, pagination, refresh, and unreadable-record retry are implemented. The single-post interface is connected to the publishing core; real wallet signing, broadcast, and read-back still await user acceptance.
+Said is a blockchain guestbook example under development. Its goal is to let people use a wallet to publish short messages on-chain, then read the public feed and their own history. Wallet connection, unsigned transaction construction, simulation, a publishing core module, a standalone history reader, and a real Devnet interface for the public feed, personal history, search, details, pagination, refresh, and unreadable-record retry are implemented. The user has verified real Devnet signing, publication, and read-back after refreshing in Chrome with Phantom.
 
 This is a learning and portfolio project. It currently uses Solana Devnet, with no custom application backend or traditional database. A wallet public key identifies the author. The project does not promise permanent storage or guaranteed access to historical data.
 
-## Intended workflow (partly implemented)
+## Workflow
 
 - Connect a wallet through Wallet Standard, without creating a separate account.
 - Write a message of up to 140 grapheme clusters and 560 UTF-8 bytes, then sign a Solana transaction to publish it.
@@ -30,9 +30,9 @@ To adapt the project, replace the wallet integration, transaction construction, 
 
 ## Current goal and status
 
-The user has accepted the v0.1 read-only demo against all three criteria.
+The user has accepted the v0.2 single-post Devnet flow, including wallet signing, publication, and read-back after refreshing. The v0.1 read-only demo was also accepted. This verifies the recorded wallet path, not every wallet or failure scenario.
 
-v0.1 has three acceptance criteria: a GitHub Pages URL that remains accessible after the user’s computer is shut down and local processes stop, three real on-chain messages visible without a wallet connection, and the connected wallet’s own address displayed. Temporary tunnels are for debugging and do not count as URL acceptance evidence. Signing and submission are outside v0.1. [STATUS](STATUS.md) holds the current evidence and requires the user’s final confirmation. The 2.2B single-post interface is the next-version candidate and reuses the 2.2A core. STATUS records candidate deployment and real-transaction acceptance. Test counts do not establish release acceptance. See [DECISIONS](DECISIONS.md) and the [historical archive](docs/sprints/).
+See [STATUS](STATUS.md) for the current version, acceptance evidence, and follow-up items; [DECISIONS](DECISIONS.md) for decisions; and the [archive](docs/sprints/) for historical work orders and acceptance records. Test counts do not establish release acceptance.
 
 ## Development
 

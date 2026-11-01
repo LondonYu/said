@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-11-01T14:41:50.427Z",
+  "signature": "3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz",
+  "explorer": "https://explorer.solana.com/tx/3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz?cluster=devnet",
+  "result": {
+    "confirmationStatus": "finalized",
+    "confirmations": null,
+    "err": null,
+    "slot": "517526468",
+    "status": {
+      "Ok": null
+    }
+  },
+  "noSigning": true,
+  "noBroadcast": true
+}
