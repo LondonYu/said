@@ -4,7 +4,7 @@
 
 ## D01：v0.1改为只读演示（2026-11-01，用户确认）
 
-- 唯一验收：公网URL可访问；未连接钱包读取3条真实链上留言；连接钱包后显示自身地址。三条逐条留证于STATUS，由用户最终确认，不含签名发送。
+- 唯一验收：公网URL在用户电脑关机、本地进程结束后仍可访问（本轮追加下限，临时隧道不作V01证据）；未连接钱包读取3条真实链上留言；连接钱包后显示自身地址。托管指定GitHub Pages，三条逐条留证于STATUS，由用户最终确认，不含签名发送。
 - 被否：先完成2.2B签名发送、全面异常路径和设备矩阵，再提供首次公网演示。理由：超出v0.1目标，使发布不断后移。
 - 2.2A已实现并通过旧阶段复审的代码保留，2.2B排入后置，不撤销既有成果、不因此加新开发。
 
@@ -79,3 +79,12 @@
 ## 本轮不同意见与事实边界
 
 对用户确认的分级、证据升降级、复审上限和v0.1三条没有实质异议，已按原意写入，没有额外发布闸门。仅保留事实边界：本轮未核验公网和Devnet现状，不能承诺三条当前已达成；临时隧道不等于持续托管。它们已在STATUS标为不确定，不作为要求增加功能/测试的理由。
+
+## D05：V01独立托管下限与GitHub Pages（2026-11-01，用户修正）
+
+- V01追加用户电脑关机、本地进程结束后仍可访问；Quick Tunnel仅调试，不能当V01证据。上一版4.0允许临时隧道验收的方案撤销，历史记录不再生效。
+- SPRINT-4.0指定现有LondonYu/said GitHub Pages，GitHub Actions构建/仅上传dist并部署；不创建账号、不购买服务、不改DNS。本轮只准备配置和工单，不创建部署工作流、不启用站点、不部署。
+- 新增vite.config.ts，base='./'。相对路径使首页资源可从/said/解析，也便于复用本地预览，不硬编码仓库名；当前不涉及深层路由。回滚方式及本地构建/资源200结果在STATUS，本地核验不替代V01。
+- 只读事实：仓库public、连接器账号admin；Actions enabled=true/allowed_actions=all；Pages API 404，尚无已取得的站点信息。未发现不可行的实证，但实际启用和Actions部署仍待验证；若未来受限必须报告具体错误并另提替代，不回退临时隧道。
+- 原制度其余部分不变：P2不阻断、证据变级、复审上限、三条用户最终确认、不增测试。
+- 官方依据：[Vite base](https://vite.dev/config/shared-options.html#base)、[Vite Pages部署](https://vite.dev/guide/static-deploy.html#github-pages)、[GitHub Pages工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
