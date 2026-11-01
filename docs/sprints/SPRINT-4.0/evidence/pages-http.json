@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-11-01T04:30:36.269415+00:00",
+  "url": "https://londonyu.github.io/said/",
+  "run": "https://github.com/LondonYu/said/actions/runs/41273238142",
+  "deployedCommit": "ea2f60e46d851b38806009dcee81d2c9afb3c5bb",
+  "source": "Direct HTTPS requests to GitHub Pages, not localhost or tunnel",
+  "resources": [
+    {
+      "url": "https://londonyu.github.io/said/",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://londonyu.github.io/said/said-favicon.svg",
+      "status": 200,
+      "type": "image/svg+xml",
+      "sha256": "8c19ed56849372680707a2337c02b48f888c45e242e1d686fc6f824a34911f58"
+    },
+    {
+      "url": "https://londonyu.github.io/said/assets/index-Byps-RCq.js",
+      "status": 200,
+      "type": "application/javascript; charset=utf-8",
+      "sha256": "b1b1194c8f0a1e81d76c44c195c08b31e0f3fb186969e4793e6dcde7d76e5655"
+    },
+    {
+      "url": "https://londonyu.github.io/said/assets/index-DEn8a_P7.css",
+      "status": 200,
+      "type": "text/css; charset=utf-8",
+      "sha256": "07fb9a503243743fe5031ff260e3abc161510e1f896b3ab8aefddffcd2b1ee68"
+    }
+  ],
+  "limits": "Laptop shutdown and real-wallet address checks require user evidence; HTTP 200 alone is not final V01 acceptance."
+}

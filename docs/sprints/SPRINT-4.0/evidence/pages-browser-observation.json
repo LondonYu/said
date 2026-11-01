@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-11-01T04:31:50.085Z",
+  "checkedAtAsiaShanghai": "2026-11-01T12:31:50.085000+08:00",
+  "url": "https://londonyu.github.io/said/",
+  "deployedCommit": "ea2f60e46d851b38806009dcee81d2c9afb3c5bb",
+  "walletConnected": false,
+  "messages": 3,
+  "authors": 2,
+  "entries": [
+    {
+      "author": "Aq7gd87cm9rwjuDeV17R1dwyP8DnvMbG3RkzM9T14yG2",
+      "signature": "BiMxQjkLFFpMHYuQHyTS2evBoX8Wp2DfwTTXqFch8CFDQiwPDDnWUM62tAGCoiLyJddJjpzszkw8AshkMhyERox",
+      "explorer": "https://explorer.solana.com/tx/BiMxQjkLFFpMHYuQHyTS2evBoX8Wp2DfwTTXqFch8CFDQiwPDDnWUM62tAGCoiLyJddJjpzszkw8AshkMhyERox?cluster=devnet"
+    },
+    {
+      "author": "Hs1NxWYZdXE6opzTY1wR9XCbq2QtNwrGdkWgSMeWk31S",
+      "signature": "4kozshroLcj2QyQitZ5N3pQvGFps9FfWbTZsC5gpjTYo3g8WsFSJB3GCFjEsZjCW5AcNHrxYkP986N9hht9McDXE",
+      "explorer": "https://explorer.solana.com/tx/4kozshroLcj2QyQitZ5N3pQvGFps9FfWbTZsC5gpjTYo3g8WsFSJB3GCFjEsZjCW5AcNHrxYkP986N9hht9McDXE?cluster=devnet"
+    },
+    {
+      "author": "Hs1NxWYZdXE6opzTY1wR9XCbq2QtNwrGdkWgSMeWk31S",
+      "signature": "5yCsxG2ndgKHLN5tycvw8YCDJZ5YNWNj9QdfzewFBWbZRaVUguEQ5aNy2DrMX4JKzr3ebDkHFzpR6HiK2WJYeTnJ",
+      "explorer": "https://explorer.solana.com/tx/5yCsxG2ndgKHLN5tycvw8YCDJZ5YNWNj9QdfzewFBWbZRaVUguEQ5aNy2DrMX4JKzr3ebDkHFzpR6HiK2WJYeTnJ?cluster=devnet"
+    }
+  ],
+  "screenshot": "pages-public.png",
+  "source": "Fresh public Pages browser navigation; normal RPC history; three details opened through UI; no injected data",
+  "userFinalAcceptance": "pending",
+  "V01ShutdownCheck": "pending user",
+  "V03RealWalletAddress": "pending user"
+}

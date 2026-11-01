@@ -2,6 +2,8 @@
 
 [English](README.en.md) · [简体中文](README.md)
 
+[Live demo (Solana Devnet, read-only)](https://londonyu.github.io/said/)
+
 Said is a blockchain guestbook example under development. Its goal is to let people use a wallet to publish short messages on-chain, then read the public feed and their own history. Wallet connection, unsigned transaction construction, simulation, a publishing core module, a standalone history reader, and a real Devnet interface for the public feed, personal history, search, details, pagination, refresh, and unreadable-record retry are implemented. Signing and submission are not yet connected to the interface.
 
 This is a learning and portfolio project. It currently uses Solana Devnet, with no custom application backend or traditional database. A wallet public key identifies the author. The project does not promise permanent storage or guaranteed access to historical data.

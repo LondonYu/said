@@ -83,7 +83,7 @@
 ## D05：V01独立托管下限与GitHub Pages（2026-11-01，用户修正）
 
 - V01追加用户电脑关机、本地进程结束后仍可访问；Quick Tunnel仅调试，不能当V01证据。上一版4.0允许临时隧道验收的方案撤销，历史记录不再生效。
-- SPRINT-4.0指定现有LondonYu/said GitHub Pages，GitHub Actions构建/仅上传dist并部署；不创建账号、不购买服务、不改DNS。本轮只准备配置和工单，不创建部署工作流、不启用站点、不部署。
+- SPRINT-4.0指定现有LondonYu/said GitHub Pages，GitHub Actions构建/仅上传dist并部署；不创建账号、不购买服务、不改DNS。配置/工单准备已完成；用户要求读取交接并继续下一步后，按SPRINT-4.0手动启用与部署Pages，只发布dist，用户三条最终验收仍待完成。
 - 新增vite.config.ts，base='./'。相对路径使首页资源可从/said/解析，也便于复用本地预览，不硬编码仓库名；当前不涉及深层路由。回滚方式及本地构建/资源200结果在STATUS，本地核验不替代V01。
 - 只读事实：仓库public、连接器账号admin；Actions enabled=true/allowed_actions=all；Pages API 404，尚无已取得的站点信息。未发现不可行的实证，但实际启用和Actions部署仍待验证；若未来受限必须报告具体错误并另提替代，不回退临时隧道。
 - 原制度其余部分不变：P2不阻断、证据变级、复审上限、三条用户最终确认、不增测试。
