@@ -13,7 +13,7 @@ Public-site screenshot from November 1, 2026: real Devnet messages, with no wall
 ## Try it
 
 1. Open the [live demo](https://londonyu.github.io/said/). Reading the public feed requires no wallet connection. The Pages build command is fixed to `VITE_SOLANA_NETWORK=mainnet`; [STATUS](STATUS.md) records the currently deployed version and mainnet acceptance state.
-2. Connect a wallet to post. Desktop Chrome with Phantom has been verified for a real Devnet signature; mainnet signing still needs user-led M02/M03 verification.
+2. Connect a wallet to post. Desktop Chrome with Phantom has been verified for both Devnet and Solana Mainnet signing; the mainnet transaction reached finalized and loads again after refreshing.
 3. A mainnet account needs real SOL for the network fee. The page shows Solana Mainnet, the full fee payer, the original text, and the RPC fee estimate. No fixed 5000-lamport promise is made, and the platform does not sponsor or add charges.
 4. Enter a message, preview it, and choose “Prepare post.” Review the mainnet identity, fee payer, text, and estimated fee, then choose “Sign and send” and confirm in your wallet.
 5. Check the confirmation status and mainnet Explorer link. After refreshing, the published mainnet message should load from the chain again.

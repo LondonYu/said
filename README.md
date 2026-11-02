@@ -13,7 +13,7 @@
 ## 快速体验
 
 1. 打开[在线演示](https://londonyu.github.io/said/)，无需连接钱包即可阅读公共留言。Pages 的构建命令固定 `VITE_SOLANA_NETWORK=mainnet`；当前实际部署版本和主网验收状态以 [STATUS](STATUS.md) 为准。
-2. 发布时连接钱包。已完成真实签名验证的路径是电脑 Chrome + Phantom 的 Devnet 发布；主网真实签名仍需按 M02/M03 由用户完成并留证。
+2. 发布时连接钱包。电脑 Chrome + Phantom 的 Devnet 和 Solana 主网签名发布均已验证；主网交易已 finalized，并能在刷新后读回。
 3. 主网账户需要真实 SOL 支付网络费。页面会显示 Solana 主网、完整付款公钥、原正文和 RPC 实际估费；不承诺固定 5000 lamports，平台不代付或额外收费。
 4. 输入留言，预览并点击「准备发布」。核对主网、付款公钥、正文与实际估费后，点击「签名并发送」，由你在钱包确认。
 5. 查看确认状态和主网 Explorer 链接。刷新页面后，应能重新读取已上链的主网留言。
