@@ -22,6 +22,7 @@ import { SOLANA_NETWORK_CONFIG } from './network';
 export const SYSTEM_PROGRAM_ADDRESS = '11111111111111111111111111111111' as Address;
 export const MARKER_ADDRESS = 'CDiRbgJmeDfUwAYXuoxbr9gYjKetA1UwsCsVLhzFRgKN' as Address;
 export const MEMO_PROGRAM_ADDRESS = 'Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH' as Address;
+export const LIGHTHOUSE_PROGRAM_ADDRESS = 'L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95' as Address;
 
 export const PROTOCOL_APP = 'cyber-guestbook';
 export const PROTOCOL_VERSION = 1;

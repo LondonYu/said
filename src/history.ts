@@ -1,6 +1,7 @@
 import { createSolanaRpc, getBase58Encoder, isAddress } from '@solana/kit';
 import type { Address } from '@solana/kit';
 import {
+  LIGHTHOUSE_PROGRAM_ADDRESS,
   MARKER_ADDRESS,
   MEMO_PROGRAM_ADDRESS,
   PROTOCOL_APP,
@@ -183,24 +184,10 @@ export function parseGuestbookTransaction(
   }
 
   const instructions = message.instructions;
-  if (!Array.isArray(instructions) || instructions.length < 2 || instructions.length > 4) {
+  if (!Array.isArray(instructions) || instructions.length < 2 || instructions.length > 8) {
     return { kind: 'invalid', reason: 'instruction-count' };
   }
-
-  const author = accountKeys[0] as string;
-  const budgetInstructions = instructions.slice(0, -2);
-  const expectedKeys = [
-    author,
-    marker,
-    SYSTEM_PROGRAM_ADDRESS,
-    MEMO_PROGRAM_ADDRESS,
-    ...(budgetInstructions.length > 0 ? [COMPUTE_BUDGET_PROGRAM_ADDRESS] : []),
-  ];
-  if (accountKeys.length !== expectedKeys.length) return { kind: 'invalid', reason: 'account-key-count' };
   if (new Set(accountKeys).size !== accountKeys.length) return { kind: 'invalid', reason: 'duplicate-account-key' };
-  for (const expected of expectedKeys) {
-    if (!accountKeys.includes(expected)) return { kind: 'invalid', reason: 'account-key-set' };
-  }
 
   for (const instruction of instructions) {
     if (!isRecord(instruction)) return { kind: 'invalid', reason: 'instruction-malformed' };
@@ -221,6 +208,37 @@ export function parseGuestbookTransaction(
     ) {
       return { kind: 'invalid', reason: 'instruction-account-index' };
     }
+  }
+
+  const hasLighthouse = accountKeys.includes(LIGHTHOUSE_PROGRAM_ADDRESS);
+  const coreInstructions = instructions.filter(
+    (instruction) =>
+      accountKeys[instruction.programIdIndex as number] !== LIGHTHOUSE_PROGRAM_ADDRESS,
+  );
+  const lighthouseInstructions = instructions.filter(
+    (instruction) =>
+      accountKeys[instruction.programIdIndex as number] === LIGHTHOUSE_PROGRAM_ADDRESS,
+  );
+  if (coreInstructions.length < 2 || coreInstructions.length > 4) {
+    return { kind: 'invalid', reason: 'core-instruction-count' };
+  }
+  if (hasLighthouse !== (lighthouseInstructions.length > 0)) {
+    return { kind: 'invalid', reason: 'lighthouse-pairing' };
+  }
+
+  const author = accountKeys[0] as string;
+  const budgetInstructions = coreInstructions.slice(0, -2);
+  const expectedKeys = [
+    author,
+    marker,
+    SYSTEM_PROGRAM_ADDRESS,
+    MEMO_PROGRAM_ADDRESS,
+    ...(budgetInstructions.length > 0 ? [COMPUTE_BUDGET_PROGRAM_ADDRESS] : []),
+    ...(hasLighthouse ? [LIGHTHOUSE_PROGRAM_ADDRESS] : []),
+  ];
+  if (accountKeys.length !== expectedKeys.length) return { kind: 'invalid', reason: 'account-key-count' };
+  for (const expected of expectedKeys) {
+    if (!accountKeys.includes(expected)) return { kind: 'invalid', reason: 'account-key-set' };
   }
 
   const budgetKinds = new Set<number>();
@@ -247,8 +265,8 @@ export function parseGuestbookTransaction(
     }
   }
 
-  const transfer = instructions.at(-2);
-  const memo = instructions.at(-1);
+  const transfer = coreInstructions.at(-2);
+  const memo = coreInstructions.at(-1);
   if (!isRecord(transfer) || !isRecord(memo)) return { kind: 'invalid', reason: 'tail-instruction-malformed' };
 
   if (accountKeys[transfer.programIdIndex as number] !== SYSTEM_PROGRAM_ADDRESS) {

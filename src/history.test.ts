@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getBase58Decoder } from '@solana/kit';
 import {
+  LIGHTHOUSE_PROGRAM_ADDRESS,
   MARKER_ADDRESS,
   MEMO_PROGRAM_ADDRESS,
   PROTOCOL_APP,
@@ -60,6 +61,19 @@ function fixture(text = '你好，链上见 🚀', sig = signature(1), author = 
   };
 }
 
+function fixtureWithLighthouse(text = 'Phantom Lighthouse'): any {
+  const value = fixture(text);
+  value.transaction.message.accountKeys.push(LIGHTHOUSE_PROGRAM_ADDRESS);
+  value.transaction.message.header.numReadonlyUnsignedAccounts = 1;
+  value.transaction.message.instructions = [
+    { programIdIndex: 4, accounts: [1], data: 'W4YsryyMzThi7d7CB' },
+    value.transaction.message.instructions[0],
+    value.transaction.message.instructions[1],
+    { programIdIndex: 4, accounts: [0], data: 'BgfmnKb9CocihbSgCgKotv7F3cyHnWbbaVu' },
+  ];
+  return value;
+}
+
 describe('严格解析', () => {
   it('成功解析作者、正文、slot、费用，blockTime允许null', () => {
     const parsed = parseGuestbookTransaction(fixture(), signature(1));
@@ -70,6 +84,14 @@ describe('严格解析', () => {
     expect(parsed.message.slot).toBe(516_639_135n);
     expect(parsed.message.feeLamports).toBe(80_000n);
     expect(parsed.message.blockTime).toBeNull();
+  });
+
+  it('只过滤Lighthouse守卫后仍按原协议解析留言', () => {
+    const parsed = parseGuestbookTransaction(fixtureWithLighthouse(), signature(1));
+    expect(parsed.kind).toBe('message');
+    if (parsed.kind !== 'message') throw new Error('expected message');
+    expect(parsed.message.author).toBe(AUTHOR);
+    expect(parsed.message.text).toBe('Phantom Lighthouse');
   });
 
   it('null与meta缺失属于不可验证，不是明确无效', () => {

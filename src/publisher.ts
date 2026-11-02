@@ -13,6 +13,7 @@ import type { Address } from '@solana/kit';
 import {
   buildUnsignedGuestbookTransaction,
   describeMessageTextError,
+  LIGHTHOUSE_PROGRAM_ADDRESS,
   MAX_TRANSACTION_BYTES,
   validateMessageText,
 } from './message';
@@ -28,7 +29,6 @@ const RECEIPT_VERSION = 1 as const;
 const PREPARED_VERSION = 1 as const;
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_SIGNING_TIMEOUT_MS = 60_000;
-const PHANTOM_LIGHTHOUSE_PROGRAM_ID = 'L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95';
 
 export type PublicationStatus =
   | 'submitting'
@@ -335,7 +335,7 @@ function isPhantomLighthouseOnlyModification(
     if (
       missingExpected.length !== 0 ||
       addedActual.length !== 1 ||
-      addedActual[0] !== PHANTOM_LIGHTHOUSE_PROGRAM_ID
+      addedActual[0] !== LIGHTHOUSE_PROGRAM_ADDRESS
     ) {
       return false;
     }
@@ -345,13 +345,13 @@ function isPhantomLighthouseOnlyModification(
       .filter(
         ({ instruction }) =>
           actual.staticAccounts[instruction.programAddressIndex] !==
-          PHANTOM_LIGHTHOUSE_PROGRAM_ID,
+          LIGHTHOUSE_PROGRAM_ADDRESS,
       )
       .map(({ index }) => index);
     const lighthouseInstructions = actual.instructions.filter(
       (instruction) =>
         actual.staticAccounts[instruction.programAddressIndex] ===
-        PHANTOM_LIGHTHOUSE_PROGRAM_ID,
+        LIGHTHOUSE_PROGRAM_ADDRESS,
     );
     if (
       lighthouseInstructions.length === 0 ||
