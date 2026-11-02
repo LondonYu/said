@@ -1,6 +1,6 @@
 # Said STATUS
 
-更新：2026-11-02T00:12:04+08:00。**主网发布路径 P1 已修复并部署。线上运行 `76b2a55`；PublicNode 的 `getBlockHeight` 间歇返回 slot导致 blockhash 误判的问题已由 Solana Tracker RPC 修复。** 用户已有 0.102099861 主网 SOL，公网页面已成功准备 `test` 并进入钱包签名等待。
+更新：2026-11-02T09:46:14+08:00。**又修复一处 P1：钱包人工确认原先与网络请求共用10秒截止，用户正常确认稍慢就会被页面判超时。** 现在网络请求仍为10秒，钱包确认单独保留60秒；针对性回归与全量256项测试通过，待提交和重新部署。
 
 ## 当前发布
 
@@ -50,6 +50,7 @@
 - 只读RPC证据：[read-only-mainnet.json](docs/sprints/SPRINT-MAINNET/evidence/read-only-mainnet.json)。2026-11-01T23:27:21+08:00，Vite SSR以mainnet加载实际模块：chain/genesis/board/回执key/Explorer一致，PublicNode genesis匹配，Memo程序executable，marker历史0条；三语言流程文案forbiddenMatches为空。无签名、无广播。
 - M01：通过。公网部署后的真实浏览器显示“Solana 主网 · 真实 SOL”“Solana 主网只读”；未连接时主网板返回真实空状态，扫描候选为0。
 - M02：主网连接、余额与交易准备通过。Phantom 当前显示付款公钥`3nbt5qpNubJRPynU5vVJgZJmRkNRimVsQZjZPperNA5w`与余额`0.102099861 SOL`；修复后的只读准备连续3次模拟成功，等待用户在公网版本确认签名。
+- M02补充：首次公网签名等待在10秒后显示“签名等待已取消或超时”，没有生成本地签名回执，也没有广播。根因是钱包人工交互错误复用了网络请求截止；修复与证据见下。
 - M03：待验证。尚无真实主网交易、确认或刷新读回；不把空板、模拟或注入测试当作M03证据。
 - 浏览器证据：[pages-mainnet-browser.json](docs/sprints/SPRINT-MAINNET/evidence/pages-mainnet-browser.json)；部署记录：[pages-deployment.json](docs/sprints/SPRINT-MAINNET/evidence/pages-deployment.json)。
 - 未验证项：主网签名/广播/确认/读回、其他钱包、真机与异常矩阵。公共RPC预检、Node只读请求和注入测试不能替代这些验收。
@@ -61,6 +62,14 @@
 - 验证：同一账户`3nbt5qpNubJRPynU5vVJgZJmRkNRimVsQZjZPperNA5w`和新正文`test`连续3次只读准备均得到`blockhashExpired=false`、`feeLamports=5000`、`balanceLamports=102099861`、模拟成功；未请求签名、未广播。[证据](docs/sprints/SPRINT-MAINNET/evidence/rpc-height-mismatch-fix.json)。
 - 公网验证：`76b2a55`部署后刷新页面并重连Phantom，再次准备同一笔`test`成功，页面进入“正在等待钱包签名”；尚未在钱包确认，未签名、未广播。
 - 现有检查：typecheck退出0；9个测试文件、255项通过；mainnet构建退出0；Pages运行41324737287 build/deploy成功。
+
+### 钱包确认窗口修复
+
+- P1复现：用户提交`test`签名后，页面显示“签名等待已取消或超时”。准备、模拟和余额均正常；失败发生在钱包返回前，没有签名回执或广播。
+- 根因：发布核心已有10秒网络请求预算，但`sign`把同一截止同时用于网络复核和人工钱包确认，导致用户在钱包内稍慢即超时。
+- 修复：网络RPC仍保持10秒单次预算；新增独立的60秒`signingTimeoutMs`。签名总截止容纳签名前后两次网络复核与人工确认窗口，不把钱包返回后的过期blockhash或费用变化放行。
+- 验证：新增“钱包人工确认超过网络请求预算但仍在签名窗口内时成功”回归；typecheck退出0；9个测试文件、256项通过；mainnet构建退出0。证据：[signing-window-fix.json](docs/sprints/SPRINT-MAINNET/evidence/signing-window-fix.json)。
+- 待部署后在公网页面重新准备并签名；不能复用已超时的交易对象。
 
 ## backlog（不阻断已验收里程碑）
 

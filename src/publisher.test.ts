@@ -185,6 +185,7 @@ type FixtureOptions = {
   onSimulation?: () => void;
   receiptStore?: PublicationReceiptStore;
   timeoutMs?: number;
+  signingTimeoutMs?: number;
   confirmTotalTimeoutMs?: number;
   confirmIntervalMs?: number;
   confirmMaxRounds?: number;
@@ -299,6 +300,7 @@ async function createFixture(options: FixtureOptions = {}) {
     historyClient: { retrySignatures },
     getCurrentSession: () => current,
     timeoutMs: options.timeoutMs ?? 50,
+    signingTimeoutMs: options.signingTimeoutMs ?? options.timeoutMs ?? 50,
     confirm: {
       maxRounds: options.confirmMaxRounds ?? 2,
       intervalMs: options.confirmIntervalMs ?? 0,
@@ -667,6 +669,29 @@ describe('2.2A 签名返回：严格解码、唯一签名槽与真实 Ed25519 �
       },
     ]);
     await expect(first).resolves.toMatchObject({ author: fixture.signer.address });
+    fixture.controller.dispose();
+  });
+
+  it('钱包人工确认超过网络请求预算但仍在签名窗口内时成功', async () => {
+    const fixture = await createFixture({ timeoutMs: 20, signingTimeoutMs: 200 });
+    const prepared = await prepare(fixture);
+    fixture.setSignBehavior(async (inputs) => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return [
+        {
+          signedTransaction: await signWire(
+            fixture.signer,
+            new Uint8Array(inputs[0]!.transaction),
+          ),
+        },
+      ];
+    });
+
+    const signed = await fixture.publisher.sign(prepared, fixture.session);
+
+    expect(looksLikeSignature(signed.signature)).toBe(true);
+    expect(fixture.signCalls).toHaveLength(1);
+    expect(fixture.rpc.sendPayloads).toHaveLength(0);
     fixture.controller.dispose();
   });
 

@@ -26,6 +26,7 @@ export const MAX_PUBLICATION_RECEIPTS = 10;
 const RECEIPT_VERSION = 1 as const;
 const PREPARED_VERSION = 1 as const;
 const DEFAULT_TIMEOUT_MS = 10_000;
+const DEFAULT_SIGNING_TIMEOUT_MS = 60_000;
 
 export type PublicationStatus =
   | 'submitting'
@@ -191,6 +192,7 @@ export type PublisherDependencies = {
   readonly historyClient: PublisherHistoryClient;
   readonly getCurrentSession: () => WalletSigningSession | null;
   readonly timeoutMs?: number;
+  readonly signingTimeoutMs?: number;
   readonly confirm?: Readonly<{
     maxRounds?: number;
     intervalMs?: number;
@@ -750,6 +752,7 @@ export async function verifySignedGuestbookTransaction({
 
 export function createPublisher(dependencies: PublisherDependencies): Publisher {
   const timeoutMs = dependencies.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const signingTimeoutMs = dependencies.signingTimeoutMs ?? DEFAULT_SIGNING_TIMEOUT_MS;
   const now = dependencies.now ?? Date.now;
   const confirmOptions = dependencies.confirm ?? {};
   const maxRounds = Math.max(1, confirmOptions.maxRounds ?? 10);
@@ -848,7 +851,8 @@ export function createPublisher(dependencies: PublisherDependencies): Publisher 
     // 必须在第一次 await 之前同步占锁，否则同一帧连点会各自进入 RPC 复核并各弹一次钱包。
     const attempt = {};
     signingAttempt = attempt;
-    const deadline = createDeadline(signal, timeoutMs);
+    // 网络复核仍使用单次 10 秒预算；钱包是人工交互，单独保留 60 秒确认窗口。
+    const deadline = createDeadline(signal, timeoutMs + signingTimeoutMs + timeoutMs);
     let walletStarted = false;
     try {
       throwIfStopped(deadline, '签名');

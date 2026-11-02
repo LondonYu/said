@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-11-02T09:46:14+08:00",
+  "severity": "P1",
+  "problem": {
+    "observedMessage": "签名等待已取消或超时。",
+    "operation": "test",
+    "networkTimeoutMs": 10000,
+    "walletConfirmationSharedNetworkTimeout": true,
+    "receiptCreated": false,
+    "signed": false,
+    "broadcast": false
+  },
+  "fix": {
+    "networkTimeoutMs": 10000,
+    "walletConfirmationTimeoutMs": 60000,
+    "networkAndWalletDeadlinesSeparatedByOperationBudget": true
+  },
+  "regression": {
+    "name": "钱包人工确认超过网络请求预算但仍在签名窗口内时成功",
+    "result": "passed"
+  },
+  "checks": {
+    "typecheckExitCode": 0,
+    "testFilesPassed": 9,
+    "testsPassed": 256,
+    "mainnetBuildExitCode": 0,
+    "mainnetBundle": "index-CkO319vp.js"
+  }
+}
