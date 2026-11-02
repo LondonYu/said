@@ -2,6 +2,8 @@
 
 [English](README.en.md) · [简体中文](README.md) · [Live demo](https://londonyu.github.io/said/)
 
+**Status: v0.2.0 is complete and closed.** The mainnet publishing loop and public refresh read-back are accepted, with no product work currently in progress.
+
 An open-source guestbook on Solana. Connect a wallet, sign a short message, and read the public feed or an author's history through RPC. The build chooses Solana Devnet or Solana Mainnet; the Pages workflow uses mainnet, while local development and tests default to Devnet. Built with React, TypeScript, and Vite, without a custom application server or traditional database.
 
 This is a learning and portfolio project available under the MIT license. Mainnet publishing pays the network fee in real SOL; the platform charges nothing extra. The user's wallet performs signing and broadcasting.

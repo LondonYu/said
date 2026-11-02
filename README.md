@@ -2,6 +2,8 @@
 
 [简体中文](README.md) · [English](README.en.md) · [在线演示](https://londonyu.github.io/said/)
 
+**项目状态：v0.2.0 已完成并结案。** 主网发布闭环与公网刷新读回均已验收，当前无进行中的产品工单。
+
 基于 Solana 的开源链上留言板。连接钱包、签名发布短文字，再通过 RPC 读取公共留言和作者历史。构建时选择 Devnet 或 Solana 主网；Pages 工作流使用主网，本地开发与测试默认 Devnet。React + TypeScript + Vite，无自建业务后端或传统数据库。
 
 这是一个学习与作品集项目，代码按 MIT 协议开放。主网发布使用真实 SOL 支付网络费，平台不额外收费；签名和广播由用户钱包完成。

@@ -1,6 +1,15 @@
 # Said STATUS
 
-更新：2026-11-02T14:50:51+08:00。**Said v0.2.0 已正式发布。** 首笔真实主网留言已finalized并在公网读回；GitHub Release、标签、公开仓库和MIT许可均已完成。
+更新：2026-11-02T15:05:00+08:00。**项目结案：Said v0.2.0 已完成、发布并通过验收。** 当前无进行中工单；后续只响应明确的新目标或已复现的问题。
+
+## 结案声明
+
+- 完成目标：钱包连接、真实 SOL 主网签名、广播、finalized确认、公网刷新读回的开源作品闭环。
+- 结案版本：`v0.2.0`；[GitHub Release](https://github.com/LondonYu/said/releases/tag/v0.2.0)；标签指向`0b5fc90`。
+- 公网验收：[Said](https://londonyu.github.io/said/)，当前业务部署`3630afe`。
+- 链上验收：[交易1BuLM…cf3Qp](https://explorer.solana.com/tx/1BuLMQJnNreHBv1JtsLeqB1SUkCTEeMHAs6BgknUG72UQLAYyNmCXf3F1BN5qax2X638RnbK5xFhNVMVHbcf3Qp)为finalized、`err=null`，正文“测试”可在刷新后读回。
+- 质量基线：259项测试、typecheck、mainnet构建和Pages部署均通过。
+- 不在结案范围：运营型社交产品、后端索引、完整钱包/设备矩阵、垃圾治理和扩容。后续从用户新目标或backlog重新开单。
 
 ## 当前发布
 
