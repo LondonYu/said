@@ -578,7 +578,7 @@ describe('2.2A 签名返回：严格解码、唯一签名槽与真实 Ed25519 �
         session: fixture.session,
         signedTransaction: signed,
       }),
-    ).rejects.toThrow(/消息|交易|不一致/);
+    ).rejects.toThrow(/消息|交易|不一致|指令|blockhash/);
     fixture.controller.dispose();
   });
 

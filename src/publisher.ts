@@ -1,6 +1,7 @@
 import {
   getBase58Decoder,
   getBase58Encoder,
+  getCompiledTransactionMessageDecoder,
   getPublicKeyFromAddress,
   getTransactionDecoder,
   getTransactionEncoder,
@@ -245,6 +246,32 @@ function bytesEqual(left: ArrayLike<number>, right: ArrayLike<number>): boolean 
     if (left[index] !== right[index]) return false;
   }
   return true;
+}
+
+function describeMessageMismatch(expected: ArrayLike<number>, actual: ArrayLike<number>): string {
+  const firstDifference = Array.from({ length: Math.min(expected.length, actual.length) }).findIndex(
+    (_value, index) => expected[index] !== actual[index],
+  );
+  try {
+    const decoder = getCompiledTransactionMessageDecoder();
+    const expectedMessage = decoder.decode(Uint8Array.from(expected));
+    const actualMessage = decoder.decode(Uint8Array.from(actual));
+    if (expectedMessage.version === 1 || actualMessage.version === 1) {
+      throw new Error('暂不支持版本 1 的消息差异诊断。');
+    }
+    const programs = (message: typeof expectedMessage) =>
+      message.instructions.map(
+        (instruction) => message.staticAccounts[instruction.programAddressIndex] ?? `#${instruction.programAddressIndex}`,
+      );
+    return [
+      '签名交易消息与准备快照不一致。',
+      `准备：blockhash ${expectedMessage.lifetimeToken}，${expectedMessage.instructions.length} 条指令，${expectedMessage.staticAccounts.length} 个静态账户，程序 [${programs(expectedMessage).join(', ')}]。`,
+      `钱包：blockhash ${actualMessage.lifetimeToken}，${actualMessage.instructions.length} 条指令，${actualMessage.staticAccounts.length} 个静态账户，程序 [${programs(actualMessage).join(', ')}]。`,
+      `消息长度 ${expected.length}/${actual.length} 字节，首个差异字节位置 ${firstDifference < 0 ? '无' : firstDifference}。`,
+    ].join(' ');
+  } catch {
+    return `签名交易消息与准备快照不一致（准备 ${expected.length} 字节，钱包 ${actual.length} 字节，首个差异字节位置 ${firstDifference < 0 ? '无' : firstDifference}）。`;
+  }
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
@@ -716,7 +743,7 @@ export async function verifySignedGuestbookTransaction({
     throw new Error('签名交易包含尾随字节或结构不一致。');
   }
   if (!bytesEqual(transaction.messageBytes, preparedBytes.messageBytes)) {
-    throw new Error('签名交易消息与准备快照不一致。');
+    throw new Error(describeMessageMismatch(preparedBytes.messageBytes, transaction.messageBytes));
   }
 
   const signatureKeys = Object.keys(transaction.signatures);
