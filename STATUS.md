@@ -1,10 +1,11 @@
 # Said STATUS
 
-更新：2026-11-02T13:55:00+08:00。**Said v0.2.0 主网闭环已完成并在公网验收。** 首笔真实留言`1BuLM…cf3Qp`为finalized，正文“测试”，费用5000lamports；刷新公共流正常显示。
+更新：2026-11-02T14:50:51+08:00。**Said v0.2.0 已正式发布。** 首笔真实主网留言已finalized并在公网读回；GitHub Release、标签、公开仓库和MIT许可均已完成。
 
 ## 当前发布
 
 - 正式地址：[Said](https://londonyu.github.io/said/)，GitHub Pages托管，独立于用户电脑和本地进程。
+- 正式发布：[v0.2.0](https://github.com/LondonYu/said/releases/tag/v0.2.0)，标签指向`0b5fc90`。
 - 线上代码：`3630afe`；[部署运行41395955859](https://github.com/LondonYu/said/actions/runs/41395955859)成功，build与deploy均成功，2026-11-02T13:47+08:00。最终验收文档提交`07d7fb5`。
 - 线上能力：连接钱包、读取公共/作者历史、显式准备/签名/提交、原签名确认与读回；当前线上运行 Solana 主网，公共板已有1条经签名验证的留言。旧 Devnet 留言与回执不进入当前页面。
 - 主网配置：Pages工作流build显式`VITE_SOLANA_NETWORK=mainnet`；本地`npm run dev`和`npm test`默认Devnet。主网使用`solana:mainnet`、Solana Tracker公共RPC、主网genesis、`public-mainnet-v1`、独立回执key和无cluster的Explorer；真实SOL网络费由用户支付，平台不额外收费。
@@ -37,7 +38,7 @@
 - 范围：在用户“好下一步”后补齐中英文README的体验步骤、固定版本本地启动、六个换链模块和已验证/限制说明；保留MIT与现有产品。
 - 演示材料：[真实公网首页截图](docs/sprints/SPRINT-2.2B/evidence/portfolio-home.png)，显示4条真实记录、未连接钱包；[采集记录](docs/sprints/SPRINT-2.2B/evidence/portfolio-home.json)。记录时间2026-11-01T22:55:55+08:00，线上仍7216807。
 - 核对来源：本地.nvmrc/package.json/脚本、已验收交易记录、GitHub连接器确认现有仓库public；官方水龙头链接已打开核对。
-- v0.2.0已完成主网验收并准备发布GitHub Release；后续产品功能由用户另定，不从backlog自动续做。
+- v0.2.0 GitHub Release已发布；后续产品功能由用户另定，不从backlog自动续做。
 
 ## 主网实现、部署与验收
 
