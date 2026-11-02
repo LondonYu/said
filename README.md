@@ -77,11 +77,11 @@ React 界面、主题、语言设置和部分正文校验可以复用；只更�
 
 ## 已验证与限制
 
-用户已在 Chrome + Phantom 完成真实 Devnet 签名发布，并确认刷新后可读。[本次 Devnet 验证交易](https://explorer.solana.com/tx/3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz?cluster=devnet)达到 finalized；完整证据见 [STATUS](STATUS.md)。
+用户已在 Chrome + Phantom 完成真实 Devnet 与 Solana 主网签名发布，并确认刷新后可读。[主网验证交易](https://explorer.solana.com/tx/1BuLMQJnNreHBv1JtsLeqB1SUkCTEeMHAs6BgknUG72UQLAYyNmCXf3F1BN5qax2X638RnbK5xFhNVMVHbcf3Qp)达到 finalized，正文“测试”在部署后公网页面可读回；完整证据见 [STATUS](STATUS.md)。
 
-- 主网版本已部署到 GitHub Pages；公网页面、主网只读空状态、Phantom 主网连接及真实余额读取已通过浏览器核验。真实主网签名、广播、链上确认和刷新读回仍待有余额账户完成，M03 尚未验收。
-- 主网公共流初始为空是正常状态。旧 Devnet 留言仍在 Devnet，不称为迁移或删除。
-- 主网使用 `https://rpc.solanatracker.io/public`。该公共端点允许 GitHub Pages 的浏览器请求；`getLatestBlockhash`、`getBlockHeight`、费用估算和未签名模拟返回一致结果。
+- 主网版本已部署到 GitHub Pages；公网页面、Phantom 主网连接、真实签名、广播、finalized确认和刷新读回均已完成。
+- 主网首条留言为正文“测试”，作者由付款签名推导，费用为5000 lamports。旧 Devnet 留言仍在 Devnet，不称为迁移或删除。
+- 主网使用 `https://rpc.solanatracker.io/public` 与 Phantom Lighthouse 守卫最小白名单；核心交易指令和账户必须保持不变，其他钱包修改继续拒绝。
 - 公共 RPC 可能限流或缺少历史，不承诺永久存储或始终完整可读。主网基础费以当次 RPC 估费为准。
 - 全钱包、手机签名和全部异常场景尚未验证。首次超时、重试成功的 Devnet 反馈已记录，根因未知。
 - 功能不含代付、平台收费、点赞、回复或私信。

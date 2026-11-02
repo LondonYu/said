@@ -77,11 +77,11 @@ The React interface, themes, language settings, and some text validation can be 
 
 ## Verified behavior and limits
 
-The user completed a real Devnet publication in Chrome with Phantom and confirmed that the message remained visible after refreshing. The [Devnet verification transaction](https://explorer.solana.com/tx/3gkgb4vK4xypp342nPGwEmJL5gwfhWysWGrcyKQLz1UDPdmeedp5gARgvARYdWyrSsGT5GMGbNV8pMz3iCZvr4nz?cluster=devnet) reached finalized. See [STATUS](STATUS.md) for the evidence.
+The user completed real Devnet and Solana Mainnet publications in Chrome with Phantom and confirmed that each message remained visible after refreshing. The [mainnet verification transaction](https://explorer.solana.com/tx/1BuLMQJnNreHBv1JtsLeqB1SUkCTEeMHAs6BgknUG72UQLAYyNmCXf3F1BN5qax2X638RnbK5xFhNVMVHbcf3Qp) reached finalized, and the text “测试” loads again on the deployed public page. See [STATUS](STATUS.md) for the evidence.
 
-- The mainnet build is deployed on GitHub Pages. Browser checks passed for the public mainnet empty state, Phantom mainnet connection, and real balance retrieval. Real mainnet signing, broadcast, confirmation, and refresh read-back still require an account with enough SOL; M03 is not accepted.
-- An initially empty mainnet public feed is expected. Old Devnet posts remain on Devnet and are not described as migrated or deleted.
-- Mainnet uses `https://rpc.solanatracker.io/public`. The public endpoint allows browser requests from GitHub Pages and returns consistent results for `getLatestBlockhash`, `getBlockHeight`, fee estimation, and unsigned simulation.
+- The mainnet build is deployed on GitHub Pages. Phantom connection, real signing, broadcast, finalized confirmation, and refresh read-back have all been completed.
+- The first mainnet post contains “测试”, derives its author from the fee-paying signature, and cost 5000 lamports. Old Devnet posts remain on Devnet and are not described as migrated or deleted.
+- Mainnet uses `https://rpc.solanatracker.io/public` with a minimal Phantom Lighthouse guard allowlist. Core instructions and accounts must remain unchanged; all other wallet modifications are rejected.
 - Public RPC services may throttle requests or lack historical data. Permanent storage and complete availability are not guaranteed. The mainnet basic fee is whatever the RPC estimates for that transaction.
 - Other wallets, mobile signing, and all failure scenarios have not been verified. An initial timeout followed by a successful Devnet retry is recorded; its cause is unknown.
 - Sponsored fees, platform charges, likes, replies, and private messages are outside this implementation.

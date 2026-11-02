@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-11-02T13:50:00+08:00",
+  "signature": "1BuLMQJnNreHBv1JtsLeqB1SUkCTEeMHAs6BgknUG72UQLAYyNmCXf3F1BN5qax2X638RnbK5xFhNVMVHbcf3Qp",
+  "explorer": "https://explorer.solana.com/tx/1BuLMQJnNreHBv1JtsLeqB1SUkCTEeMHAs6BgknUG72UQLAYyNmCXf3F1BN5qax2X638RnbK5xFhNVMVHbcf3Qp",
+  "author": "3nbt5qpNubJRPynU5vVJgZJmRkNRimVsQZjZPperNA5w",
+  "text": "测试",
+  "status": "finalized",
+  "err": null,
+  "slot": "464380769",
+  "blockTime": 1793597970,
+  "feeLamports": "5000",
+  "preBalanceLamports": "102099861",
+  "postBalanceLamports": "102094861",
+  "programs": [
+    "ComputeBudget111111111111111111111111111111",
+    "ComputeBudget111111111111111111111111111111",
+    "L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95",
+    "11111111111111111111111111111111",
+    "Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH",
+    "L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95"
+  ],
+  "duplicateLocalSignature": {
+    "signature": "LAyjwUadBTQLhdUnQicJYpDxhiYUmbsNeHqoC6CrAsw5uyUTLf91moLwjvtXwsiLLsHu9vHSCzPpZ6x1j7bjG9s",
+    "onChainStatus": null
+  },
+  "deployment": {
+    "commit": "3630afe",
+    "run": "https://github.com/LondonYu/said/actions/runs/41395955859",
+    "conclusion": "success",
+    "publicPageReadback": true
+  },
+  "checks": {
+    "typecheckExitCode": 0,
+    "testFilesPassed": 9,
+    "testsPassed": 259,
+    "mainnetBuildExitCode": 0,
+    "mainnetBundle": "index-CUXpyRtO.js"
+  }
+}
