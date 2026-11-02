@@ -2,9 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Wallet, WalletAccount } from '@wallet-standard/base';
 import {
   getBase58Decoder,
+  getCompiledTransactionMessageDecoder,
+  getCompiledTransactionMessageEncoder,
   getTransactionDecoder,
   getTransactionEncoder,
 } from '@solana/kit';
+import type { Address } from '@solana/kit';
 import {
   createWalletController,
   type WalletRegistry,
@@ -31,6 +34,7 @@ const CURRENT_BLOCK_HEIGHT = 899_990n;
 const NOW = 1_700_000_000_000;
 const DEVNET_CHAIN = SOLANA_CHAIN;
 const DEVNET_GENESIS_HASH = SOLANA_NETWORK_CONFIG.genesisHash;
+const PHANTOM_LIGHTHOUSE_PROGRAM_ID = 'L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95';
 
 type TestSigner = {
   readonly keyPair: CryptoKeyPair;
@@ -91,6 +95,47 @@ async function signWire(
   withTrailing.set(encoded);
   withTrailing[encoded.length] = 7;
   return withTrailing;
+}
+
+async function signWithInjectedGuards(
+  signer: TestSigner,
+  unsignedWire: Uint8Array,
+  guardProgram = PHANTOM_LIGHTHOUSE_PROGRAM_ID,
+): Promise<Uint8Array> {
+  const transaction = getTransactionDecoder().decode(unsignedWire);
+  const message = getCompiledTransactionMessageDecoder().decode(
+    new Uint8Array(transaction.messageBytes),
+  );
+  if (message.version === 1) throw new Error('测试交易不应使用版本 1。');
+
+  const staticAccounts = [...message.staticAccounts, guardProgram as Address];
+  const guardInstruction = {
+    programAddressIndex: staticAccounts.length - 1,
+    data: new Uint8Array([1, 2, 3]),
+  };
+  const messageBytes = new Uint8Array(
+    getCompiledTransactionMessageEncoder().encode({
+      ...message,
+      header: {
+        ...message.header,
+        numReadonlyNonSignerAccounts: message.header.numReadonlyNonSignerAccounts + 1,
+      },
+      staticAccounts,
+      instructions: [
+        ...message.instructions.slice(0, 2),
+        guardInstruction,
+        ...message.instructions.slice(2),
+        guardInstruction,
+      ],
+    }),
+  ) as unknown as typeof transaction.messageBytes;
+  const injectedWire = new Uint8Array(
+    getTransactionEncoder().encode({
+      ...transaction,
+      messageBytes,
+    }),
+  );
+  return signWire(signer, injectedWire);
 }
 
 type SignatureStatusFixture = {
@@ -579,6 +624,46 @@ describe('2.2A 签名返回：严格解码、唯一签名槽与真实 Ed25519 �
         signedTransaction: signed,
       }),
     ).rejects.toThrow(/消息|交易|不一致|指令|blockhash/);
+    fixture.controller.dispose();
+  });
+
+  it('允许Phantom只新增Lighthouse守卫并保持核心指令不变', async () => {
+    const fixture = await createFixture();
+    const prepared = await prepare(fixture);
+    const signed = await signWithInjectedGuards(
+      fixture.signer,
+      decodeWireBase64(prepared.unsignedTransactionBase64),
+    );
+
+    const verified = await verifySignedGuestbookTransaction({
+      prepared,
+      session: fixture.session,
+      signedTransaction: signed,
+    });
+
+    expect(looksLikeSignature(verified.signature)).toBe(true);
+    expect(verified.messageBase64).not.toBe(prepared.messageBase64);
+    expect(fixture.rpc.sendPayloads).toHaveLength(0);
+    fixture.controller.dispose();
+  });
+
+  it('拒绝新增非Lighthouse程序指令', async () => {
+    const fixture = await createFixture();
+    const prepared = await prepare(fixture);
+    const signed = await signWithInjectedGuards(
+      fixture.signer,
+      decodeWireBase64(prepared.unsignedTransactionBase64),
+      'Vote111111111111111111111111111111111111111',
+    );
+
+    await expect(
+      verifySignedGuestbookTransaction({
+        prepared,
+        session: fixture.session,
+        signedTransaction: signed,
+      }),
+    ).rejects.toThrow(/消息|不一致|blockhash|指令/);
+    expect(fixture.rpc.sendPayloads).toHaveLength(0);
     fixture.controller.dispose();
   });
 

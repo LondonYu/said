@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-11-02T11:20:33+08:00",
+  "userApproved": true,
+  "observedMismatch": {
+    "blockhash": "D9CD518oR2PsMnND393KSLb9wjE21Y7q8CHrUg5JYkKL",
+    "prepared": {
+      "messageBytes": 315,
+      "instructions": 4,
+      "staticAccounts": 5,
+      "programs": [
+        "ComputeBudget111111111111111111111111111111",
+        "ComputeBudget111111111111111111111111111111",
+        "11111111111111111111111111111111",
+        "Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH"
+      ]
+    },
+    "walletReturned": {
+      "messageBytes": 394,
+      "instructions": 6,
+      "staticAccounts": 6,
+      "programs": [
+        "ComputeBudget111111111111111111111111111111",
+        "ComputeBudget111111111111111111111111111111",
+        "L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95",
+        "11111111111111111111111111111111",
+        "Memo4c2pN8afCj432Lb7RMVKi9PbQnnW7ewFFaV3oAH",
+        "L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95"
+      ]
+    }
+  },
+  "allowlist": {
+    "program": "L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95",
+    "requirements": [
+      "same lifetime blockhash",
+      "same signer roles",
+      "same core instruction order, program, account addresses, and instruction data",
+      "no address lookup tables",
+      "exactly one additional static account, which must be the Lighthouse program",
+      "at least one added Lighthouse instruction",
+      "all added instructions must invoke Lighthouse"
+    ],
+    "feeRecheckedAgainstWalletMessage": true,
+    "signatureVerifiedAgainstWalletMessage": true
+  },
+  "checks": {
+    "typecheckExitCode": 0,
+    "testFilesPassed": 9,
+    "testsPassed": 258,
+    "mainnetBuildExitCode": 0,
+    "mainnetBundle": "index-CC2X8sYU.js"
+  },
+  "signed": false,
+  "broadcast": false
+}

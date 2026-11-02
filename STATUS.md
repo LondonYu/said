@@ -1,6 +1,6 @@
 # Said STATUS
 
-更新：2026-11-02T09:46:14+08:00。**又修复一处 P1：钱包人工确认原先与网络请求共用10秒截止，用户正常确认稍慢就会被页面判超时。** 现在网络请求仍为10秒，钱包确认单独保留60秒；针对性回归与全量256项测试通过，待提交和重新部署。
+更新：2026-11-02T11:20:33+08:00。**Phantom主网Lighthouse守卫不兼容已按用户确认的最小白名单修复。** 原有核心指令必须逐项一致，只允许额外加入审计过的Lighthouse程序；其他钱包修改继续拒绝。全量258项测试和主网构建通过，待提交部署。
 
 ## 当前发布
 
@@ -70,6 +70,15 @@
 - 修复：网络RPC仍保持10秒单次预算；新增独立的60秒`signingTimeoutMs`。签名总截止容纳签名前后两次网络复核与人工确认窗口，不把钱包返回后的过期blockhash或费用变化放行。
 - 验证：新增“钱包人工确认超过网络请求预算但仍在签名窗口内时成功”回归；typecheck退出0；9个测试文件、256项通过；mainnet构建退出0。证据：[signing-window-fix.json](docs/sprints/SPRINT-MAINNET/evidence/signing-window-fix.json)。
 - 待部署后在公网页面重新准备并签名；不能复用已超时的交易对象。
+
+### Phantom Lighthouse守卫兼容
+
+- 实际差异：准备交易与钱包返回交易使用相同blockhash；Phantom额外加入两条Lighthouse程序`L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95`指令，消息由315字节增至394字节。原有ComputeBudget×2、System零转账和Memo均保持。
+- 用户确认方案：只允许该审计程序的额外守卫指令，不接受其他消息变化。
+- 强制条件：blockhash、签名者角色、核心指令顺序、程序、账户地址和指令数据必须一致；不得存在地址表查询；额外静态账户只能且必须是Lighthouse程序。
+- 复核调整：钱包返回后的费用复核使用实际签名消息；原blockhash有效期、余额和会话复核继续执行。
+- 验证：新增“允许Phantom只新增Lighthouse守卫”和“拒绝新增非Lighthouse程序”回归；typecheck退出0；9个测试文件、258项通过；mainnet构建输出`index-CC2X8sYU.js`。[证据](docs/sprints/SPRINT-MAINNET/evidence/phantom-lighthouse-compat.json)。
+- 待提交、部署后在公网重新准备并签名。
 
 ## backlog（不阻断已验收里程碑）
 

@@ -120,3 +120,5 @@ Phantom真实签名返回消息与准备快照不一致，旧单R1已完成修�
 本次官方主网公共端点返回403；[PublicNode官方端点](https://solana.publicnode.com/)只读预检返回正确主网genesis和Memo可执行信息，作为当前候选RPC，不承诺其可用性或浏览器兼容已验。当前站点仍Devnet，主网需另行按M01-M03验证。工单及实际结果见STATUS。
 
 主网部署后的真实发布会话发现 PublicNode 的 `getBlockHeight` 间歇返回 slot 数值，导致有效 blockhash 被误判为过期。改用 `https://rpc.solanatracker.io/public`：其浏览器 CORS 允许 GitHub Pages 来源，主网 genesis、blockhash、真实 block height、费用估算和未签名模拟一致。保留现有 genesis 校验、blockhash 有效期复核与单次广播保护；不以放宽过期判断绕过问题。
+
+Phantom在Solana主网会为交易自动加入Lighthouse防钓鱼守卫，导致逐字节消息校验拒绝其签名。用户明确批准最小白名单兼容：blockhash、签名者、ComputeBudget、System零转账、Memo、核心指令顺序及账户引用必须保持不变；只允许额外出现已审计的Lighthouse程序`L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95`指令。其他程序、指令内容或账户变化继续拒绝；签名验证和费用复核使用钱包实际返回的消息。

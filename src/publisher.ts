@@ -28,6 +28,7 @@ const RECEIPT_VERSION = 1 as const;
 const PREPARED_VERSION = 1 as const;
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_SIGNING_TIMEOUT_MS = 60_000;
+const PHANTOM_LIGHTHOUSE_PROGRAM_ID = 'L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95';
 
 export type PublicationStatus =
   | 'submitting'
@@ -246,6 +247,124 @@ function bytesEqual(left: ArrayLike<number>, right: ArrayLike<number>): boolean 
     if (left[index] !== right[index]) return false;
   }
   return true;
+}
+
+type SupportedCompiledMessage = Readonly<{
+  version: 'legacy' | 0;
+  lifetimeToken: string;
+  header: Readonly<{
+    numSignerAccounts: number;
+    numReadonlySignerAccounts: number;
+    numReadonlyNonSignerAccounts: number;
+  }>;
+  staticAccounts: readonly string[];
+  instructions: readonly Readonly<{
+    programAddressIndex: number;
+    accountIndices?: readonly number[];
+    data?: ArrayLike<number>;
+  }>[];
+  addressTableLookups?: readonly unknown[];
+}>;
+
+function decodeMessageForWalletCompatibility(bytes: ArrayLike<number>): SupportedCompiledMessage {
+  const decoded = getCompiledTransactionMessageDecoder().decode(Uint8Array.from(bytes));
+  if (decoded.version === 1) throw new Error('版本 1 消息不支持钱包兼容校验。');
+  return decoded as SupportedCompiledMessage;
+}
+
+function instructionMatches(
+  expectedMessage: SupportedCompiledMessage,
+  actualMessage: SupportedCompiledMessage,
+  expectedIndex: number,
+  actualIndex: number,
+): boolean {
+  const expected = expectedMessage.instructions[expectedIndex];
+  const actual = actualMessage.instructions[actualIndex];
+  if (expected === undefined || actual === undefined) return false;
+
+  const expectedProgram = expectedMessage.staticAccounts[expected.programAddressIndex];
+  const actualProgram = actualMessage.staticAccounts[actual.programAddressIndex];
+  if (expectedProgram !== actualProgram) return false;
+
+  const expectedAccounts = (expected.accountIndices ?? []).map(
+    (index) => expectedMessage.staticAccounts[index],
+  );
+  const actualAccounts = (actual.accountIndices ?? []).map(
+    (index) => actualMessage.staticAccounts[index],
+  );
+  if (
+    expectedAccounts.length !== actualAccounts.length ||
+    expectedAccounts.some((account, index) => account !== actualAccounts[index])
+  ) {
+    return false;
+  }
+  return bytesEqual(expected.data ?? [], actual.data ?? []);
+}
+
+function isPhantomLighthouseOnlyModification(
+  expectedBytes: ArrayLike<number>,
+  actualBytes: ArrayLike<number>,
+): boolean {
+  try {
+    const expected = decodeMessageForWalletCompatibility(expectedBytes);
+    const actual = decodeMessageForWalletCompatibility(actualBytes);
+    if (expected.lifetimeToken !== actual.lifetimeToken) return false;
+    if (
+      (expected.addressTableLookups?.length ?? 0) !== 0 ||
+      (actual.addressTableLookups?.length ?? 0) !== 0
+    ) {
+      return false;
+    }
+    if (
+      expected.header.numSignerAccounts !== actual.header.numSignerAccounts ||
+      expected.header.numReadonlySignerAccounts !== actual.header.numReadonlySignerAccounts ||
+      actual.header.numReadonlyNonSignerAccounts !==
+        expected.header.numReadonlyNonSignerAccounts + 1
+    ) {
+      return false;
+    }
+
+    const expectedAccounts = new Set(expected.staticAccounts);
+    const actualAccounts = new Set(actual.staticAccounts);
+    const missingExpected = expected.staticAccounts.filter(
+      (account) => !actualAccounts.has(account),
+    );
+    const addedActual = actual.staticAccounts.filter(
+      (account) => !expectedAccounts.has(account),
+    );
+    if (
+      missingExpected.length !== 0 ||
+      addedActual.length !== 1 ||
+      addedActual[0] !== PHANTOM_LIGHTHOUSE_PROGRAM_ID
+    ) {
+      return false;
+    }
+
+    const actualCoreIndices = actual.instructions
+      .map((instruction, index) => ({ instruction, index }))
+      .filter(
+        ({ instruction }) =>
+          actual.staticAccounts[instruction.programAddressIndex] !==
+          PHANTOM_LIGHTHOUSE_PROGRAM_ID,
+      )
+      .map(({ index }) => index);
+    const lighthouseInstructions = actual.instructions.filter(
+      (instruction) =>
+        actual.staticAccounts[instruction.programAddressIndex] ===
+        PHANTOM_LIGHTHOUSE_PROGRAM_ID,
+    );
+    if (
+      lighthouseInstructions.length === 0 ||
+      actualCoreIndices.length !== expected.instructions.length
+    ) {
+      return false;
+    }
+    return expected.instructions.every((_instruction, index) =>
+      instructionMatches(expected, actual, index, actualCoreIndices[index]!),
+    );
+  } catch {
+    return false;
+  }
 }
 
 function describeMessageMismatch(expected: ArrayLike<number>, actual: ArrayLike<number>): string {
@@ -473,6 +592,7 @@ async function recheckPreparedState(
   prepared: PreparedPublication,
   deadline: OperationDeadline,
   timeoutMs: number,
+  signedMessageBase64 = prepared.messageBase64,
 ): Promise<void> {
   const genesisHash = await runWithTimeout(deadline, timeoutMs, '网络复核', (signal) =>
     rpc.getGenesisHash().send({ abortSignal: signal }),
@@ -492,7 +612,7 @@ async function recheckPreparedState(
 
   const fee = await runWithTimeout(deadline, timeoutMs, '费用复核', (signal) =>
     rpc
-      .getFeeForMessage(prepared.messageBase64, { commitment: 'confirmed' })
+      .getFeeForMessage(signedMessageBase64, { commitment: 'confirmed' })
       .send({ abortSignal: signal }),
   );
   if (fee.value !== prepared.feeLamports) {
@@ -717,7 +837,11 @@ export async function verifySignedGuestbookTransaction({
   prepared: PreparedPublication;
   session: WalletSigningSession;
   signedTransaction: unknown;
-}): Promise<{ readonly signature: string; readonly signedBytes: Uint8Array }> {
+}): Promise<{
+  readonly signature: string;
+  readonly signedBytes: Uint8Array;
+  readonly messageBase64: string;
+}> {
   const preparedBytes = validatePrepared(prepared, session);
   if (!(signedTransaction instanceof Uint8Array)) {
     throw new Error('签名输出不是 Uint8Array。');
@@ -743,7 +867,16 @@ export async function verifySignedGuestbookTransaction({
     throw new Error('签名交易包含尾随字节或结构不一致。');
   }
   if (!bytesEqual(transaction.messageBytes, preparedBytes.messageBytes)) {
-    throw new Error(describeMessageMismatch(preparedBytes.messageBytes, transaction.messageBytes));
+    if (
+      !isPhantomLighthouseOnlyModification(
+        preparedBytes.messageBytes,
+        transaction.messageBytes,
+      )
+    ) {
+      throw new Error(
+        describeMessageMismatch(preparedBytes.messageBytes, transaction.messageBytes),
+      );
+    }
   }
 
   const signatureKeys = Object.keys(transaction.signatures);
@@ -774,6 +907,7 @@ export async function verifySignedGuestbookTransaction({
   return {
     signature: getBase58Decoder().decode(new Uint8Array(signatureBytes)),
     signedBytes: new Uint8Array(signedTransaction),
+    messageBase64: bytesToBase64(new Uint8Array(transaction.messageBytes)),
   };
 }
 
@@ -933,7 +1067,7 @@ export function createPublisher(dependencies: PublisherDependencies): Publisher 
       throwIfStopped(deadline, '签名');
       assertCurrentSession(session, getCurrentSession);
       // 钱包返回后再次核对网络、原 blockhash 有效高度、费用与余额，过期结果直接丢弃。
-      await recheckPreparedState(rpc, prepared, deadline, timeoutMs);
+      await recheckPreparedState(rpc, prepared, deadline, timeoutMs, verified.messageBase64);
       throwIfStopped(deadline, '签名');
       assertCurrentSession(session, getCurrentSession);
 
@@ -1005,7 +1139,7 @@ export function createPublisher(dependencies: PublisherDependencies): Publisher 
       // 在任何异步复核前占住签名槽；否则并发点击可能各自通过检查后重复广播。
       submitInFlight.add(verified.signature);
       try {
-        await recheckPreparedState(rpc, prepared, deadline, timeoutMs);
+        await recheckPreparedState(rpc, prepared, deadline, timeoutMs, verified.messageBase64);
         throwIfStopped(deadline, '提交');
         assertCurrentSession(session, getCurrentSession);
       } catch (error) {
@@ -1034,7 +1168,7 @@ export function createPublisher(dependencies: PublisherDependencies): Publisher 
         try {
           throwIfStopped(deadline, '发送前复核');
           assertCurrentSession(session, getCurrentSession);
-          await recheckPreparedState(rpc, prepared, deadline, timeoutMs);
+          await recheckPreparedState(rpc, prepared, deadline, timeoutMs, verified.messageBase64);
           throwIfStopped(deadline, '发送前复核');
           assertCurrentSession(session, getCurrentSession);
         } catch (error) {

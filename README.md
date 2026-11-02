@@ -58,6 +58,7 @@ npm test
 - **写入**：v0 交易先设置 400000 CU 上限和 0 micro-lamports/CU 优先费价格，再执行一笔向固定板级标记地址的 0 lamports 转账，最后用 Memo4 写入正文。基础网络费由 RPC 估费。
 - **正文协议**：示例为 `{"app":"cyber-guestbook","v":1,"board":"public-mainnet-v1","text":"..."}`；实际 board 由构建网络决定。Memo 指令包含作者签名账户，协议名称保留兼容现有记录。
 - **发布校验**：同一消息用于估费、模拟和签名；钱包返回后检查消息字节一致并实际验签，再复核 genesis、会话、区块高度、费用和余额，通过后只广播一次。未知结果按原签名查询，不自动重签或重发。
+- **钱包兼容**：Phantom 在 Solana 主网自动新增的 Lighthouse 防钓鱼守卫按精确白名单处理。原有 ComputeBudget、System 零转账、Memo、账户引用和 blockhash 必须保持一致，只允许额外加入审计过的 Lighthouse 程序指令；其他修改继续拒绝，并按钱包实际签名消息重新估费。
 - **读取**：按板级标记或作者地址调用 `getSignaturesForAddress`，再用 `getTransaction` 校验候选和 board。分页读取，不扫描整个区块链；不可得记录保留重试入口。
 - **部署**：静态网页托管于 GitHub Pages，前端直连 RPC；使用已有 Solana 程序，无自定义链上程序。
 
